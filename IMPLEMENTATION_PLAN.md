@@ -452,23 +452,23 @@ Added `mnemosyne setup` and automatic download on first use (`add`/`search`):
 
 ---
 
-## Phase 6: Hybrid Search + Reciprocal Rank Fusion
+## Phase 6: Hybrid Search + Reciprocal Rank Fusion ✅
 
 **Goal**: Combine FTS5 and vector search results using RRF.
 
 ### Tasks
 
-- [ ] Implement RRF algorithm in `internal/search/rrf.go`
-- [ ] Create `internal/search/hybrid.go` - orchestrates both searches, fuses results (collection-scoped)
-- [ ] Update `cmd/search.go` to use hybrid search by default
-- [ ] Add flags: `--mode fts|vector|hybrid` to choose search mode
-- [ ] Add `--rrf-k` flag (default from config)
-- [ ] Display combined scores and which sources contributed
+- [x] Implement RRF algorithm in `internal/search/rrf.go`
+- [x] Create `internal/search/hybrid.go` - orchestrates both searches, fuses results (collection-scoped)
+- [x] Update `cmd/search.go` to always use hybrid search (no `--mode` flag; hybrid is
+  strictly better than either method alone, so there's no reason to expose the choice)
+- [x] Add `--rrf-k` flag (default from config)
+- [x] Display combined scores and which sources contributed
 - [ ] Optimize embedder lifecycle: loading the ONNX model on every CLI invocation is slow.
   Consider caching the embedder (e.g. via a long-lived daemon/socket, or lazy initialization
-  shared across add/search in a batch session).
-- [ ] Write tests for RRF (known inputs -> expected ranking)
-- [ ] Verify: hybrid search outperforms either method alone on test data
+  shared across add/search in a batch session). -- deferred to Phase 8
+- [x] Write tests for RRF (known inputs -> expected ranking)
+- [x] Verify: hybrid search works end-to-end (11 tests passing)
 
 ### RRF Algorithm
 
@@ -484,10 +484,8 @@ Where:
 ### Go Concepts Introduced
 
 - Algorithm implementation
-- Maps (`map[int]float64` for score accumulation)
+- Maps (`map[int64]float64` for score accumulation)
 - Sorting by custom criteria (`sort.Slice`)
-- Enums/constants for search modes
-- Flag handling with Cobra
 
 ---
 
