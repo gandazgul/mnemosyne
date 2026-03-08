@@ -13,6 +13,11 @@ vars:
   HF_MODEL_EMBED: "onnx-community/embeddinggemma-300m-ONNX"
   HF_MODEL_RERANK: "cross-encoder/ms-marco-MiniLM-L-6-v2"
   MODELS_DIR: models
+  LIB_DIR: lib
+  # ONNX Runtime version - use 1.23.1 for x86_64 macOS support, 1.24.1+ for arm64 only
+  ONNXRUNTIME_VERSION: "1.23.1"
+  # daulet/tokenizers release version (check go.mod)
+  TOKENIZERS_VERSION: "1.25.0"
 
 tasks:
   default:
@@ -21,6 +26,8 @@ tasks:
 
   build:
     desc: Build the mnemosyne binary
+    env:
+      CGO_LDFLAGS: "-L{{.ROOT_DIR}}/{{.LIB_DIR}}"
     cmds:
       - >-
         go build -tags '{{.BUILD_TAGS}}'
@@ -38,11 +45,15 @@ tasks:
   run:
     desc: Build and run mnemosyne
     deps: [build]
+    env:
+      CGO_LDFLAGS: "-L{{.ROOT_DIR}}/{{.LIB_DIR}}"
     cmds:
       - ./{{.BINARY_NAME}} {{.CLI_ARGS}}
 
   test:
     desc: Run all tests
+    env:
+      CGO_LDFLAGS: "-L{{.ROOT_DIR}}/{{.LIB_DIR}}"
     cmds:
       - go test -tags '{{.BUILD_TAGS}}' -race -v ./...
 
@@ -64,14 +75,77 @@ tasks:
       - >-
         hf download {{.HF_MODEL_EMBED}}
         --local-dir {{.MODELS_DIR}}/embeddinggemma-300m
-        --include "onnx/*" "tokenizer*" "config.json"
+        --include "onnx/model_quantized*"
+        --include "tokenizer*"
+        --include "config.json"
       - >-
         hf download {{.HF_MODEL_RERANK}}
         --local-dir {{.MODELS_DIR}}/ms-marco-MiniLM-L-6-v2
-        --include "onnx/*" "tokenizer*" "config.json"
+        --include "onnx/model.onnx"
+        --include "tokenizer*"
+        --include "config.json"
+
+  download-onnxruntime:
+    desc: Download ONNX Runtime shared library for the current platform
+    vars:
+      # Map to ONNX Runtime naming conventions
+      ORT_ARCH:
+        sh: |
+          arch=$(uname -m)
+          if [ "$arch" = "arm64" ] || [ "$arch" = "aarch64" ]; then
+            echo "arm64"
+          else
+            echo "x86_64"
+          fi
+      ORT_OS:
+        sh: |
+          os=$(uname -s | tr '[:upper:]' '[:lower:]')
+          if [ "$os" = "darwin" ]; then
+            echo "osx"
+          else
+            echo "$os"
+          fi
+      ORT_ARCHIVE:
+        sh: echo "onnxruntime-$(uname -s | tr '[:upper:]' '[:lower:]' | sed 's/darwin/osx/')-$(uname -m | sed 's/x86_64/x86_64/;s/aarch64/arm64/')"
+    cmds:
+      - mkdir -p {{.LIB_DIR}}
+      - echo "Downloading ONNX Runtime v{{.ONNXRUNTIME_VERSION}} for {{.ORT_OS}}-{{.ORT_ARCH}}..."
+      - >-
+        curl -fsSL
+        "https://github.com/microsoft/onnxruntime/releases/download/v{{.ONNXRUNTIME_VERSION}}/onnxruntime-{{.ORT_OS}}-{{.ORT_ARCH}}-{{.ONNXRUNTIME_VERSION}}.tgz"
+        | tar xz -C {{.LIB_DIR}} --strip-components=1
+        --include="*/lib/libonnxruntime*"
+      - echo "ONNX Runtime library installed to {{.LIB_DIR}}/"
+
+  download-tokenizers:
+    desc: Download pre-built libtokenizers for the current platform
+    vars:
+      ARCH:
+        sh: uname -m
+      OS:
+        sh: uname -s | tr '[:upper:]' '[:lower:]'
+      # Build the platform suffix for the release asset
+      PLATFORM:
+        sh: |
+          os=$(uname -s | tr '[:upper:]' '[:lower:]')
+          arch=$(uname -m)
+          if [ "$arch" = "arm64" ]; then
+            arch="aarch64"
+          fi
+          echo "${os}-${arch}"
+    cmds:
+      - mkdir -p {{.LIB_DIR}}
+      - echo "Downloading libtokenizers v{{.TOKENIZERS_VERSION}} for {{.PLATFORM}}..."
+      - >-
+        curl -fsSL
+        "https://github.com/daulet/tokenizers/releases/download/v{{.TOKENIZERS_VERSION}}/libtokenizers.{{.PLATFORM}}.tar.gz"
+        | tar xz -C {{.LIB_DIR}}
+      - echo "libtokenizers installed to {{.LIB_DIR}}/"
 
   setup:
-    desc: Install dependencies and download models
+    desc: Install dependencies, download models and native libraries
     cmds:
       - go mod tidy
+      - task: download-onnxruntime
+      - task: download-tokenizers
       - task: download-models

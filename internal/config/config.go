@@ -17,6 +17,10 @@ type Config struct {
 	// DBPath is the path to the SQLite database file.
 	DBPath string `yaml:"db_path"`
 
+	// OnnxRuntimeLib is the path to the ONNX Runtime shared library.
+	// If empty, the library will try default system paths.
+	OnnxRuntimeLib string `yaml:"onnx_runtime_lib"`
+
 	// Embedding holds configuration for the embedding model.
 	Embedding EmbeddingConfig `yaml:"embedding"`
 
@@ -30,6 +34,7 @@ type Config struct {
 // EmbeddingConfig configures the embedding model.
 type EmbeddingConfig struct {
 	ModelPath      string `yaml:"model_path"`
+	OnnxFile       string `yaml:"onnx_file"`
 	Dimensions     int    `yaml:"dimensions"`
 	MaxSeqLength   int    `yaml:"max_seq_length"`
 	QueryPrefix    string `yaml:"query_prefix"`
@@ -55,9 +60,11 @@ func DefaultConfig() *Config {
 	dataDir := defaultDataDir()
 
 	return &Config{
-		DBPath: filepath.Join(dataDir, "mnemosyne.db"),
+		DBPath:         filepath.Join(dataDir, "mnemosyne.db"),
+		OnnxRuntimeLib: "", // empty means try default system paths
 		Embedding: EmbeddingConfig{
 			ModelPath:      filepath.Join(dataDir, "models", "embeddinggemma-300m"),
+			OnnxFile:       "onnx/model_quantized.onnx",
 			Dimensions:     768,
 			MaxSeqLength:   2048,
 			QueryPrefix:    "task: search result | query: ",

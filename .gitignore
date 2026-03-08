@@ -13,6 +13,9 @@ mnemosyne
 # ONNX models (downloaded separately)
 models/
 
+# Native libraries (downloaded separately)
+lib/
+
 # OS
 .DS_Store
 

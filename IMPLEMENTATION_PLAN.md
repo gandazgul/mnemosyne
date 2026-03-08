@@ -339,22 +339,22 @@ mnemosyne/
 
 ---
 
-## Phase 4: Embedding Model (ONNX)
+## Phase 4: Embedding Model (ONNX) ✅
 
 **Goal**: Generate vector embeddings from text using a local ONNX model.
 
 ### Tasks
 
-- [ ] Add `yalue/onnxruntime_go` dependency
-- [ ] Add tokenizer library dependency (e.g. `daulet/tokenizers`)
-- [ ] Define `Embedder` interface in `internal/embedding/embedder.go`
-- [ ] Implement ONNX-based embedder for EmbeddingGemma-300M
-- [ ] Implement tokenizer wrapper in `internal/embedding/tokenizer.go`
-- [ ] Handle query vs document prefixes from config
-- [ ] Add `download-models` task to `Taskfile.yml` (uses `hf` CLI + HF_TOKEN)
-- [ ] Add `download-onnxruntime` task for the shared library
-- [ ] Write tests for embedding generation (deterministic output check)
-- [ ] Verify: generate embeddings, check dimensions match config
+- [x] Add `yalue/onnxruntime_go` dependency
+- [x] Add tokenizer library dependency (e.g. `daulet/tokenizers`)
+- [x] Define `Embedder` interface in `internal/embedding/embedder.go`
+- [x] Implement ONNX-based embedder for EmbeddingGemma-300M
+- [x] Implement tokenizer wrapper in `internal/embedding/tokenizer.go`
+- [x] Handle query vs document prefixes from config
+- [x] Add `download-models` task to `Taskfile.yml` (uses `hf` CLI + HF_TOKEN)
+- [x] Add `download-onnxruntime` task for the shared library
+- [x] Write tests for embedding generation (deterministic output check)
+- [x] Verify: generate embeddings, check dimensions match config
 
 ### Go Concepts Introduced
 
