@@ -103,84 +103,88 @@ If --name is not provided, the current directory name is used.`,
 			return fmt.Errorf("searching: %w", err)
 		}
 
-		if len(results) == 0 {
-			fmt.Printf("No results for %q in collection %q\n", query, collectionName)
-			return nil
-		}
-
-		// Display results.
-		if plain(formatFlag) {
-			fmt.Printf("Search results for %q in collection %q (%d found)\n",
-				query, collectionName, len(results))
-		} else {
-			fmt.Printf("%s %q in collection %s (%d found)\n",
-				boldWhite("Search results for"),
-				query,
-				boldCyan(collectionName),
-				len(results))
-			fmt.Println(dimWhite(strings.Repeat("─", 60)))
-		}
-
-		for i, r := range results {
-			if debugFlag {
-				// Debug: show scores, sources, and component details.
-				if plain(formatFlag) {
-					fmt.Printf("  %d. [%d] score: %.6f sources: %s\n",
-						i+1, r.DocumentID, r.RRFScore, strings.Join(r.Sources, "+"))
-				} else {
-					fmt.Printf("  %s %s score: %s sources: %s\n",
-						boldWhite(fmt.Sprintf("%d.", i+1)),
-						boldYellow(fmt.Sprintf("[%d]", r.DocumentID)),
-						green(fmt.Sprintf("%.6f", r.RRFScore)),
-						yellow(strings.Join(r.Sources, "+")))
-				}
-
-				// Show component scores for transparency.
-				var details []string
-				for _, src := range r.Sources {
-					switch src {
-					case "fts":
-						details = append(details, fmt.Sprintf("fts_rank=%.4f", r.FTSRank))
-					case "vector":
-						details = append(details, fmt.Sprintf("vec_dist=%.4f", r.VecDistance))
-					}
-				}
-				if len(details) > 0 {
-					if plain(formatFlag) {
-						fmt.Printf("     (%s)\n", strings.Join(details, ", "))
-					} else {
-						fmt.Printf("     %s\n", dimWhite("("+strings.Join(details, ", ")+")"))
-					}
-				}
-			} else {
-				// Normal: show rank and document ID.
-				if plain(formatFlag) {
-					fmt.Printf("  %d. [%d]", i+1, r.DocumentID)
-				} else {
-					fmt.Printf("  %s %s",
-						boldWhite(fmt.Sprintf("%d.", i+1)),
-						boldYellow(fmt.Sprintf("[%d]", r.DocumentID)))
-				}
-			}
-
-			// Content — always shown.
-			fmt.Printf("  %s\n", r.Content)
-
-			// Timestamp — always shown.
-			ts := r.CreatedAt.Format("2006-01-02 15:04:05")
-			if plain(formatFlag) {
-				fmt.Printf("     %s\n", ts)
-			} else {
-				fmt.Printf("     %s\n", dimWhite(ts))
-			}
-
-			if i < len(results)-1 {
-				fmt.Println()
-			}
-		}
-
+		printSearchResults(results, query, collectionName, formatFlag, debugFlag)
 		return nil
 	},
+}
+
+// printSearchResults formats and prints search results to stdout.
+func printSearchResults(results []search.Result, query, collectionName, formatFlag string, debugFlag bool) {
+	if len(results) == 0 {
+		fmt.Printf("No results for %q in collection %q\n", query, collectionName)
+		return
+	}
+
+	// Header.
+	if plain(formatFlag) {
+		fmt.Printf("Search results for %q in collection %q (%d found)\n",
+			query, collectionName, len(results))
+	} else {
+		fmt.Printf("%s %q in collection %s (%d found)\n",
+			boldWhite("Search results for"),
+			query,
+			boldCyan(collectionName),
+			len(results))
+		fmt.Println(dimWhite(strings.Repeat("─", 60)))
+	}
+
+	for i, r := range results {
+		if debugFlag {
+			// Debug: show scores, sources, and component details.
+			if plain(formatFlag) {
+				fmt.Printf("  %d. [%d] score: %.6f sources: %s\n",
+					i+1, r.DocumentID, r.RRFScore, strings.Join(r.Sources, "+"))
+			} else {
+				fmt.Printf("  %s %s score: %s sources: %s\n",
+					boldWhite(fmt.Sprintf("%d.", i+1)),
+					boldYellow(fmt.Sprintf("[%d]", r.DocumentID)),
+					green(fmt.Sprintf("%.6f", r.RRFScore)),
+					yellow(strings.Join(r.Sources, "+")))
+			}
+
+			// Show component scores for transparency.
+			var details []string
+			for _, src := range r.Sources {
+				switch src {
+				case "fts":
+					details = append(details, fmt.Sprintf("fts_rank=%.4f", r.FTSRank))
+				case "vector":
+					details = append(details, fmt.Sprintf("vec_dist=%.4f", r.VecDistance))
+				}
+			}
+			if len(details) > 0 {
+				if plain(formatFlag) {
+					fmt.Printf("     (%s)\n", strings.Join(details, ", "))
+				} else {
+					fmt.Printf("     %s\n", dimWhite("("+strings.Join(details, ", ")+")"))
+				}
+			}
+		} else {
+			// Normal: show rank and document ID.
+			if plain(formatFlag) {
+				fmt.Printf("  %d. [%d]", i+1, r.DocumentID)
+			} else {
+				fmt.Printf("  %s %s",
+					boldWhite(fmt.Sprintf("%d.", i+1)),
+					boldYellow(fmt.Sprintf("[%d]", r.DocumentID)))
+			}
+		}
+
+		// Content — always shown.
+		fmt.Printf("  %s\n", r.Content)
+
+		// Timestamp — always shown.
+		ts := r.CreatedAt.Format("2006-01-02 15:04:05")
+		if plain(formatFlag) {
+			fmt.Printf("     %s\n", ts)
+		} else {
+			fmt.Printf("     %s\n", dimWhite(ts))
+		}
+
+		if i < len(results)-1 {
+			fmt.Println()
+		}
+	}
 }
 
 func init() {
