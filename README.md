@@ -1,4 +1,4 @@
-# Mnemosyne
+# [Mnemosyne](https://en.wikipedia.org/wiki/Mnemosyne)
 
 A local document storage and retrieval CLI tool built in Go. Store small
 documents (sentences to paragraphs) and retrieve them using hybrid search:
