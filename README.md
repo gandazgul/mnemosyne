@@ -137,6 +137,10 @@ diagrams, database schema, search pipeline details, and Go concepts covered per 
 | Reranker model   | ms-marco-MiniLM-L-6-v2 (configurable) |
 | Task runner      | [Task](https://taskfile.dev/)    |
 
+## Acknowledgements
+
+Built with the help of [OpenCode](https://opencode.ai/) using Claude Opus and Gemini.
+
 ## License
 
 MIT
