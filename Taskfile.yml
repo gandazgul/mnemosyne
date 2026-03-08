@@ -3,6 +3,13 @@ version: '3'
 vars:
   BINARY_NAME: mnemosyne
   BUILD_TAGS: "sqlite_fts5"
+  LDFLAGS_PKG: "github.com/gandazgul/mnemosyne/cmd"
+  VERSION:
+    sh: git describe --tags --always --dirty 2>/dev/null || echo "dev"
+  COMMIT:
+    sh: git rev-parse --short HEAD 2>/dev/null || echo "none"
+  DATE:
+    sh: date -u '+%Y-%m-%dT%H:%M:%SZ'
   HF_MODEL_EMBED: "onnx-community/embeddinggemma-300m-ONNX"
   HF_MODEL_RERANK: "cross-encoder/ms-marco-MiniLM-L-6-v2"
   MODELS_DIR: models
@@ -15,7 +22,12 @@ tasks:
   build:
     desc: Build the mnemosyne binary
     cmds:
-      - go build -tags '{{.BUILD_TAGS}}' -o {{.BINARY_NAME}} .
+      - >-
+        go build -tags '{{.BUILD_TAGS}}'
+        -ldflags "-X {{.LDFLAGS_PKG}}.Version={{.VERSION}}
+        -X {{.LDFLAGS_PKG}}.Commit={{.COMMIT}}
+        -X {{.LDFLAGS_PKG}}.Date={{.DATE}}"
+        -o {{.BINARY_NAME}} .
     sources:
       - ./**/*.go
       - go.mod
