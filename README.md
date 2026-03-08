@@ -12,7 +12,7 @@ All ML inference runs locally via ONNX Runtime. No cloud APIs required.
 - **Document storage** in SQLite with metadata support
 - **Full-text search** via SQLite FTS5 with BM25 ranking
 - **Vector search** via sqlite-vec with cosine similarity
-- **Hybrid search** combining both via Reciprocal Rank Fusion (RRF) *(coming soon)*
+- **Hybrid search** combining both via Reciprocal Rank Fusion (RRF)
 - **Local reranking** with a cross-encoder model (ONNX Runtime) *(coming soon)*
 - **Automatic setup** -- downloads ONNX Runtime and ML models on first use (~500 MB one-time)
 - **Configurable models** -- swap embedding or reranker models via config
@@ -55,9 +55,8 @@ task build
 ./mnemosyne add "Rust focuses on memory safety and zero-cost abstractions"
 ./mnemosyne add --file notes.txt
 
-# Search documents
-./mnemosyne search "programming language"              # vector search (default)
-./mnemosyne search --mode fts "memory safety"           # FTS5 + BM25 ranking
+# Search documents (hybrid: FTS5 + vector, fused with RRF)
+./mnemosyne search "programming language"
 ./mnemosyne search --limit 5 "systems programming"
 
 # List documents
@@ -119,7 +118,7 @@ mnemosyne/
 │   ├── list.go               # List documents
 │   ├── delete.go             # Delete a document by ID
 │   ├── forget.go             # Delete an entire collection
-│   ├── search.go             # Search (FTS5 or vector, --mode flag)
+│   ├── search.go             # Search (hybrid: FTS5 + vector + RRF)
 │   ├── setup.go              # Download ONNX Runtime + ML models
 │   └── helpers.go            # Shared helpers (resolve collection, open DB/embedder)
 ├── internal/
@@ -140,7 +139,9 @@ mnemosyne/
 │   │   ├── download.go       # HTTP download with resume + checksum
 │   │   └── setup.go          # Orchestration (Check, Run, EnsureReady)
 │   ├── reranker/             # ONNX cross-encoder reranker (Phase 7)
-│   └── search/               # Hybrid search + RRF (Phase 6)
+│   └── search/               # Hybrid search + RRF
+│       ├── hybrid.go         # Search engine (orchestrates FTS + vector + RRF)
+│       └── rrf.go            # Reciprocal Rank Fusion algorithm
 ├── models/                   # ONNX model files (gitignored)
 ├── lib/                      # Native libraries (gitignored)
 ├── main.go                   # Entry point
@@ -156,7 +157,7 @@ mnemosyne/
 - [x] **Phase 3**: Full-text search (FTS5 + BM25)
 - [x] **Phase 4**: Embedding model (ONNX Runtime)
 - [x] **Phase 5**: Vector storage + search (sqlite-vec)
-- [ ] **Phase 6**: Hybrid search + Reciprocal Rank Fusion
+- [x] **Phase 6**: Hybrid search + Reciprocal Rank Fusion
 - [ ] **Phase 7**: Cross-encoder reranker
 - [ ] **Phase 8**: Polish and extras
 - [ ] **Phase 9**: GitHub CI/CD + versioned releases
