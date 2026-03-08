@@ -246,27 +246,27 @@ mnemosyne/
 
 ---
 
-## Phase 1: Skeleton CLI + Project Setup
+## Phase 1: Skeleton CLI + Project Setup ✅
 
 **Goal**: A working Go CLI that builds, runs, and prints a hello message. Includes the
 `init` command for creating collections.
 
 ### Tasks
 
-- [ ] Initialize Go module (`github.com/gandazgul/mnemosyne`)
-- [ ] Install Cobra dependency
-- [ ] Create `main.go` entry point
-- [ ] Create `cmd/root.go` with root command (prints welcome message)
-- [ ] Create `cmd/version.go` subcommand
-- [ ] Create `cmd/init.go` - `mnemosyne init [--name <collection>]`
+- [x] Initialize Go module (`github.com/gandazgul/mnemosyne`)
+- [x] Install Cobra dependency
+- [x] Create `main.go` entry point
+- [x] Create `cmd/root.go` with root command (prints welcome message)
+- [x] Create `cmd/version.go` subcommand
+- [x] Create `cmd/init.go` - `mnemosyne init [--name <collection>]`
   - If `--name` is not provided, use the base name of the current working directory
   - Creates a new collection in the database (or confirms it already exists)
   - Prints the collection name on success
-- [ ] Create `Taskfile.yml` with `build`, `test`, and `clean` tasks
-- [ ] Create `.gitignore`
-- [ ] Verify: `task build` succeeds, `./mnemosyne` prints hello, `./mnemosyne version` works
-- [ ] Verify: `./mnemosyne init` creates a collection named after the cwd
-- [ ] Verify: `./mnemosyne init --name myproject` creates a collection named "myproject"
+- [x] Create `Taskfile.yml` with `build`, `test`, and `clean` tasks
+- [x] Create `.gitignore`
+- [x] Verify: `task build` succeeds, `./mnemosyne` prints hello, `./mnemosyne version` works
+- [x] Verify: `./mnemosyne init` creates a collection named after the cwd
+- [x] Verify: `./mnemosyne init --name myproject` creates a collection named "myproject"
 
 ### Go Concepts Introduced
 
@@ -280,27 +280,27 @@ mnemosyne/
 
 ---
 
-## Phase 2: SQLite + Document Storage
+## Phase 2: SQLite + Document Storage ✅
 
 **Goal**: Store and retrieve documents in SQLite, scoped to collections.
 
 ### Tasks
 
-- [ ] Add `mattn/go-sqlite3` dependency
-- [ ] Create `internal/config/config.go` with DB path and model settings
-- [ ] Create `internal/db/sqlite.go` - DB initialization, connection, schema migration
+- [x] Add `mattn/go-sqlite3` dependency
+- [x] Create `internal/config/config.go` with DB path and model settings
+- [x] Create `internal/db/sqlite.go` - DB initialization, connection, schema migration
   - Schema includes `collections` and `documents` tables with foreign key
-- [ ] Create `internal/db/collections.go` - Create, GetByName, List, Delete collections
-- [ ] Create `internal/db/documents.go` - Insert, List, Delete, GetByID (all scoped to collection_id)
-- [ ] Implement `cmd/add.go` - `mnemosyne add [--name <collection>] "some text"` and `--file path`
+- [x] Create `internal/db/collections.go` - Create, GetByName, List, Delete collections
+- [x] Create `internal/db/documents.go` - Insert, List, Delete, GetByID (all scoped to collection_id)
+- [x] Implement `cmd/add.go` - `mnemosyne add [--name <collection>] "some text"` and `--file path`
   - Resolves collection by `--name` flag or cwd base name
   - Errors if the collection does not exist (must `init` first)
-- [ ] Implement `cmd/list.go` - `mnemosyne list [--name <collection>]` with optional `--limit`
+- [x] Implement `cmd/list.go` - `mnemosyne list [--name <collection>]` with optional `--limit`
   - Resolves collection by `--name` flag or cwd base name
-- [ ] Implement `cmd/delete.go` - `mnemosyne delete <id>`
-- [ ] Update `Taskfile.yml` build to include `-tags "sqlite_fts5"` (prep for Phase 3)
-- [ ] Write tests for collections CRUD and document CRUD operations
-- [ ] Verify: init, add, list, delete all work end-to-end within a collection
+- [x] Implement `cmd/delete.go` - `mnemosyne delete <id>`
+- [x] Update `Taskfile.yml` build to include `-tags "sqlite_fts5"` (prep for Phase 3)
+- [x] Write tests for collections CRUD and document CRUD operations
+- [x] Verify: init, add, list, delete all work end-to-end within a collection
 
 ### Go Concepts Introduced
 
@@ -313,22 +313,22 @@ mnemosyne/
 
 ---
 
-## Phase 3: Full-Text Search (FTS5)
+## Phase 3: Full-Text Search (FTS5) ✅
 
 **Goal**: Search documents by keyword using SQLite FTS5 with BM25 ranking, scoped to a collection.
 
 ### Tasks
 
-- [ ] Create FTS5 virtual table + sync triggers in schema migration
-- [ ] Create `internal/db/fts.go` - FTS5 search query returning ranked results
+- [x] Create FTS5 virtual table + sync triggers in schema migration
+- [x] Create `internal/db/fts.go` - FTS5 search query returning ranked results
   - Join with `documents` table to filter by `collection_id`
-- [ ] Implement `cmd/search.go` - `mnemosyne search [--name <collection>] "query"` (FTS5 only for now)
+- [x] Implement `cmd/search.go` - `mnemosyne search [--name <collection>] "query"` (FTS5 only for now)
   - Resolves collection by `--name` flag or cwd base name
   - Errors if the collection does not exist
-- [ ] Display results with BM25 scores and document snippets
-- [ ] Handle edge cases: empty results, special characters in queries
-- [ ] Write tests for FTS5 search (including collection scoping)
-- [ ] Verify: search returns relevant results ranked by BM25 within the correct collection
+- [x] Display results with BM25 scores and document snippets
+- [x] Handle edge cases: empty results, special characters in queries
+- [x] Write tests for FTS5 search (including collection scoping)
+- [x] Verify: search returns relevant results ranked by BM25 within the correct collection
 
 ### Go Concepts Introduced
 

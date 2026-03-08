@@ -42,6 +42,29 @@ task build
 
 # Check version
 ./mnemosyne version
+
+# Initialize a collection (uses current directory name by default)
+./mnemosyne init
+
+# Add documents
+./mnemosyne add "Go is a statically typed programming language"
+./mnemosyne add "Rust focuses on memory safety and zero-cost abstractions"
+./mnemosyne add --file notes.txt
+
+# Search documents (FTS5 + BM25 ranking)
+./mnemosyne search "programming language"
+./mnemosyne search --limit 5 "memory safety"
+
+# List documents
+./mnemosyne list
+
+# Delete a document by ID
+./mnemosyne delete 1
+
+# Use a named collection
+./mnemosyne init --name myproject
+./mnemosyne add --name myproject "some text"
+./mnemosyne search --name myproject "some query"
 ```
 
 ## Available Tasks
@@ -61,13 +84,25 @@ task setup            # Install deps + download models
 mnemosyne/
 ├── cmd/                      # CLI commands (Cobra)
 │   ├── root.go               # Root command + welcome message
-│   └── version.go            # version subcommand
-├── internal/                 # Internal packages (added in later phases)
-│   ├── config/               # Configuration loading
-│   ├── db/                   # SQLite, FTS5, sqlite-vec
-│   ├── embedding/            # ONNX embedding model
-│   ├── reranker/             # ONNX cross-encoder reranker
-│   └── search/               # Hybrid search + RRF
+│   ├── version.go            # version subcommand
+│   ├── init.go               # Initialize a collection
+│   ├── add.go                # Add a document
+│   ├── list.go               # List documents
+│   ├── delete.go             # Delete a document by ID
+│   ├── forget.go             # Delete an entire collection
+│   ├── search.go             # Full-text search (FTS5 + BM25)
+│   └── helpers.go            # Shared helpers (resolve collection, open DB)
+├── internal/
+│   ├── config/
+│   │   └── config.go         # Configuration loading + defaults
+│   ├── db/
+│   │   ├── sqlite.go         # DB init, migrations, connection
+│   │   ├── collections.go    # CRUD for collections table
+│   │   ├── documents.go      # CRUD for documents table
+│   │   └── fts.go            # FTS5 full-text search queries
+│   ├── embedding/            # ONNX embedding model (Phase 4)
+│   ├── reranker/             # ONNX cross-encoder reranker (Phase 7)
+│   └── search/               # Hybrid search + RRF (Phase 6)
 ├── models/                   # ONNX model files (gitignored)
 ├── main.go                   # Entry point
 ├── Taskfile.yml              # Build/test/run tasks
@@ -78,8 +113,8 @@ mnemosyne/
 ## Implementation Status
 
 - [x] **Phase 1**: Skeleton CLI + project setup
-- [ ] **Phase 2**: SQLite + document storage (CRUD)
-- [ ] **Phase 3**: Full-text search (FTS5 + BM25)
+- [x] **Phase 2**: SQLite + document storage (CRUD)
+- [x] **Phase 3**: Full-text search (FTS5 + BM25)
 - [ ] **Phase 4**: Embedding model (ONNX Runtime)
 - [ ] **Phase 5**: Vector storage + search (sqlite-vec)
 - [ ] **Phase 6**: Hybrid search + Reciprocal Rank Fusion

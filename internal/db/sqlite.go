@@ -101,6 +101,34 @@ func (db *DB) migrate() error {
 		// within a collection.
 		`CREATE INDEX IF NOT EXISTS idx_documents_collection
 			ON documents(collection_id)`,
+
+		// FTS5 virtual table for full-text search with BM25 ranking.
+		// content=documents means this is a "content sync" (external content) table
+		// that mirrors the documents table. content_rowid=id maps FTS rowids to
+		// documents.id so we can join back to the source table.
+		`CREATE VIRTUAL TABLE IF NOT EXISTS docs_fts USING fts5(
+			content,
+			content=documents,
+			content_rowid=id
+		)`,
+
+		// Trigger: keep FTS index in sync after INSERT on documents.
+		`CREATE TRIGGER IF NOT EXISTS docs_fts_ai AFTER INSERT ON documents BEGIN
+			INSERT INTO docs_fts(rowid, content) VALUES (new.id, new.content);
+		END`,
+
+		// Trigger: keep FTS index in sync after DELETE on documents.
+		// The special 'delete' command tells FTS5 to remove the old entry.
+		`CREATE TRIGGER IF NOT EXISTS docs_fts_ad AFTER DELETE ON documents BEGIN
+			INSERT INTO docs_fts(docs_fts, rowid, content) VALUES('delete', old.id, old.content);
+		END`,
+
+		// Trigger: keep FTS index in sync after UPDATE on documents.
+		// Delete the old entry, then insert the new one.
+		`CREATE TRIGGER IF NOT EXISTS docs_fts_au AFTER UPDATE ON documents BEGIN
+			INSERT INTO docs_fts(docs_fts, rowid, content) VALUES('delete', old.id, old.content);
+			INSERT INTO docs_fts(rowid, content) VALUES (new.id, new.content);
+		END`,
 	}
 
 	for _, m := range migrations {
