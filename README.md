@@ -120,6 +120,7 @@ mnemosyne/
 - [ ] **Phase 6**: Hybrid search + Reciprocal Rank Fusion
 - [ ] **Phase 7**: Cross-encoder reranker
 - [ ] **Phase 8**: Polish and extras
+- [ ] **Phase 9**: GitHub CI/CD + versioned releases
 
 See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) for the full plan with architecture
 diagrams, database schema, search pipeline details, and Go concepts covered per phase.
