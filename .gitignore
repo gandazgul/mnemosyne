@@ -1,0 +1,20 @@
+# Build artifacts
+mnemosyne
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# ONNX models (downloaded separately)
+models/
+
+# OS
+.DS_Store
+
+# Config with secrets
+.env

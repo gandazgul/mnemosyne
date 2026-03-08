@@ -1,0 +1,65 @@
+version: '3'
+
+vars:
+  BINARY_NAME: mnemosyne
+  BUILD_TAGS: "sqlite_fts5"
+  HF_MODEL_EMBED: "onnx-community/embeddinggemma-300m-ONNX"
+  HF_MODEL_RERANK: "cross-encoder/ms-marco-MiniLM-L-6-v2"
+  MODELS_DIR: models
+
+tasks:
+  default:
+    desc: Build the binary
+    deps: [build]
+
+  build:
+    desc: Build the mnemosyne binary
+    cmds:
+      - go build -tags '{{.BUILD_TAGS}}' -o {{.BINARY_NAME}} .
+    sources:
+      - ./**/*.go
+      - go.mod
+      - go.sum
+    generates:
+      - "{{.BINARY_NAME}}"
+
+  run:
+    desc: Build and run mnemosyne
+    deps: [build]
+    cmds:
+      - ./{{.BINARY_NAME}} {{.CLI_ARGS}}
+
+  test:
+    desc: Run all tests
+    cmds:
+      - go test -tags '{{.BUILD_TAGS}}' -race -v ./...
+
+  lint:
+    desc: Run linter
+    cmds:
+      - golangci-lint run ./...
+
+  clean:
+    desc: Remove build artifacts
+    cmds:
+      - rm -f {{.BINARY_NAME}}
+
+  download-models:
+    desc: Download ONNX models from HuggingFace (requires hf CLI and HF_TOKEN)
+    cmds:
+      - mkdir -p {{.MODELS_DIR}}/embeddinggemma-300m
+      - mkdir -p {{.MODELS_DIR}}/ms-marco-MiniLM-L-6-v2
+      - >-
+        hf download {{.HF_MODEL_EMBED}}
+        --local-dir {{.MODELS_DIR}}/embeddinggemma-300m
+        --include "onnx/*" "tokenizer*" "config.json"
+      - >-
+        hf download {{.HF_MODEL_RERANK}}
+        --local-dir {{.MODELS_DIR}}/ms-marco-MiniLM-L-6-v2
+        --include "onnx/*" "tokenizer*" "config.json"
+
+  setup:
+    desc: Install dependencies and download models
+    cmds:
+      - go mod tidy
+      - task: download-models
