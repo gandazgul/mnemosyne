@@ -66,6 +66,13 @@ is used as the collection name.`,
 			}
 		}
 
+		// Delete vectors first. sqlite-vec virtual tables don't participate in
+		// CASCADE deletes, so we must clean them up explicitly before the
+		// collection (and its documents) are removed.
+		// We ignore errors here because the vector table may not exist yet
+		// (e.g. if no documents were ever added with embeddings).
+		_ = database.DeleteVectorsByCollection(collection.ID)
+
 		if err := database.DeleteCollection(collectionName); err != nil {
 			return fmt.Errorf("deleting collection: %w", err)
 		}

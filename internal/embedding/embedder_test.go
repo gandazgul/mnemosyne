@@ -21,11 +21,11 @@ func testModelsDir(t *testing.T) string {
 	modelsDir := filepath.Join(projectRoot, "models")
 
 	// Check if embedding model directory exists with required files.
-	embedDir := filepath.Join(modelsDir, "embeddinggemma-300m")
+	embedDir := filepath.Join(modelsDir, "snowflake-arctic-embed-m-v1.5")
 	if _, err := os.Stat(filepath.Join(embedDir, "tokenizer.json")); err != nil {
 		t.Skipf("Skipping: embedding model not found at %s (run 'task download-models')", embedDir)
 	}
-	if _, err := os.Stat(filepath.Join(embedDir, "onnx", "model_quantized.onnx")); err != nil {
+	if _, err := os.Stat(filepath.Join(embedDir, "onnx", "model.onnx")); err != nil {
 		t.Skipf("Skipping: ONNX model not found at %s (run 'task download-models')", embedDir)
 	}
 
@@ -71,16 +71,62 @@ func testEmbedderConfig(t *testing.T) config.EmbeddingConfig {
 	modelsDir := testModelsDir(t)
 
 	return config.EmbeddingConfig{
-		ModelPath:      filepath.Join(modelsDir, "embeddinggemma-300m"),
-		OnnxFile:       "onnx/model_quantized.onnx",
-		Dimensions:     768,
-		MaxSeqLength:   2048,
-		QueryPrefix:    "task: search result | query: ",
-		DocumentPrefix: "title: none | text: ",
+		ModelPath:       filepath.Join(modelsDir, "snowflake-arctic-embed-m-v1.5"),
+		OnnxFile:        "onnx/model.onnx",
+		Dimensions:      256,
+		MaxSeqLength:    512,
+		QueryPrefix:     "Represent this sentence for searching relevant passages: ",
+		DocumentPrefix:  "",
+		Pooling:         config.PoolingNone,
+		OnnxInputNames:  []string{"input_ids", "attention_mask"},
+		OnnxOutputNames: []string{"sentence_embedding"},
 	}
 }
 
 // --- Unit tests for math operations (no model needed) ---
+
+func TestClsPool(t *testing.T) {
+	// Batch of 1, seq_len=3, hidden_dim=2
+	// Token 0 (CLS): [1, 2], Token 1: [3, 4], Token 2: [5, 6]
+	hiddenStates := []float32{1, 2, 3, 4, 5, 6}
+
+	result := clsPool(hiddenStates, 0, 3, 2)
+
+	// Expected: first token [1, 2]
+	expected := []float32{1.0, 2.0}
+	for i, val := range result {
+		if math.Abs(float64(val)-float64(expected[i])) > 1e-6 {
+			t.Errorf("result[%d] = %f, want %f", i, val, expected[i])
+		}
+	}
+}
+
+func TestClsPool_Batch(t *testing.T) {
+	// Batch of 2, seq_len=2, hidden_dim=2
+	// Batch 0: [1, 2], [3, 4]  -> CLS [1, 2]
+	// Batch 1: [10, 20], [30, 40]  -> CLS [10, 20]
+	hiddenStates := []float32{
+		1, 2, 3, 4, // batch 0
+		10, 20, 30, 40, // batch 1
+	}
+
+	result0 := clsPool(hiddenStates, 0, 2, 2)
+	result1 := clsPool(hiddenStates, 1, 2, 2)
+
+	expected0 := []float32{1.0, 2.0}
+	expected1 := []float32{10.0, 20.0}
+
+	for i := range expected0 {
+		if math.Abs(float64(result0[i])-float64(expected0[i])) > 1e-6 {
+			t.Errorf("batch0[%d] = %f, want %f", i, result0[i], expected0[i])
+		}
+	}
+	for i := range expected1 {
+		if math.Abs(float64(result1[i])-float64(expected1[i])) > 1e-6 {
+			t.Errorf("batch1[%d] = %f, want %f", i, result1[i], expected1[i])
+		}
+	}
+}
 
 func TestL2Normalize(t *testing.T) {
 	v := []float32{3.0, 4.0}
@@ -182,9 +228,9 @@ func TestMeanPool_Batch(t *testing.T) {
 
 func TestTokenizer_Encode(t *testing.T) {
 	modelsDir := testModelsDir(t)
-	modelDir := filepath.Join(modelsDir, "embeddinggemma-300m")
+	modelDir := filepath.Join(modelsDir, "snowflake-arctic-embed-m-v1.5")
 
-	tok, err := NewTokenizer(modelDir, 2048)
+	tok, err := NewTokenizer(modelDir, 512)
 	if err != nil {
 		t.Fatalf("NewTokenizer: %v", err)
 	}
@@ -204,11 +250,21 @@ func TestTokenizer_Encode(t *testing.T) {
 	if len(enc.AttentionMask) != enc.Length {
 		t.Errorf("AttentionMask length %d != Length %d", len(enc.AttentionMask), enc.Length)
 	}
+	if len(enc.TokenTypeIDs) != enc.Length {
+		t.Errorf("TokenTypeIDs length %d != Length %d", len(enc.TokenTypeIDs), enc.Length)
+	}
 
 	// All attention mask values should be 1 (no padding for a single encode).
 	for i, m := range enc.AttentionMask {
 		if m != 1 {
 			t.Errorf("AttentionMask[%d] = %d, want 1", i, m)
+		}
+	}
+
+	// All token_type_ids should be 0 for single-sentence encoding.
+	for i, tt := range enc.TokenTypeIDs {
+		if tt != 0 {
+			t.Errorf("TokenTypeIDs[%d] = %d, want 0", i, tt)
 		}
 	}
 
@@ -218,7 +274,7 @@ func TestTokenizer_Encode(t *testing.T) {
 
 func TestTokenizer_Truncation(t *testing.T) {
 	modelsDir := testModelsDir(t)
-	modelDir := filepath.Join(modelsDir, "embeddinggemma-300m")
+	modelDir := filepath.Join(modelsDir, "snowflake-arctic-embed-m-v1.5")
 
 	// Create tokenizer with very short max length.
 	tok, err := NewTokenizer(modelDir, 5)
@@ -239,9 +295,9 @@ func TestTokenizer_Truncation(t *testing.T) {
 
 func TestTokenizer_EncodeBatch(t *testing.T) {
 	modelsDir := testModelsDir(t)
-	modelDir := filepath.Join(modelsDir, "embeddinggemma-300m")
+	modelDir := filepath.Join(modelsDir, "snowflake-arctic-embed-m-v1.5")
 
-	tok, err := NewTokenizer(modelDir, 2048)
+	tok, err := NewTokenizer(modelDir, 512)
 	if err != nil {
 		t.Fatalf("NewTokenizer: %v", err)
 	}
@@ -542,12 +598,15 @@ func TestONNXEmbedder_MRLTruncation(t *testing.T) {
 
 	// Test with reduced dimensions (MRL truncation).
 	cfg := config.EmbeddingConfig{
-		ModelPath:      filepath.Join(modelsDir, "embeddinggemma-300m"),
-		OnnxFile:       "onnx/model_quantized.onnx",
-		Dimensions:     256, // Truncated from 768
-		MaxSeqLength:   2048,
-		QueryPrefix:    "task: search result | query: ",
-		DocumentPrefix: "title: none | text: ",
+		ModelPath:       filepath.Join(modelsDir, "snowflake-arctic-embed-m-v1.5"),
+		OnnxFile:        "onnx/model.onnx",
+		Dimensions:      128, // Truncated from 768
+		MaxSeqLength:    512,
+		QueryPrefix:     "Represent this sentence for searching relevant passages: ",
+		DocumentPrefix:  "",
+		Pooling:         config.PoolingNone,
+		OnnxInputNames:  []string{"input_ids", "attention_mask"},
+		OnnxOutputNames: []string{"sentence_embedding"},
 	}
 
 	embedder, err := NewONNXEmbedder(cfg)
@@ -561,8 +620,8 @@ func TestONNXEmbedder_MRLTruncation(t *testing.T) {
 		t.Fatalf("Embed: %v", err)
 	}
 
-	if len(embedding) != 256 {
-		t.Errorf("embedding dimensions = %d, want 256", len(embedding))
+	if len(embedding) != 128 {
+		t.Errorf("embedding dimensions = %d, want 128", len(embedding))
 	}
 
 	// Should still be L2-normalized after truncation.
@@ -590,7 +649,7 @@ func TestONNXEmbedder_Dimensions(t *testing.T) {
 	}
 	defer embedder.Close()
 
-	if embedder.Dimensions() != 768 {
-		t.Errorf("Dimensions() = %d, want 768", embedder.Dimensions())
+	if embedder.Dimensions() != 256 {
+		t.Errorf("Dimensions() = %d, want 256", embedder.Dimensions())
 	}
 }

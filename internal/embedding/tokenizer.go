@@ -43,7 +43,8 @@ func NewTokenizer(modelDir string, maxSeqLen int) (*Tokenizer, error) {
 type EncodedInput struct {
 	InputIDs      []int64
 	AttentionMask []int64
-	Length        int // actual token count (before padding)
+	TokenTypeIDs  []int64 // all zeros for single-sentence encoding (BERT models)
+	Length        int     // actual token count (before padding)
 }
 
 // Encode tokenizes a single text string and returns input_ids and
@@ -73,6 +74,7 @@ func (t *Tokenizer) Encode(text string) (*EncodedInput, error) {
 	// Convert uint32 -> int64 for ONNX Runtime.
 	inputIDs := make([]int64, tokenLen)
 	attentionMask := make([]int64, tokenLen)
+	tokenTypeIDs := make([]int64, tokenLen) // all zeros for single-sentence
 	for i := 0; i < tokenLen; i++ {
 		inputIDs[i] = int64(ids[i])
 		attentionMask[i] = int64(mask[i])
@@ -81,6 +83,7 @@ func (t *Tokenizer) Encode(text string) (*EncodedInput, error) {
 	return &EncodedInput{
 		InputIDs:      inputIDs,
 		AttentionMask: attentionMask,
+		TokenTypeIDs:  tokenTypeIDs,
 		Length:        tokenLen,
 	}, nil
 }
@@ -113,6 +116,7 @@ func (t *Tokenizer) EncodeBatch(texts []string) ([]*EncodedInput, int, error) {
 			padLen := maxLen - enc.Length
 			enc.InputIDs = append(enc.InputIDs, make([]int64, padLen)...)
 			enc.AttentionMask = append(enc.AttentionMask, make([]int64, padLen)...)
+			enc.TokenTypeIDs = append(enc.TokenTypeIDs, make([]int64, padLen)...)
 		}
 	}
 

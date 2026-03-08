@@ -10,7 +10,7 @@ vars:
     sh: git rev-parse --short HEAD 2>/dev/null || echo "none"
   DATE:
     sh: date -u '+%Y-%m-%dT%H:%M:%SZ'
-  HF_MODEL_EMBED: "onnx-community/embeddinggemma-300m-ONNX"
+  HF_MODEL_EMBED: "Snowflake/snowflake-arctic-embed-m-v1.5"
   HF_MODEL_RERANK: "cross-encoder/ms-marco-MiniLM-L-6-v2"
   MODELS_DIR: models
   LIB_DIR: lib
@@ -68,14 +68,14 @@ tasks:
       - rm -f {{.BINARY_NAME}}
 
   download-models:
-    desc: Download ONNX models from HuggingFace (requires hf CLI and HF_TOKEN)
+    desc: Download ONNX models from HuggingFace
     cmds:
-      - mkdir -p {{.MODELS_DIR}}/embeddinggemma-300m
+      - mkdir -p {{.MODELS_DIR}}/snowflake-arctic-embed-m-v1.5/onnx
       - mkdir -p {{.MODELS_DIR}}/ms-marco-MiniLM-L-6-v2
       - >-
         hf download {{.HF_MODEL_EMBED}}
-        --local-dir {{.MODELS_DIR}}/embeddinggemma-300m
-        --include "onnx/model_quantized*"
+        --local-dir {{.MODELS_DIR}}/snowflake-arctic-embed-m-v1.5
+        --include "onnx/model.onnx"
         --include "tokenizer*"
         --include "config.json"
       - >-

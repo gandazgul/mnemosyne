@@ -43,9 +43,9 @@ via `--name <collection>`, or defaults to the base name of the current working d
 │              ML Inference Layer                      │
 │  ONNX Runtime (yalue/onnxruntime_go)                │
 │  ┌─────────────────────┐ ┌────────────────────────┐ │
-│  │ Embedding Model     │ │ Reranker Model         │ │
-│  │ EmbeddingGemma-300M │ │ ms-marco-MiniLM-L-6   │ │
-│  │ (768-dim, config.)  │ │ (cross-encoder)        │ │
+│  │ Embedding Model          │ │ Reranker Model         │ │
+│  │ snowflake-arctic-embed   │ │ ms-marco-MiniLM-L-6   │ │
+│  │ -m-v1.5 (256-dim, MRL)  │ │ (cross-encoder)        │ │
 │  └─────────────────────┘ └────────────────────────┘ │
 └─────────────────────────────────────────────────────┘
 ```
@@ -72,11 +72,13 @@ variables, or CLI flags. Example:
 db_path: "~/.local/share/mnemosyne/mnemosyne.db"
 
 embedding:
-  model_path: "~/.local/share/mnemosyne/models/embeddinggemma-300m"
-  dimensions: 768            # supports MRL truncation: 768, 512, 256, 128
-  max_seq_length: 2048
-  query_prefix: "task: search result | query: "
-  document_prefix: "title: none | text: "
+  model_path: "~/.local/share/mnemosyne/models/snowflake-arctic-embed-m-v1.5"
+  onnx_file: "onnx/model.onnx"
+  dimensions: 256            # supports MRL truncation: 768, 512, 256, 128
+  max_seq_length: 512
+  query_prefix: "Represent this sentence for searching relevant passages: "
+  document_prefix: ""
+  pooling: "none"            # model provides pre-pooled sentence_embedding output
 
 reranker:
   model_path: "~/.local/share/mnemosyne/models/ms-marco-MiniLM-L-6-v2"
@@ -87,9 +89,6 @@ search:
   rrf_k: 60                 # RRF constant
   top_k: 10                 # results to return
   rerank_candidates: 50     # candidates to pass to reranker
-
-huggingface:
-  token: ""                  # or set HF_TOKEN env var
 ```
 
 ## Database Schema
@@ -136,12 +135,15 @@ END;
 -- sqlite-vec virtual table for vector search (dimension from config)
 CREATE VIRTUAL TABLE IF NOT EXISTS docs_vec USING vec0(
     document_id INTEGER PRIMARY KEY,
-    embedding float[768] distance_metric=cosine
+    collection_id INTEGER,
+    embedding float[256] distance_metric=cosine
 );
 ```
 
-**Note**: FTS5 and sqlite-vec tables are global (not per-collection). Queries filter
-by collection by joining through the `documents` table on `collection_id`.
+**Note**: FTS5 is global (not per-collection) and filters by collection via a JOIN
+through the `documents` table on `collection_id`. The `docs_vec` virtual table uses a
+`collection_id` metadata column, allowing sqlite-vec KNN queries to filter by collection
+during the scan itself (more efficient than post-filtering).
 
 ## Search Pipeline
 
@@ -189,18 +191,28 @@ type Reranker interface {
 
 ## ONNX Models
 
-### Embedding: EmbeddingGemma-300M (default, configurable)
+### Embedding: snowflake-arctic-embed-m-v1.5 (default, configurable)
 
-- HuggingFace: `google/embeddinggemma-300m`
-- ONNX: `onnx-community/embeddinggemma-300m-ONNX`
-- Dimensions: 768 (MRL truncatable to 512, 256, 128)
-- Max sequence length: 2048 tokens
-- Requires HuggingFace token for download (gated model)
-- Uses task-specific prefixes for queries vs documents
+- HuggingFace: `Snowflake/snowflake-arctic-embed-m-v1.5`
+- License: Apache 2.0 (no gating, no authentication required)
+- Parameters: 109M
+- Dimensions: 768 (MRL truncatable to 512, 256, 128; default: 256)
+- Max sequence length: 512 tokens
+- ONNX inputs: `input_ids`, `attention_mask` (2 inputs only, no `token_type_ids`)
+- ONNX outputs: `sentence_embedding` (pre-pooled), `token_embeddings`
+- Pooling: None (uses pre-pooled `sentence_embedding` output directly)
+- Query prefix: `"Represent this sentence for searching relevant passages: "`
+- MTEB Retrieval NDCG@10: 55.1
+
+> **Note**: The project originally used `google/embeddinggemma-300m` but switched
+> to snowflake because embeddinggemma is a gated model requiring HuggingFace
+> account + token. The snowflake model has better retrieval quality, is openly
+> licensed, and includes ONNX files in the HF repo.
 
 ### Reranker: ms-marco-MiniLM-L-6-v2 (default, configurable)
 
 - HuggingFace: `cross-encoder/ms-marco-MiniLM-L-6-v2`
+- License: Apache 2.0 (no gating, no authentication required)
 - Input: tokenized (query + document) pair
 - Output: relevance score (float32)
 - Max sequence length: 512 tokens
@@ -216,7 +228,10 @@ mnemosyne/
 │   ├── search.go             # mnemosyne search --name <collection> "query"
 │   ├── list.go               # mnemosyne list --name <collection>
 │   ├── delete.go             # mnemosyne delete <id>
-│   └── version.go            # mnemosyne version
+│   ├── forget.go             # mnemosyne forget <collection>
+│   ├── setup.go              # mnemosyne setup (download runtime + models)
+│   ├── version.go            # mnemosyne version
+│   └── helpers.go            # Shared helpers (openDB, openEmbedder, etc.)
 ├── internal/
 │   ├── config/
 │   │   └── config.go         # YAML config loading, model paths, dimensions
@@ -228,13 +243,18 @@ mnemosyne/
 │   │   └── vectors.go        # sqlite-vec insert/query (collection-scoped)
 │   ├── embedding/
 │   │   ├── embedder.go       # Embedder interface + ONNX implementation
-│   │   └── tokenizer.go      # Text tokenization
+│   │   └── tokenizer.go      # HuggingFace tokenizer wrapper
+│   ├── setup/
+│   │   ├── platform.go       # Platform detection, URL construction
+│   │   ├── download.go       # HTTP download with resume + checksum
+│   │   └── setup.go          # Orchestration (Check, Run, EnsureReady)
 │   ├── reranker/
 │   │   └── reranker.go       # Reranker interface + ONNX implementation
 │   └── search/
 │       ├── hybrid.go         # Orchestrates FTS + vector search
 │       └── rrf.go            # Reciprocal Rank Fusion
 ├── models/                   # ONNX model files (gitignored)
+├── lib/                      # Native libraries (gitignored)
 ├── main.go                   # Entry point
 ├── go.mod
 ├── go.sum
@@ -346,41 +366,82 @@ mnemosyne/
 ### Tasks
 
 - [x] Add `yalue/onnxruntime_go` dependency
-- [x] Add tokenizer library dependency (e.g. `daulet/tokenizers`)
+- [x] Add tokenizer library dependency (`daulet/tokenizers`)
 - [x] Define `Embedder` interface in `internal/embedding/embedder.go`
-- [x] Implement ONNX-based embedder for EmbeddingGemma-300M
+- [x] Implement ONNX-based embedder (supports mean, CLS, and none pooling modes)
 - [x] Implement tokenizer wrapper in `internal/embedding/tokenizer.go`
 - [x] Handle query vs document prefixes from config
-- [x] Add `download-models` task to `Taskfile.yml` (uses `hf` CLI + HF_TOKEN)
+- [x] Add `download-models` task to `Taskfile.yml`
 - [x] Add `download-onnxruntime` task for the shared library
 - [x] Write tests for embedding generation (deterministic output check)
 - [x] Verify: generate embeddings, check dimensions match config
+
+### Model Switch: EmbeddingGemma → Snowflake
+
+Originally used `google/embeddinggemma-300m`, but switched to
+`Snowflake/snowflake-arctic-embed-m-v1.5` because:
+
+- **EmbeddingGemma is gated** -- requires HuggingFace account, license acceptance, and
+  `HF_TOKEN` env var. Not viable for friction-free distribution.
+- **Snowflake is Apache 2.0** -- no auth needed, ONNX files included in HF repo.
+- **Better retrieval quality** -- MTEB Retrieval NDCG@10 = 55.1.
+- **ONNX model differences**: The snowflake model has only 2 inputs (`input_ids`,
+  `attention_mask`), no `token_type_ids`. It provides a pre-pooled `sentence_embedding`
+  output (shape `[batch, 768]`), so we use `PoolingNone` mode and read it directly.
+
+### Setup Command
+
+Added `mnemosyne setup` and automatic download on first use (`add`/`search`):
+
+- `internal/setup/` package handles platform detection, HTTP downloads (with resume),
+  SHA-256 checksum verification, and tarball extraction for ONNX Runtime.
+- `cmd/setup.go` provides the `mnemosyne setup` command with status display.
+- `cmd/helpers.go` calls `setup.EnsureReady()` before loading the embedder.
+- No HuggingFace token required. All downloads are unauthenticated.
 
 ### Go Concepts Introduced
 
 - CGO / FFI (ONNX Runtime native library)
 - Interfaces and implementations
 - `[]float32` slices, binary serialization
-- Environment variables (`HF_TOKEN`)
-- Config-driven behavior
+- Config-driven behavior (pooling modes, ONNX node names)
+- HTTP downloads with resume (`Range` header) and checksum verification
+- Platform detection (`runtime.GOOS`, `runtime.GOARCH`)
+- Archive extraction (`archive/tar`, `compress/gzip`)
 
 ---
 
-## Phase 5: Vector Storage + Search (sqlite-vec)
+## Phase 5: Vector Storage + Search (sqlite-vec) ✅
 
 **Goal**: Store document embeddings and perform KNN vector search.
 
 ### Tasks
 
-- [ ] Add `asg017/sqlite-vec-go-bindings/cgo` dependency
-- [ ] Create `internal/db/vectors.go` - insert/query vectors via sqlite-vec
-- [ ] Create `docs_vec` virtual table with dimension from config + cosine distance
-- [ ] On `mnemosyne add`: embed document content and store vector alongside document
-- [ ] On `mnemosyne search`: embed query, run KNN search via `MATCH` operator, filter by collection
-- [ ] Display vector search results with cosine distances
-- [ ] Handle re-embedding when model/dimensions change (migration strategy)
-- [ ] Write tests for vector insert and KNN query
-- [ ] Verify: vector search returns semantically similar results
+- [x] Add `asg017/sqlite-vec-go-bindings/cgo` dependency
+- [x] Register sqlite-vec extension via `sqlite_vec.Auto()` in `internal/db/sqlite.go`
+- [x] Create `internal/db/vectors.go` - insert/query vectors via sqlite-vec
+  - `EnsureVectorTable(dimension)` creates `docs_vec` with cosine distance + collection_id metadata column
+  - `InsertVector`, `SearchVectors`, `DeleteVector`, `DeleteVectorsByCollection`
+  - `SerializeFloat32` for binary encoding of `[]float32` to sqlite-vec format
+- [x] On `mnemosyne add`: embed document content and store vector alongside document
+- [x] On `mnemosyne search`: embed query, run KNN search via `MATCH` operator, filter by collection
+  - Added `--mode fts|vector` flag (default: vector)
+- [x] Display vector search results with cosine distances
+- [x] Vector cleanup on delete: `cmd/delete.go` calls `DeleteVector`, `cmd/forget.go` calls `DeleteVectorsByCollection`
+- [ ] Handle re-embedding when model/dimensions change (migration strategy) -- deferred to Phase 8
+- [x] Write tests for vector insert and KNN query (13 tests in `vectors_test.go`)
+- [x] Verify: vector search returns semantically similar results
+
+### Design Decisions
+
+- **Collection filtering via metadata column**: `docs_vec` includes `collection_id INTEGER` as a sqlite-vec
+  metadata column, allowing KNN queries to filter by collection during the scan itself (more efficient
+  than post-filtering via a join, which would return global top-k then discard wrong-collection results).
+- **`EnsureVectorTable` instead of `Open()` parameter**: The vector table creation is opt-in via
+  `db.EnsureVectorTable(dim)` rather than baked into `db.Open()`. Commands that don't need vectors
+  (init, list, delete) don't need to know about embedding dimensions.
+- **Embedder loaded per command**: Each `add`/`search` invocation loads the ONNX model. Acceptable for
+  Phase 5 but should be optimized in Phase 6 (see note there).
 
 ### Go Concepts Introduced
 
@@ -403,6 +464,9 @@ mnemosyne/
 - [ ] Add flags: `--mode fts|vector|hybrid` to choose search mode
 - [ ] Add `--rrf-k` flag (default from config)
 - [ ] Display combined scores and which sources contributed
+- [ ] Optimize embedder lifecycle: loading the ONNX model on every CLI invocation is slow.
+  Consider caching the embedder (e.g. via a long-lived daemon/socket, or lazy initialization
+  shared across add/search in a batch session).
 - [ ] Write tests for RRF (known inputs -> expected ranking)
 - [ ] Verify: hybrid search outperforms either method alone on test data
 
@@ -546,7 +610,7 @@ Push tag v*.*.*
 | 1     | Modules, packages, imports, `main()`, basic types, Cobra          |
 | 2     | `database/sql`, CGO, error handling, structs, methods, testing     |
 | 3     | SQL queries, formatting output, slices, sorting                    |
-| 4     | CGO/FFI (ONNX), interfaces, float32 arrays, env vars, config      |
+| 4     | CGO/FFI (ONNX), interfaces, float32 arrays, config, HTTP, tar/gz  |
 | 5     | Binary data, type assertions, serialization                        |
 | 6     | Algorithms, maps, custom sorting, enums, flags                     |
 | 7     | Struct composition, goroutines (optional), benchmarking            |

@@ -16,11 +16,23 @@ import (
 	"os"
 	"path/filepath"
 
+	// Import sqlite-vec CGO bindings. Auto() registers the sqlite-vec extension
+	// as an auto-loaded extension with mattn/go-sqlite3, so every new connection
+	// gets vector search functions (vec0, vec_version, etc.) available.
+	sqlite_vec "github.com/asg017/sqlite-vec-go-bindings/cgo"
+
 	// Import the SQLite driver. The underscore means we import it only for its
 	// side effect: registering itself as a database/sql driver named "sqlite3".
 	// This is a common Go pattern for database drivers.
 	_ "github.com/mattn/go-sqlite3"
 )
+
+func init() {
+	// Register sqlite-vec as an auto-loaded extension. This must happen before
+	// any sql.Open("sqlite3", ...) call. Auto() tells mattn/go-sqlite3 to load
+	// the sqlite-vec extension into every new SQLite connection automatically.
+	sqlite_vec.Auto()
+}
 
 // DB wraps a *sql.DB connection and provides access to repositories.
 type DB struct {

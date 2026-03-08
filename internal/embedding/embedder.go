@@ -62,13 +62,15 @@ func DestroyONNXRuntime() error {
 // --- ONNXEmbedder implementation ---
 
 // ONNXEmbedder implements Embedder using an ONNX model via ONNX Runtime.
-// It performs tokenization, inference, mean pooling, and L2 normalization.
+// It performs tokenization, inference, pooling (mean or CLS), and L2 normalization.
 type ONNXEmbedder struct {
 	session        *ort.DynamicAdvancedSession
 	tokenizer      *Tokenizer
 	dimensions     int
 	queryPrefix    string
 	documentPrefix string
+	pooling        config.PoolingMethod
+	hasTokenTypes  bool // true if session was created with token_type_ids input
 }
 
 // NewONNXEmbedder creates a new ONNX-based embedder from the given config.
@@ -83,16 +85,49 @@ func NewONNXEmbedder(cfg config.EmbeddingConfig) (*ONNXEmbedder, error) {
 	// Resolve ONNX model file path.
 	modelFile := filepath.Join(cfg.ModelPath, cfg.OnnxFile)
 
+	// Determine ONNX input names from config or defaults.
+	inputNames := cfg.OnnxInputNames
+	if len(inputNames) == 0 {
+		inputNames = []string{"input_ids", "attention_mask"}
+		if cfg.Pooling == config.PoolingCLS {
+			inputNames = append(inputNames, "token_type_ids")
+		}
+	}
+
+	// Check if token_type_ids is among the inputs.
+	hasTokenTypes := false
+	for _, name := range inputNames {
+		if name == "token_type_ids" {
+			hasTokenTypes = true
+			break
+		}
+	}
+
+	// Determine ONNX output names from config or defaults.
+	outputNames := cfg.OnnxOutputNames
+	if len(outputNames) == 0 {
+		if cfg.Pooling == config.PoolingNone {
+			outputNames = []string{"sentence_embedding"}
+		} else {
+			outputNames = []string{"last_hidden_state"}
+		}
+	}
+
 	// Create a dynamic ONNX session (supports variable-length inputs).
 	session, err := ort.NewDynamicAdvancedSession(
 		modelFile,
-		[]string{"input_ids", "attention_mask"},
-		[]string{"last_hidden_state"},
+		inputNames,
+		outputNames,
 		nil, // default session options
 	)
 	if err != nil {
 		tokenizer.Close()
 		return nil, fmt.Errorf("create ONNX session for %s: %w", modelFile, err)
+	}
+
+	pooling := cfg.Pooling
+	if pooling == "" {
+		pooling = config.PoolingMean // backward compat
 	}
 
 	return &ONNXEmbedder{
@@ -101,6 +136,8 @@ func NewONNXEmbedder(cfg config.EmbeddingConfig) (*ONNXEmbedder, error) {
 		dimensions:     cfg.Dimensions,
 		queryPrefix:    cfg.QueryPrefix,
 		documentPrefix: cfg.DocumentPrefix,
+		pooling:        pooling,
+		hasTokenTypes:  hasTokenTypes,
 	}, nil
 }
 
@@ -151,7 +188,7 @@ func (e *ONNXEmbedder) Close() error {
 }
 
 // embedTexts is the core implementation that handles tokenization, inference,
-// mean pooling, L2 normalization, and optional MRL dimension truncation.
+// pooling (mean or CLS), L2 normalization, and optional MRL dimension truncation.
 func (e *ONNXEmbedder) embedTexts(texts []string) ([][]float32, error) {
 	if len(texts) == 0 {
 		return nil, fmt.Errorf("empty text batch")
@@ -169,9 +206,11 @@ func (e *ONNXEmbedder) embedTexts(texts []string) ([][]float32, error) {
 	// Flatten encoded inputs into contiguous arrays for ONNX tensors.
 	flatIDs := make([]int64, batchSize*seqLen)
 	flatMask := make([]int64, batchSize*seqLen)
+	flatTokenTypes := make([]int64, batchSize*seqLen) // all zeros
 	for i, enc := range encoded {
 		copy(flatIDs[int64(i)*seqLen:], enc.InputIDs)
 		copy(flatMask[int64(i)*seqLen:], enc.AttentionMask)
+		copy(flatTokenTypes[int64(i)*seqLen:], enc.TokenTypeIDs)
 	}
 
 	// Create ONNX input tensors.
@@ -189,12 +228,20 @@ func (e *ONNXEmbedder) embedTexts(texts []string) ([][]float32, error) {
 	}
 	defer maskTensor.Destroy()
 
+	// Build input list: always input_ids + attention_mask, optionally token_type_ids.
+	inputs := []ort.Value{idsTensor, maskTensor}
+	if e.hasTokenTypes {
+		tokenTypeTensor, err := ort.NewTensor(inputShape, flatTokenTypes)
+		if err != nil {
+			return nil, fmt.Errorf("create token_type_ids tensor: %w", err)
+		}
+		defer tokenTypeTensor.Destroy()
+		inputs = append(inputs, tokenTypeTensor)
+	}
+
 	// Run inference. Output is auto-allocated by ONNX Runtime.
 	outputs := []ort.Value{nil}
-	err = e.session.Run(
-		[]ort.Value{idsTensor, maskTensor},
-		outputs,
-	)
+	err = e.session.Run(inputs, outputs)
 	if err != nil {
 		return nil, fmt.Errorf("ONNX inference: %w", err)
 	}
@@ -204,12 +251,8 @@ func (e *ONNXEmbedder) embedTexts(texts []string) ([][]float32, error) {
 		}
 	}()
 
-	// Extract output data. Expected shape: [batch_size, seq_len, hidden_dim].
+	// Extract output data.
 	outputShape := outputs[0].GetShape()
-	if len(outputShape) != 3 {
-		return nil, fmt.Errorf("unexpected output shape: expected 3 dimensions, got %d", len(outputShape))
-	}
-	hiddenDim := int(outputShape[2])
 
 	// Type-assert to get the float32 data.
 	outputTensor, ok := outputs[0].(*ort.Tensor[float32])
@@ -218,23 +261,61 @@ func (e *ONNXEmbedder) embedTexts(texts []string) ([][]float32, error) {
 	}
 	outputData := outputTensor.GetData()
 
-	// Perform mean pooling and L2 normalization for each text in the batch.
+	// Perform pooling and L2 normalization for each text in the batch.
 	results := make([][]float32, batchSize)
-	for i := int64(0); i < batchSize; i++ {
-		embedding := meanPool(outputData, flatMask, i, seqLen, hiddenDim)
-		l2Normalize(embedding)
 
-		// MRL dimension truncation: if configured dimensions < hidden_dim,
-		// truncate the embedding and re-normalize.
-		if e.dimensions < hiddenDim {
-			embedding = embedding[:e.dimensions]
+	switch {
+	case e.pooling == config.PoolingNone && len(outputShape) == 2:
+		// Pre-pooled output: shape [batch_size, hidden_dim].
+		hiddenDim := int(outputShape[1])
+		for i := int64(0); i < batchSize; i++ {
+			embedding := make([]float32, hiddenDim)
+			copy(embedding, outputData[i*int64(hiddenDim):(i+1)*int64(hiddenDim)])
 			l2Normalize(embedding)
+
+			if e.dimensions < hiddenDim {
+				embedding = embedding[:e.dimensions]
+				l2Normalize(embedding)
+			}
+			results[i] = embedding
 		}
 
-		results[i] = embedding
+	case len(outputShape) == 3:
+		// Token-level output: shape [batch_size, seq_len, hidden_dim].
+		hiddenDim := int(outputShape[2])
+		for i := int64(0); i < batchSize; i++ {
+			var embedding []float32
+			switch e.pooling {
+			case config.PoolingCLS:
+				embedding = clsPool(outputData, i, seqLen, hiddenDim)
+			default: // PoolingMean
+				embedding = meanPool(outputData, flatMask, i, seqLen, hiddenDim)
+			}
+			l2Normalize(embedding)
+
+			// MRL dimension truncation: if configured dimensions < hidden_dim,
+			// truncate the embedding and re-normalize.
+			if e.dimensions < hiddenDim {
+				embedding = embedding[:e.dimensions]
+				l2Normalize(embedding)
+			}
+			results[i] = embedding
+		}
+
+	default:
+		return nil, fmt.Errorf("unexpected output shape: %v (pooling=%s)", outputShape, e.pooling)
 	}
 
 	return results, nil
+}
+
+// clsPool extracts the [CLS] token's hidden state (first token, index 0)
+// as the sentence embedding. Used by BERT-family models like Snowflake Arctic.
+func clsPool(hiddenStates []float32, batchIdx, seqLen int64, hiddenDim int) []float32 {
+	pooled := make([]float32, hiddenDim)
+	baseOffset := batchIdx * seqLen * int64(hiddenDim)
+	copy(pooled, hiddenStates[baseOffset:baseOffset+int64(hiddenDim)])
+	return pooled
 }
 
 // meanPool performs mean pooling over the sequence dimension, using the

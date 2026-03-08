@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/gandazgul/mnemosyne/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -17,6 +18,9 @@ var addCmd = &cobra.Command{
 
 Text can be provided as a positional argument, read from a file with --file,
 or piped via stdin with --stdin.
+
+The document is embedded using the configured ONNX model and stored alongside
+its vector representation for semantic search.
 
 The collection must already exist (use 'mnemosyne init' first).
 If --name is not provided, the current directory name is used.`,
@@ -64,11 +68,19 @@ If --name is not provided, the current directory name is used.`,
 			return err
 		}
 
+		// Load config (needed for embedder and vector table dimensions).
+		cfg := config.Load()
+
 		database, err := openDB()
 		if err != nil {
 			return err
 		}
 		defer database.Close()
+
+		// Ensure the vector table exists with the configured embedding dimensions.
+		if err := database.EnsureVectorTable(cfg.Embedding.Dimensions); err != nil {
+			return fmt.Errorf("ensuring vector table: %w", err)
+		}
 
 		collection, err := database.GetCollectionByName(collectionName)
 		if err != nil {
@@ -79,10 +91,28 @@ If --name is not provided, the current directory name is used.`,
 				collectionName, collectionName)
 		}
 
+		// Initialize the embedder to generate a vector for this document.
+		embedder, err := openEmbedder(cfg)
+		if err != nil {
+			return fmt.Errorf("loading embedding model: %w", err)
+		}
+		defer embedder.Close()
+
+		// Generate the document embedding using the document prefix.
+		vec, err := embedder.EmbedDocument(content)
+		if err != nil {
+			return fmt.Errorf("embedding document: %w", err)
+		}
+
 		// Insert the document.
 		doc, err := database.InsertDocument(collection.ID, content, nil)
 		if err != nil {
 			return fmt.Errorf("adding document: %w", err)
+		}
+
+		// Store the embedding vector alongside the document.
+		if err := database.InsertVector(doc.ID, collection.ID, vec); err != nil {
+			return fmt.Errorf("storing embedding: %w", err)
 		}
 
 		// Show a preview: first 80 characters.
@@ -91,7 +121,8 @@ If --name is not provided, the current directory name is used.`,
 			preview = preview[:80] + "..."
 		}
 
-		fmt.Printf("Added document %d to collection %q\n", doc.ID, collectionName)
+		fmt.Printf("Added document %d to collection %q (embedded %d dims)\n",
+			doc.ID, collectionName, len(vec))
 		fmt.Printf("  %s\n", preview)
 
 		return nil

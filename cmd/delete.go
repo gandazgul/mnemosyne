@@ -11,7 +11,7 @@ import (
 var deleteCmd = &cobra.Command{
 	Use:   "delete <id>",
 	Short: "Delete a document by ID",
-	Long:  `Remove a document from the database by its numeric ID.`,
+	Long:  `Remove a document and its embedding vector from the database by its numeric ID.`,
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		id, err := strconv.ParseInt(args[0], 10, 64)
@@ -33,6 +33,11 @@ var deleteCmd = &cobra.Command{
 		if doc == nil {
 			return fmt.Errorf("document %d not found", id)
 		}
+
+		// Delete the embedding vector first (sqlite-vec doesn't support CASCADE).
+		// We ignore errors here because the document may not have a vector
+		// (e.g. documents added before Phase 5).
+		_ = database.DeleteVector(id)
 
 		if err := database.DeleteDocument(id); err != nil {
 			return fmt.Errorf("deleting document: %w", err)
