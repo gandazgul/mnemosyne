@@ -61,7 +61,7 @@ func (db *DB) GetDocumentByID(id int64) (*Document, error) {
 
 // ListDocuments returns documents in a collection, ordered by creation time (newest first).
 // Use limit <= 0 for no limit.
-func (db *DB) ListDocuments(collectionID int64, limit int) ([]Document, error) {
+func (db *DB) ListDocuments(collectionID int64, limit int) (docs []Document, err error) {
 	query := `
 		SELECT id, collection_id, content, metadata, created_at
 		FROM documents
@@ -69,7 +69,6 @@ func (db *DB) ListDocuments(collectionID int64, limit int) ([]Document, error) {
 		ORDER BY id DESC`
 
 	var rows *sql.Rows
-	var err error
 
 	if limit > 0 {
 		query += " LIMIT ?"
@@ -81,9 +80,12 @@ func (db *DB) ListDocuments(collectionID int64, limit int) ([]Document, error) {
 	if err != nil {
 		return nil, fmt.Errorf("listing documents: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if cerr := rows.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
-	var docs []Document
 	for rows.Next() {
 		var doc Document
 		if err := rows.Scan(&doc.ID, &doc.CollectionID, &doc.Content, &doc.Metadata, &doc.CreatedAt); err != nil {

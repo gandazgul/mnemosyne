@@ -81,20 +81,23 @@ type CollectionInfo struct {
 }
 
 // ListCollections returns all collections with their document counts.
-func (db *DB) ListCollections() ([]CollectionInfo, error) {
+func (db *DB) ListCollections() (collections []CollectionInfo, err error) {
 	rows, err := db.conn.Query(`
 		SELECT c.id, c.name, c.created_at, COUNT(d.id) as doc_count
 		FROM collections c
 		LEFT JOIN documents d ON d.collection_id = c.id
-		GROUP BY c.id
+		GROUP BY c.id, c.name, c.created_at
 		ORDER BY c.name
 	`)
 	if err != nil {
 		return nil, fmt.Errorf("listing collections: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if cerr := rows.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
-	var collections []CollectionInfo
 	for rows.Next() {
 		var ci CollectionInfo
 		if err := rows.Scan(&ci.ID, &ci.Name, &ci.CreatedAt, &ci.DocumentCount); err != nil {

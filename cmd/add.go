@@ -20,7 +20,7 @@ or piped via stdin with --stdin.
 
 The collection must already exist (use 'mnemosyne init' first).
 If --name is not provided, the current directory name is used.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		nameFlag, _ := cmd.Flags().GetString("name")
 		fileFlag, _ := cmd.Flags().GetString("file")
 		stdinFlag, _ := cmd.Flags().GetBool("stdin")
@@ -68,7 +68,11 @@ If --name is not provided, the current directory name is used.`,
 		if err != nil {
 			return err
 		}
-		defer database.Close()
+		defer func() {
+			if cerr := database.Close(); cerr != nil && err == nil {
+				err = cerr
+			}
+		}()
 
 		collection, err := database.GetCollectionByName(collectionName)
 		if err != nil {

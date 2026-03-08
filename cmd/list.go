@@ -15,7 +15,7 @@ var listCmd = &cobra.Command{
 
 If --name is not provided, the current directory name is used.
 Use --limit to restrict the number of results.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		nameFlag, _ := cmd.Flags().GetString("name")
 		limitFlag, _ := cmd.Flags().GetInt("limit")
 
@@ -28,7 +28,11 @@ Use --limit to restrict the number of results.`,
 		if err != nil {
 			return err
 		}
-		defer database.Close()
+		defer func() {
+			if cerr := database.Close(); cerr != nil && err == nil {
+				err = cerr
+			}
+		}()
 
 		collection, err := database.GetCollectionByName(collectionName)
 		if err != nil {
