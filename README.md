@@ -120,7 +120,8 @@ mnemosyne/
 │   ├── forget.go             # Delete an entire collection
 │   ├── search.go             # Search (hybrid: FTS5 + vector + RRF)
 │   ├── setup.go              # Download ONNX Runtime + ML models
-│   └── helpers.go            # Shared helpers (resolve collection, open DB/embedder)
+│   ├── helpers.go            # Shared helpers (resolve collection, open DB/embedder)
+│   └── format.go             # Output format validation + color helpers
 ├── internal/
 │   ├── config/
 │   │   └── config.go         # Configuration loading + defaults
@@ -178,6 +179,19 @@ diagrams, database schema, search pipeline details, and Go concepts covered per 
 | Embedding model  | snowflake-arctic-embed-m-v1.5 (256-dim, Apache 2.0) |
 | Reranker model   | ms-marco-MiniLM-L-6-v2 (cross-encoder) |
 | Task runner      | [Task](https://taskfile.dev/)    |
+
+## OpenCode Integration
+
+Mnemosyne integrates with [OpenCode](https://opencode.ai/) via the
+[opencode-mnemosyne](https://github.com/gandazgul/opencode-mnemosyne) plugin,
+giving your AI coding agent persistent memory across sessions -- entirely local,
+no cloud APIs.
+
+The plugin provides `memory_recall`, `memory_store`, `memory_delete` (plus global
+variants) and automatically injects memory instructions during context compaction.
+
+See the [plugin README](https://github.com/gandazgul/opencode-mnemosyne) for
+full details.
 
 ## Acknowledgements
 

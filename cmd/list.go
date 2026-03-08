@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -18,6 +19,14 @@ Use --limit to restrict the number of results.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		nameFlag, _ := cmd.Flags().GetString("name")
 		limitFlag, _ := cmd.Flags().GetInt("limit")
+		formatFlag, _ := cmd.Flags().GetString("format")
+
+		if err := validateFormat(formatFlag); err != nil {
+			return err
+		}
+		if plain(formatFlag) {
+			color.NoColor = true
+		}
 
 		collectionName, err := resolveCollectionName(nameFlag)
 		if err != nil {
@@ -54,16 +63,31 @@ Use --limit to restrict the number of results.`,
 			return fmt.Errorf("counting documents: %w", err)
 		}
 
-		fmt.Printf("Collection %q (%d documents)\n", collectionName, count)
-		fmt.Println(strings.Repeat("-", 60))
+		if plain(formatFlag) {
+			fmt.Printf("Collection %q (%d documents)\n", collectionName, count)
+		} else {
+			fmt.Printf("Collection %s (%d documents)\n",
+				boldCyan(collectionName), count)
+			fmt.Println(dimWhite(strings.Repeat("─", 60)))
+		}
 
 		for _, doc := range docs {
 			preview := doc.Content
 			if len(preview) > 80 {
 				preview = preview[:80] + "..."
 			}
-			fmt.Printf("  [%d]  %s\n", doc.ID, preview)
-			fmt.Printf("        added %s\n", doc.CreatedAt.Format("2006-01-02 15:04:05"))
+
+			ts := doc.CreatedAt.Format("2006-01-02 15:04:05")
+
+			if plain(formatFlag) {
+				fmt.Printf("  [%d]  %s\n", doc.ID, preview)
+				fmt.Printf("        %s\n", ts)
+			} else {
+				fmt.Printf("  %s  %s\n",
+					boldYellow(fmt.Sprintf("[%d]", doc.ID)),
+					preview)
+				fmt.Printf("        %s\n", dimWhite(ts))
+			}
 		}
 
 		if limitFlag > 0 && int64(limitFlag) < count {
@@ -77,5 +101,6 @@ Use --limit to restrict the number of results.`,
 func init() {
 	listCmd.Flags().String("name", "", "collection name (defaults to current directory name)")
 	listCmd.Flags().Int("limit", 20, "maximum number of documents to show")
+	listCmd.Flags().String("format", "color", "output format: color (default) or plain")
 	rootCmd.AddCommand(listCmd)
 }

@@ -27,6 +27,11 @@ type Options struct {
 	// RRF fusion produces the final top-Limit results.
 	// If zero, defaults to Limit.
 	ReRankCandidates int
+
+	// Threshold is the minimum RRF score a result must have to be included.
+	// Results with an RRFScore below this value are discarded.
+	// If zero, no threshold filtering is applied.
+	Threshold float64
 }
 
 // Engine performs hybrid search combining FTS5 and vector similarity,
@@ -137,6 +142,17 @@ func (e *Engine) Search(opts Options) ([]Result, error) {
 
 	// Sort by RRF score descending.
 	SortByRRFScore(results)
+
+	// Filter by threshold.
+	if opts.Threshold > 0 {
+		filtered := results[:0]
+		for _, r := range results {
+			if r.RRFScore >= opts.Threshold {
+				filtered = append(filtered, r)
+			}
+		}
+		results = filtered
+	}
 
 	// Trim to the requested limit.
 	if opts.Limit > 0 && len(results) > opts.Limit {

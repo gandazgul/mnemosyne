@@ -62,6 +62,19 @@ tasks:
     cmds:
       - golangci-lint run ./...
 
+  install:
+    desc: Install mnemosyne to $GOPATH/bin
+    env:
+      CGO_LDFLAGS: "-L{{.ROOT_DIR}}/{{.LIB_DIR}}"
+    cmds:
+      - >-
+        go install -tags '{{.BUILD_TAGS}}'
+        -ldflags "-X {{.LDFLAGS_PKG}}.Version={{.VERSION}}
+        -X {{.LDFLAGS_PKG}}.Commit={{.COMMIT}}
+        -X {{.LDFLAGS_PKG}}.Date={{.DATE}}"
+        .
+      - echo "Installed mnemosyne to $(go env GOPATH)/bin/mnemosyne"
+
   clean:
     desc: Remove build artifacts
     cmds:
