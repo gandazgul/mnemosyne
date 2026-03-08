@@ -18,7 +18,7 @@ is used as the collection name.
 
 This command is idempotent: running it again for an existing collection
 simply confirms it exists.`,
-	RunE: func(cmd *cobra.Command, args []string) (err error) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		nameFlag, _ := cmd.Flags().GetString("name")
 
 		collectionName, err := resolveCollectionName(nameFlag)
@@ -30,11 +30,7 @@ simply confirms it exists.`,
 		if err != nil {
 			return err
 		}
-		defer func() {
-			if cerr := database.Close(); cerr != nil && err == nil {
-				err = cerr
-			}
-		}()
+		defer database.Close()
 
 		collection, created, err := database.GetOrCreateCollection(collectionName)
 		if err != nil {

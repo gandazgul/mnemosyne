@@ -13,7 +13,7 @@ var deleteCmd = &cobra.Command{
 	Short: "Delete a document by ID",
 	Long:  `Remove a document from the database by its numeric ID.`,
 	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) (err error) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		id, err := strconv.ParseInt(args[0], 10, 64)
 		if err != nil {
 			return fmt.Errorf("invalid document ID %q: must be a number", args[0])
@@ -23,11 +23,7 @@ var deleteCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		defer func() {
-			if cerr := database.Close(); cerr != nil && err == nil {
-				err = cerr
-			}
-		}()
+		defer database.Close()
 
 		// Fetch the document first so we can show what was deleted.
 		doc, err := database.GetDocumentByID(id)

@@ -20,7 +20,7 @@ the collection name unless --yes is provided.
 
 If --name is not provided, the base name of the current working directory
 is used as the collection name.`,
-	RunE: func(cmd *cobra.Command, args []string) (err error) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		nameFlag, _ := cmd.Flags().GetString("name")
 		yesFlag, _ := cmd.Flags().GetBool("yes")
 
@@ -33,11 +33,7 @@ is used as the collection name.`,
 		if err != nil {
 			return err
 		}
-		defer func() {
-			if cerr := database.Close(); cerr != nil && err == nil {
-				err = cerr
-			}
-		}()
+		defer database.Close()
 
 		// Verify the collection exists and show what will be deleted.
 		collection, err := database.GetCollectionByName(collectionName)
