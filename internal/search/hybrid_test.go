@@ -146,7 +146,7 @@ func TestEngine_Search(t *testing.T) {
 
 	collID := seedCollection(t, database, embedder, "test", docs)
 
-	engine := search.NewEngine(database, embedder)
+	engine := search.NewEngine(database, embedder, nil)
 	results, err := engine.Search(search.Options{
 		CollectionID:     collID,
 		Query:            "go programming goroutine",
@@ -201,7 +201,7 @@ func TestEngine_Search_BothSourcesBoosted(t *testing.T) {
 
 	collID := seedCollection(t, database, embedder, "test", docs)
 
-	engine := search.NewEngine(database, embedder)
+	engine := search.NewEngine(database, embedder, nil)
 	results, err := engine.Search(search.Options{
 		CollectionID:     collID,
 		Query:            "go programming",
@@ -240,7 +240,7 @@ func TestEngine_Search_Limit(t *testing.T) {
 
 	collID := seedCollection(t, database, embedder, "test", docs)
 
-	engine := search.NewEngine(database, embedder)
+	engine := search.NewEngine(database, embedder, nil)
 	results, err := engine.Search(search.Options{
 		CollectionID:     collID,
 		Query:            "programming language",
@@ -259,7 +259,7 @@ func TestEngine_Search_Limit(t *testing.T) {
 
 func TestEngine_Search_RequiresEmbedder(t *testing.T) {
 	database := testDB(t)
-	engine := search.NewEngine(database, nil)
+	engine := search.NewEngine(database, nil, nil)
 
 	_, err := engine.Search(search.Options{
 		CollectionID: 1,

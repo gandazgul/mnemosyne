@@ -489,22 +489,22 @@ Where:
 
 ---
 
-## Phase 7: Reranker (ONNX Cross-Encoder)
+## Phase 7: Reranker (ONNX Cross-Encoder) ✅
 
 **Goal**: Re-score top candidates using a cross-encoder model for final ranking.
 
 ### Tasks
 
-- [ ] Define `Reranker` interface in `internal/reranker/reranker.go`
-- [ ] Implement ONNX-based cross-encoder reranker
-- [ ] Tokenize (query, document) pairs for cross-encoder input
-- [ ] After RRF, pass top-N candidates through reranker
-- [ ] Display final reranked results with reranker scores
-- [ ] Add `--no-rerank` flag to skip reranking
-- [ ] Add `--rerank-candidates` flag (default from config)
-- [ ] Update `download-models` task to include reranker model
-- [ ] Write tests for reranker scoring
-- [ ] Verify: reranking improves result quality on test queries
+- [x] Define `Reranker` interface in `internal/reranker/reranker.go`
+- [x] Implement ONNX-based cross-encoder reranker
+- [x] Tokenize (query, document) pairs for cross-encoder input
+- [x] After RRF, pass top-N candidates through reranker
+- [x] Display final reranked results with reranker scores
+- [x] Add `--no-rerank` flag to skip reranking
+- [x] Add `--rerank-candidates` flag (default from config)
+- [x] Update `download-models` task to include reranker model
+- [x] Write tests for reranker scoring
+- [x] Verify: reranking improves result quality on test queries
 
 ### Go Concepts Introduced
 

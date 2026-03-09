@@ -30,6 +30,13 @@ type Result struct {
 	// Zero if this document was not found by vector search.
 	VecDistance float64
 
+	// RerankerScore is the relevance score from the cross-encoder reranker.
+	// Only set if reranking was enabled and this document was scored.
+	RerankerScore float32
+
+	// IsReranked is true if this result was scored by the cross-encoder.
+	IsReranked bool
+
 	// Sources lists which search methods found this document ("fts", "vector").
 	Sources []string
 }
@@ -76,5 +83,12 @@ func FuseRRF(k int, lists ...RankedList) map[int64]float64 {
 func SortByRRFScore(results []Result) {
 	sort.Slice(results, func(i, j int) bool {
 		return results[i].RRFScore > results[j].RRFScore
+	})
+}
+
+// SortByRerankerScore sorts a slice of Results by RerankerScore descending.
+func SortByRerankerScore(results []Result) {
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].RerankerScore > results[j].RerankerScore
 	})
 }

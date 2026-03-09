@@ -5,6 +5,7 @@ import (
 
 	"github.com/gandazgul/mnemosyne/internal/db"
 	"github.com/gandazgul/mnemosyne/internal/embedding"
+	"github.com/gandazgul/mnemosyne/internal/reranker"
 )
 
 // Options configures a search operation.
@@ -28,10 +29,18 @@ type Options struct {
 	// If zero, defaults to Limit.
 	ReRankCandidates int
 
-	// Threshold is the minimum RRF score a result must have to be included.
-	// Results with an RRFScore below this value are discarded.
-	// If zero, no threshold filtering is applied.
+	// Threshold is the minimum score a result must have to be included.
+	// If reranking is enabled, this applies to the RerankerScore (logits).
+	// If reranking is disabled, this applies to the RRFScore.
+	// Only applied if ApplyThreshold is true.
 	Threshold float64
+
+	// ApplyThreshold indicates whether Threshold should be used to filter results.
+	ApplyThreshold bool
+
+	// NoRerank disables the cross-encoder reranking step, even if a
+	// reranker is available in the engine.
+	NoRerank bool
 }
 
 // Engine performs hybrid search combining FTS5 and vector similarity,
@@ -39,13 +48,15 @@ type Options struct {
 type Engine struct {
 	db       *db.DB
 	embedder embedding.Embedder
+	reranker reranker.Reranker
 }
 
-// NewEngine creates a search engine with the given database and embedder.
-func NewEngine(database *db.DB, embedder embedding.Embedder) *Engine {
+// NewEngine creates a search engine with the given database, embedder, and optional reranker.
+func NewEngine(database *db.DB, embedder embedding.Embedder, reranker reranker.Reranker) *Engine {
 	return &Engine{
 		db:       database,
 		embedder: embedder,
+		reranker: reranker,
 	}
 }
 
@@ -143,12 +154,53 @@ func (e *Engine) Search(opts Options) ([]Result, error) {
 	// Sort by RRF score descending.
 	SortByRRFScore(results)
 
-	// Filter by threshold.
-	if opts.Threshold > 0 {
+	// Apply Reranker if configured and enabled
+	if e.reranker != nil && !opts.NoRerank {
+		// Take top ReRankCandidates
+		rerankLimit := opts.ReRankCandidates
+		if rerankLimit <= 0 {
+			rerankLimit = opts.Limit
+		}
+
+		if len(results) > rerankLimit {
+			results = results[:rerankLimit]
+		}
+
+		// Extract document contents for the reranker
+		docs := make([]string, len(results))
+		for i, r := range results {
+			docs[i] = r.Content
+		}
+
+		// Score with cross-encoder
+		rerankScores, err := e.reranker.Score(opts.Query, docs)
+		if err != nil {
+			return nil, fmt.Errorf("reranking failed: %w", err)
+		}
+
+		// Assign scores
+		for i := range results {
+			results[i].RerankerScore = rerankScores[i]
+			results[i].IsReranked = true
+		}
+
+		// Re-sort by reranker score
+		SortByRerankerScore(results)
+	}
+
+	// Filter by threshold if requested.
+	if opts.ApplyThreshold {
 		filtered := results[:0]
 		for _, r := range results {
-			if r.RRFScore >= opts.Threshold {
-				filtered = append(filtered, r)
+			if r.IsReranked {
+				// Reranker score is float32, Threshold is float64
+				if float64(r.RerankerScore) >= opts.Threshold {
+					filtered = append(filtered, r)
+				}
+			} else {
+				if r.RRFScore >= opts.Threshold {
+					filtered = append(filtered, r)
+				}
 			}
 		}
 		results = filtered

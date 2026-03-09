@@ -6,6 +6,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/gandazgul/mnemosyne/internal/config"
+	"github.com/gandazgul/mnemosyne/internal/reranker"
 	"github.com/gandazgul/mnemosyne/internal/search"
 	"github.com/spf13/cobra"
 )
@@ -34,6 +35,8 @@ If --name is not provided, the current directory name is used.`,
 		nameFlag, _ := cmd.Flags().GetString("name")
 		limitFlag, _ := cmd.Flags().GetInt("limit")
 		rrfKFlag, _ := cmd.Flags().GetInt("rrf-k")
+		rerankCandidatesFlag, _ := cmd.Flags().GetInt("rerank-candidates")
+		noRerankFlag, _ := cmd.Flags().GetBool("no-rerank")
 		thresholdFlag, _ := cmd.Flags().GetFloat64("threshold")
 		debugFlag, _ := cmd.Flags().GetBool("debug")
 		formatFlag, _ := cmd.Flags().GetString("format")
@@ -80,6 +83,11 @@ If --name is not provided, the current directory name is used.`,
 			rrfK = rrfKFlag
 		}
 
+		rerankCandidates := cfg.Search.ReRankCandidates
+		if rerankCandidatesFlag > 0 {
+			rerankCandidates = rerankCandidatesFlag
+		}
+
 		if err := database.EnsureVectorTable(cfg.Embedding.Dimensions); err != nil {
 			return fmt.Errorf("ensuring vector table: %w", err)
 		}
@@ -90,14 +98,27 @@ If --name is not provided, the current directory name is used.`,
 		}
 		defer embedder.Close()
 
-		engine := search.NewEngine(database, embedder)
+		var rr reranker.Reranker
+		if !noRerankFlag {
+			rr, err = openReranker(cfg)
+			if err != nil {
+				return fmt.Errorf("loading reranker model: %w", err)
+			}
+			if rr != nil {
+				defer rr.Close()
+			}
+		}
+
+		engine := search.NewEngine(database, embedder, rr)
 		results, err := engine.Search(search.Options{
 			CollectionID:     collection.ID,
 			Query:            query,
 			Limit:            limitFlag,
 			RRFK:             rrfK,
-			ReRankCandidates: cfg.Search.ReRankCandidates,
+			ReRankCandidates: rerankCandidates,
 			Threshold:        thresholdFlag,
+			ApplyThreshold:   cmd.Flags().Changed("threshold"),
+			NoRerank:         noRerankFlag,
 		})
 		if err != nil {
 			return fmt.Errorf("searching: %w", err)
@@ -144,6 +165,9 @@ func printSearchResults(results []search.Result, query, collectionName, formatFl
 
 			// Show component scores for transparency.
 			var details []string
+			if r.IsReranked {
+				details = append(details, fmt.Sprintf("rerank=%.4f", r.RerankerScore))
+			}
 			for _, src := range r.Sources {
 				switch src {
 				case "fts":
@@ -189,9 +213,11 @@ func printSearchResults(results []search.Result, query, collectionName, formatFl
 
 func init() {
 	searchCmd.Flags().String("name", "", "collection name (defaults to current directory name)")
-	searchCmd.Flags().Int("limit", 10, "maximum number of results to return")
+	searchCmd.Flags().Int("limit", 3, "maximum number of results to return")
 	searchCmd.Flags().Int("rrf-k", 0, "RRF fusion constant (default from config, typically 60)")
-	searchCmd.Flags().Float64("threshold", 0.016, "minimum RRF score for a result to be included")
+	searchCmd.Flags().Int("rerank-candidates", 0, "number of candidates to pass to the reranker")
+	searchCmd.Flags().Bool("no-rerank", false, "disable the cross-encoder reranking step")
+	searchCmd.Flags().Float64("threshold", 0.0, "minimum score for a result to be included (e.g., 0.0 or 5.0 for reranker, 0.016 for RRF)")
 	searchCmd.Flags().Bool("debug", false, "show scores, ranks, and sources for each result")
 	searchCmd.Flags().String("format", "color", "output format: color (default) or plain")
 	rootCmd.AddCommand(searchCmd)

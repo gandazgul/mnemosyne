@@ -8,6 +8,7 @@ import (
 	"github.com/gandazgul/mnemosyne/internal/config"
 	"github.com/gandazgul/mnemosyne/internal/db"
 	"github.com/gandazgul/mnemosyne/internal/embedding"
+	"github.com/gandazgul/mnemosyne/internal/reranker"
 	"github.com/gandazgul/mnemosyne/internal/setup"
 )
 
@@ -72,4 +73,20 @@ func openEmbedder(cfg *config.Config) (embedding.Embedder, error) {
 	}
 
 	return embedder, nil
+}
+
+// openReranker initializes a cross-encoder reranker from the config.
+// The caller is responsible for calling Close() on the returned reranker.
+// Ensure openEmbedder (or InitONNXRuntime) is called before this.
+func openReranker(cfg *config.Config) (reranker.Reranker, error) {
+	if !cfg.Reranker.Enabled {
+		return nil, nil
+	}
+
+	rr, err := reranker.NewONNXCrossEncoder(cfg.Reranker)
+	if err != nil {
+		return nil, fmt.Errorf("creating reranker: %w", err)
+	}
+
+	return rr, nil
 }
