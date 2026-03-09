@@ -34,7 +34,7 @@ jobs:
 
       - name: Install huggingface-cli
         run: |
-          pip install -U "huggingface_hub[cli]"
+          pip install -U "huggingface_hub" "hf_transfer"
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           
       - name: Install Task
