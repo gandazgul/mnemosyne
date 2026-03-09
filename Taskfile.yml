@@ -68,8 +68,10 @@ tasks:
 
   lint:
     desc: Run linter
+    env:
+      CGO_LDFLAGS: "-L{{.ROOT_DIR}}/{{.LIB_DIR}}"
     cmds:
-      - golangci-lint run ./...
+      - golangci-lint run --build-tags '{{.BUILD_TAGS}}' ./...
 
   install:
     desc: Install mnemosyne to $GOPATH/bin
@@ -95,13 +97,13 @@ tasks:
       - mkdir -p {{.MODELS_DIR}}/snowflake-arctic-embed-m-v1.5/onnx
       - mkdir -p {{.MODELS_DIR}}/ms-marco-MiniLM-L-6-v2
       - >-
-        hf download {{.HF_MODEL_EMBED}}
+        huggingface-cli download {{.HF_MODEL_EMBED}}
         --local-dir {{.MODELS_DIR}}/snowflake-arctic-embed-m-v1.5
         --include "onnx/model.onnx"
         --include "tokenizer*"
         --include "config.json"
       - >-
-        hf download {{.HF_MODEL_RERANK}}
+        huggingface-cli download {{.HF_MODEL_RERANK}}
         --local-dir {{.MODELS_DIR}}/ms-marco-MiniLM-L-6-v2
         --include "onnx/model.onnx"
         --include "tokenizer*"
@@ -171,3 +173,9 @@ tasks:
       - task: download-onnxruntime
       - task: download-tokenizers
       - task: download-models
+
+  release:
+    desc: Create a new release tag and push it
+    cmds:
+      - git tag {{.CLI_ARGS}}
+      - git push origin {{.CLI_ARGS}}

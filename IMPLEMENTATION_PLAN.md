@@ -542,33 +542,33 @@ Where:
 
 ---
 
-## Phase 9: GitHub CI/CD + Versioned Releases
+## Phase 9: GitHub CI/CD + Versioned Releases ✅
 
 **Goal**: Automated testing and dev builds on every push/PR, plus versioned releases
 with changelogs via GitHub Actions.
 
 ### Part A: CI Workflow (Test + Dev Binary)
 
-- [ ] Create `.github/workflows/ci.yml` workflow triggered on push and pull requests
-- [ ] Run `task test` (all tests with race detector enabled)
-- [ ] Run `task lint` (golangci-lint)
-- [ ] Build dev binary for linux/amd64 and darwin/amd64 + darwin/arm64
-- [ ] Upload dev binaries as workflow artifacts (available for download from the Actions tab)
-- [ ] Cache Go modules and build cache for faster CI runs
-- [ ] Add CI status badge to `README.md`
+- [x] Create `.github/workflows/ci.yml` workflow triggered on push and pull requests
+- [x] Run `task test` (all tests with race detector enabled)
+- [x] Run `task lint` (golangci-lint)
+- [x] Build dev binary for linux/amd64 and darwin/amd64 + darwin/arm64
+- [x] Upload dev binaries as workflow artifacts (available for download from the Actions tab)
+- [x] Cache Go modules and build cache for faster CI runs
+- [x] Add CI status badge to `README.md`
 
 ### Part B: Release Workflow (Versioned Releases + Changelogs)
 
-- [ ] Create `.github/workflows/release.yml` triggered on version tags (`v*.*.*`)
-- [ ] Use [GoReleaser](https://goreleaser.com/) to build multi-platform release binaries
+- [x] Create `.github/workflows/release.yml` triggered on version tags (`v*.*.*`)
+- [x] Use [GoReleaser](https://goreleaser.com/) to build multi-platform release binaries
   - Targets: linux/amd64, linux/arm64, darwin/amd64, darwin/arm64, windows/amd64
   - Include CGO cross-compilation setup for sqlite3
-- [ ] Create `.goreleaser.yml` config with project name, archive formats, and build settings
-- [ ] Auto-generate changelogs from commit history between tags
+- [x] Create `.goreleaser.yml` config with project name, archive formats, and build settings
+- [x] Auto-generate changelogs from commit history between tags
   - Group commits by type (features, fixes, etc.) using conventional commit prefixes
-- [ ] Publish release to GitHub Releases with binaries and changelog
-- [ ] Add `Taskfile.yml` task for creating a release tag: `task release -- v0.1.0`
-- [ ] Document the release process in the README (how to tag and publish a new version)
+- [x] Publish release to GitHub Releases with binaries and changelog
+- [x] Add `Taskfile.yml` task for creating a release tag: `task release -- v0.1.0`
+- [x] Document the release process in the README (how to tag and publish a new version)
 
 ### Workflow Summary
 

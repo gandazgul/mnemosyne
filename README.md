@@ -1,5 +1,8 @@
 # [Mnemosyne](https://en.wikipedia.org/wiki/Mnemosyne)
 
+[![CI](https://github.com/gandazgul/mnemosyne/actions/workflows/ci.yml/badge.svg)](https://github.com/gandazgul/mnemosyne/actions/workflows/ci.yml)
+[![Release](https://github.com/gandazgul/mnemosyne/actions/workflows/release.yml/badge.svg)](https://github.com/gandazgul/mnemosyne/actions/workflows/release.yml)
+
 A local document storage and retrieval CLI tool built in Go. Store small
 documents (sentences to paragraphs) and retrieve them using hybrid search:
 full-text (BM25) + vector similarity (cosine), combined with Reciprocal Rank
@@ -82,7 +85,20 @@ task test             # Run all tests
 task clean            # Remove build artifacts
 task lint             # Run linter (requires golangci-lint)
 task download-models  # Download ONNX models from HuggingFace (dev workflow)
+task release -- v0.1.0 # Create and push a new release tag
 ```
+
+## Creating a Release
+
+To create a new versioned release with cross-compiled binaries and an automated changelog:
+
+1. Use the `release` task and pass the new semantic version tag:
+   ```bash
+   task release -- v0.1.0
+   ```
+2. The `Release` GitHub Action workflow will automatically trigger.
+3. It uses GoReleaser and `zig cc` to build `linux/amd64`, `linux/arm64`, `darwin/amd64`, and `darwin/arm64` binaries.
+4. The workflow will publish a new GitHub Release with the attached binaries and an auto-generated changelog based on conventional commits.
 
 ## Setup
 
@@ -161,7 +177,7 @@ mnemosyne/
 - [x] **Phase 6**: Hybrid search + Reciprocal Rank Fusion
 - [x] **Phase 7**: Cross-encoder reranker
 - [x] **Phase 8**: Polish and extras
-- [ ] **Phase 9**: GitHub CI/CD + versioned releases
+- [x] **Phase 9**: GitHub CI/CD + versioned releases
 
 See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) for the full plan with architecture
 diagrams, database schema, search pipeline details, and Go concepts covered per phase.

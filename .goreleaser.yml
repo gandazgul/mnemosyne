@@ -1,0 +1,64 @@
+version: 2
+
+project_name: mnemosyne
+
+before:
+  hooks:
+    - ./scripts/download_libs.sh
+
+env:
+  - CGO_ENABLED=1
+
+builds:
+  - id: "linux"
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=1
+      - CC=zig cc -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-linux-musl
+      - CXX=zig c++ -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-linux-musl
+      - CGO_LDFLAGS=-L{{ .Env.PWD }}/lib_linux_{{ .Arch }}
+    flags:
+      - -tags=sqlite_fts5
+    ldflags:
+      - -s -w -X github.com/gandazgul/mnemosyne/cmd.Version={{.Version}} -X github.com/gandazgul/mnemosyne/cmd.Commit={{.Commit}} -X github.com/gandazgul/mnemosyne/cmd.Date={{.Date}}
+
+  - id: "darwin"
+    goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=1
+      - CC=zig cc -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-macos
+      - CXX=zig c++ -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-macos
+      - CGO_LDFLAGS=-L{{ .Env.PWD }}/lib_darwin_{{ .Arch }}
+    flags:
+      - -tags=sqlite_fts5
+    ldflags:
+      - -s -w -X github.com/gandazgul/mnemosyne/cmd.Version={{.Version}} -X github.com/gandazgul/mnemosyne/cmd.Commit={{.Commit}} -X github.com/gandazgul/mnemosyne/cmd.Date={{.Date}}
+
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: Bug Fixes
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: Others
+      order: 999
