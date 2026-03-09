@@ -32,10 +32,9 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install huggingface-cli
+      - name: Install Hugging Face CLI (hf)
         run: |
           pip install -U "huggingface_hub" "hf_transfer"
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
           
       - name: Install Task
         uses: arduino/setup-task@v2

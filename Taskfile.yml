@@ -93,17 +93,20 @@ tasks:
 
   download-models:
     desc: Download ONNX models from HuggingFace
+    vars:
+      HF_CMD:
+        sh: command -v hf >/dev/null 2>&1 && echo "hf" || echo "huggingface-cli"
     cmds:
       - mkdir -p {{.MODELS_DIR}}/snowflake-arctic-embed-m-v1.5/onnx
       - mkdir -p {{.MODELS_DIR}}/ms-marco-MiniLM-L-6-v2
       - >-
-        huggingface-cli download {{.HF_MODEL_EMBED}}
+        {{.HF_CMD}} download {{.HF_MODEL_EMBED}}
         --local-dir {{.MODELS_DIR}}/snowflake-arctic-embed-m-v1.5
         --include "onnx/model.onnx"
         --include "tokenizer*"
         --include "config.json"
       - >-
-        huggingface-cli download {{.HF_MODEL_RERANK}}
+        {{.HF_CMD}} download {{.HF_MODEL_RERANK}}
         --local-dir {{.MODELS_DIR}}/ms-marco-MiniLM-L-6-v2
         --include "onnx/model.onnx"
         --include "tokenizer*"
