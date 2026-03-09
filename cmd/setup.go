@@ -39,7 +39,7 @@ Note: This happens automatically on first use of 'add' or 'search'.`,
 
 		// Run setup with simple progress output.
 		var currentFile string
-		err := setup.Run(dataDir, func(file string, written, total int64) {
+		err := setup.Run(cmd.Context(), dataDir, func(file string, written, total int64) {
 			if file != currentFile {
 				if currentFile != "" {
 					fmt.Println(" done")

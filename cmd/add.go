@@ -30,7 +30,7 @@ If --name is not provided, the current directory name is used.`,
 		stdinFlag, _ := cmd.Flags().GetBool("stdin")
 
 		// Determine the content to store.
-		var content string
+		var rawContent string
 
 		switch {
 		case fileFlag != "":
@@ -38,7 +38,7 @@ If --name is not provided, the current directory name is used.`,
 			if err != nil {
 				return fmt.Errorf("reading file %s: %w", fileFlag, err)
 			}
-			content = strings.TrimSpace(string(data))
+			rawContent = strings.TrimSpace(string(data))
 
 		case stdinFlag:
 			var lines []string
@@ -49,17 +49,60 @@ If --name is not provided, the current directory name is used.`,
 			if err := scanner.Err(); err != nil {
 				return fmt.Errorf("reading stdin: %w", err)
 			}
-			content = strings.TrimSpace(strings.Join(lines, "\n"))
+			rawContent = strings.TrimSpace(strings.Join(lines, "\n"))
 
 		case len(args) > 0:
-			content = strings.TrimSpace(strings.Join(args, " "))
+			rawContent = strings.TrimSpace(strings.Join(args, " "))
 
 		default:
 			return fmt.Errorf("no content provided; pass text as argument, use --file, or use --stdin")
 		}
 
-		if content == "" {
+		if rawContent == "" {
 			return fmt.Errorf("content is empty")
+		}
+
+		// Split content into chunks if it came from file or stdin.
+		var chunks []string
+		if fileFlag != "" || stdinFlag {
+			// Basic chunking: split by double newlines (paragraphs)
+			parts := strings.Split(rawContent, "\n\n")
+			for _, p := range parts {
+				p = strings.TrimSpace(p)
+				if p != "" {
+					// If a chunk is still very large, further split by single newlines.
+					// This is a naive approach; a proper tokenizer-based chunker would be better.
+					if len(p) > 2000 {
+						lines := strings.Split(p, "\n")
+						var currentChunk strings.Builder
+						for _, line := range lines {
+							line = strings.TrimSpace(line)
+							if line == "" {
+								continue
+							}
+							if currentChunk.Len()+len(line) > 2000 && currentChunk.Len() > 0 {
+								chunks = append(chunks, currentChunk.String())
+								currentChunk.Reset()
+							}
+							if currentChunk.Len() > 0 {
+								currentChunk.WriteString(" ")
+							}
+							currentChunk.WriteString(line)
+						}
+						if currentChunk.Len() > 0 {
+							chunks = append(chunks, currentChunk.String())
+						}
+					} else {
+						chunks = append(chunks, p)
+					}
+				}
+			}
+		} else {
+			chunks = []string{rawContent}
+		}
+
+		if len(chunks) == 0 {
+			return fmt.Errorf("no valid content after chunking")
 		}
 
 		// Resolve collection.
@@ -92,38 +135,35 @@ If --name is not provided, the current directory name is used.`,
 		}
 
 		// Initialize the embedder to generate a vector for this document.
-		embedder, err := openEmbedder(cfg)
+		embedder, err := openEmbedder(cmd.Context(), cfg)
 		if err != nil {
 			return fmt.Errorf("loading embedding model: %w", err)
 		}
 		defer embedder.Close()
 
-		// Generate the document embedding using the document prefix.
-		vec, err := embedder.EmbedDocument(content)
-		if err != nil {
-			return fmt.Errorf("embedding document: %w", err)
-		}
+		for i, chunk := range chunks {
+			// Generate the document embedding using the document prefix.
+			vec, err := embedder.EmbedDocument(chunk)
+			if err != nil {
+				return fmt.Errorf("embedding document chunk %d: %w", i+1, err)
+			}
 
-		// Insert the document.
-		doc, err := database.InsertDocument(collection.ID, content, nil)
-		if err != nil {
-			return fmt.Errorf("adding document: %w", err)
-		}
+			// Insert the document and its vector atomically.
+			doc, err := database.InsertDocumentWithVector(collection.ID, chunk, nil, vec)
+			if err != nil {
+				return fmt.Errorf("adding document chunk %d: %w", i+1, err)
+			}
 
-		// Store the embedding vector alongside the document.
-		if err := database.InsertVector(doc.ID, collection.ID, vec); err != nil {
-			return fmt.Errorf("storing embedding: %w", err)
-		}
+			// Show a preview: first 80 characters.
+			preview := chunk
+			if len(preview) > 80 {
+				preview = strings.ReplaceAll(preview[:80], "\n", " ") + "..."
+			}
 
-		// Show a preview: first 80 characters.
-		preview := content
-		if len(preview) > 80 {
-			preview = preview[:80] + "..."
+			cmd.Printf("Added document %d to collection %q (embedded %d dims)\n",
+				doc.ID, collectionName, len(vec))
+			cmd.Printf("  %s\n", preview)
 		}
-
-		cmd.Printf("Added document %d to collection %q (embedded %d dims)\n",
-			doc.ID, collectionName, len(vec))
-		cmd.Printf("  %s\n", preview)
 
 		return nil
 	},

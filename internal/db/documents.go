@@ -40,6 +40,50 @@ func (db *DB) InsertDocument(collectionID int64, content string, metadata *strin
 	}, nil
 }
 
+// InsertDocumentWithVector stores a new document and its vector embedding atomically.
+func (db *DB) InsertDocumentWithVector(collectionID int64, content string, metadata *string, embedding []float32) (*Document, error) {
+	tx, err := db.conn.Begin()
+	if err != nil {
+		return nil, fmt.Errorf("beginning transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	result, err := tx.Exec(
+		"INSERT INTO documents (collection_id, content, metadata) VALUES (?, ?, ?)",
+		collectionID, content, metadata,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("inserting document: %w", err)
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return nil, fmt.Errorf("getting last insert id: %w", err)
+	}
+
+	vecBlob := SerializeFloat32(embedding)
+
+	_, err = tx.Exec(
+		"INSERT INTO docs_vec (document_id, collection_id, embedding) VALUES (?, ?, ?)",
+		id, collectionID, vecBlob,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("inserting vector: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, fmt.Errorf("committing transaction: %w", err)
+	}
+
+	return &Document{
+		ID:           id,
+		CollectionID: collectionID,
+		Content:      content,
+		Metadata:     metadata,
+		CreatedAt:    time.Now(),
+	}, nil
+}
+
 // GetDocumentByID retrieves a single document by its ID.
 // Returns nil, nil if the document does not exist.
 func (db *DB) GetDocumentByID(id int64) (*Document, error) {

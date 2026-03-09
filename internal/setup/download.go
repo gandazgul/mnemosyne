@@ -1,6 +1,7 @@
 package setup
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -19,7 +20,7 @@ import (
 //
 // progress is called with (bytesWritten, totalBytes) during download.
 // totalBytes may be -1 if the server doesn't provide Content-Length.
-func downloadFile(url, destPath, expectedSHA256 string, progress func(written, total int64)) error {
+func downloadFile(ctx context.Context, url, destPath, expectedSHA256 string, progress func(written, total int64)) error {
 	// If destination exists, check checksum and skip if valid.
 	if expectedSHA256 != "" {
 		if match, _ := fileMatchesSHA256(destPath, expectedSHA256); match {
@@ -41,7 +42,7 @@ func downloadFile(url, destPath, expectedSHA256 string, progress func(written, t
 	}
 
 	// Build HTTP request with optional Range header.
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return fmt.Errorf("create request: %w", err)
 	}
@@ -67,7 +68,7 @@ func downloadFile(url, destPath, expectedSHA256 string, progress func(written, t
 		existingSize = 0
 		// Re-download from scratch.
 		resp.Body.Close()
-		return downloadFile(url, destPath, expectedSHA256, progress)
+		return downloadFile(ctx, url, destPath, expectedSHA256, progress)
 	default:
 		return fmt.Errorf("HTTP %d from %s", resp.StatusCode, url)
 	}

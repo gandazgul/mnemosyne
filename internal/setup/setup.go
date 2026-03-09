@@ -3,6 +3,7 @@ package setup
 import (
 	"archive/tar"
 	"compress/gzip"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -87,23 +88,23 @@ func modelReady(dataDir string, model EmbedModel) bool {
 
 // Run downloads all required components to dataDir.
 // progress is called for each file being downloaded.
-func Run(dataDir string, progress ProgressFunc) error {
+func Run(ctx context.Context, dataDir string, progress ProgressFunc) error {
 	status := Check(dataDir)
 
 	if !status.OnnxRuntimeInstalled {
-		if err := installONNXRuntime(dataDir, progress); err != nil {
+		if err := installONNXRuntime(ctx, dataDir, progress); err != nil {
 			return fmt.Errorf("install ONNX Runtime: %w", err)
 		}
 	}
 
 	if !status.EmbeddingModelReady {
-		if err := downloadModel(dataDir, EmbeddingModel, progress); err != nil {
+		if err := downloadModel(ctx, dataDir, EmbeddingModel, progress); err != nil {
 			return fmt.Errorf("download embedding model: %w", err)
 		}
 	}
 
 	if !status.RerankerModelReady {
-		if err := downloadModel(dataDir, RerankerModel, progress); err != nil {
+		if err := downloadModel(ctx, dataDir, RerankerModel, progress); err != nil {
 			return fmt.Errorf("download reranker model: %w", err)
 		}
 	}
@@ -113,7 +114,7 @@ func Run(dataDir string, progress ProgressFunc) error {
 
 // EnsureReady checks if setup is complete and runs it if not.
 // This is the auto-download entry point called by add/search commands.
-func EnsureReady(dataDir string, progress ProgressFunc) error {
+func EnsureReady(ctx context.Context, dataDir string, progress ProgressFunc) error {
 	status := Check(dataDir)
 	if status.Ready() {
 		return nil
@@ -123,11 +124,11 @@ func EnsureReady(dataDir string, progress ProgressFunc) error {
 	fmt.Println("This is a one-time download (~500 MB total).")
 	fmt.Println()
 
-	return Run(dataDir, progress)
+	return Run(ctx, dataDir, progress)
 }
 
 // installONNXRuntime downloads and extracts the ONNX Runtime shared library.
-func installONNXRuntime(dataDir string, progress ProgressFunc) error {
+func installONNXRuntime(ctx context.Context, dataDir string, progress ProgressFunc) error {
 	url, err := onnxRuntimeURL()
 	if err != nil {
 		return err
@@ -140,7 +141,7 @@ func installONNXRuntime(dataDir string, progress ProgressFunc) error {
 
 	// Download tarball to a temp file, then extract the library.
 	tgzPath := filepath.Join(libDir, "onnxruntime.tgz")
-	if err := downloadFile(url, tgzPath, "", func(written, total int64) {
+	if err := downloadFile(ctx, url, tgzPath, "", func(written, total int64) {
 		if progress != nil {
 			progress("onnxruntime.tgz", written, total)
 		}
@@ -216,14 +217,14 @@ func extractONNXRuntimeLib(tgzPath, destDir string) error {
 }
 
 // downloadModel downloads all files for a HuggingFace model.
-func downloadModel(dataDir string, model EmbedModel, progress ProgressFunc) error {
+func downloadModel(ctx context.Context, dataDir string, model EmbedModel, progress ProgressFunc) error {
 	modelDir := filepath.Join(dataDir, "models", model.LocalDir)
 
 	for file, sha := range model.Files {
 		destPath := filepath.Join(modelDir, file)
 		url := hfFileURL(model.Repo, file)
 
-		if err := downloadFile(url, destPath, sha, func(written, total int64) {
+		if err := downloadFile(ctx, url, destPath, sha, func(written, total int64) {
 			if progress != nil {
 				progress(model.LocalDir+"/"+file, written, total)
 			}

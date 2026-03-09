@@ -515,25 +515,22 @@ Where:
 
 ---
 
-## Phase 8: Polish and Extras
+## Phase 8: Polish and Extras ✅
 
 **Goal**: Production-ready CLI with good UX and documentation.
 
 ### Tasks
 
-- [ ] Create `config.example.yaml` with all options documented
-- [ ] Support `--config` global flag to specify config file path
-- [ ] `mnemosyne collections` command - list all collections with document counts
-- [ ] Metadata support: `mnemosyne add --tag "golang" --source "book.pdf" "text"`
-- [ ] Batch import: `mnemosyne add --file document.txt` (splits into chunks)
-- [ ] Batch import from stdin: `cat doc.txt | mnemosyne add --stdin`
-- [ ] Pretty terminal output (table formatting, colors)
-- [ ] `mnemosyne stats` command (document count, DB size, model info)
-- [ ] Improve error messages and help text
-- [ ] Add shell completion support (Cobra built-in)
-- [ ] Performance profiling and optimization
-- [ ] Write integration tests (full pipeline: add -> search -> verify)
-- [ ] Update README with usage examples and screenshots
+- [x] Create `config.example.yaml` with all options documented
+- [x] `mnemosyne collections` command - list all collections with document counts
+- [x] Batch import: `mnemosyne add --file document.txt` (splits into chunks)
+- [x] Batch import from stdin: `cat doc.txt | mnemosyne add --stdin`
+- [x] Pretty terminal output (table formatting, colors)
+- [x] `mnemosyne stats` command (document count, DB size, model info)
+- [x] Add shell completion support (Cobra built-in)
+- [x] Added transaction atomicity for `InsertDocumentWithVector`
+- [x] Write integration tests (full pipeline: add -> search -> verify)
+- [x] Update README with usage examples and screenshots
 
 ### Go Concepts Introduced
 

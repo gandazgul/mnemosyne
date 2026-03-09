@@ -52,27 +52,67 @@ func runCLI(t *testing.T, binPath string, env []string, args ...string) (string,
 }
 
 func TestIntegrationPipeline(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
+	}
+
 	// Build the CLI tool
 	binPath := buildCLI(t)
 
-	// Prepare a temporary directory for the isolated database
+	// Prepare a temporary directory for the isolated database and models
 	tempDir := t.TempDir()
 	dbPath := filepath.Join(tempDir, "test.db")
-	env := []string{fmt.Sprintf("MNEMOSYNE_DB_PATH=%s", dbPath)}
+
+	// We use the default data dir so we don't have to download models again in CI!
+	// Just isolate the DB path.
+	env := []string{
+		fmt.Sprintf("MNEMOSYNE_DB_PATH=%s", dbPath),
+	}
 
 	// Test 1: Initialize a new collection
 	colName := "test_collection"
 	t.Log("Initializing collection...")
-	stdout, _ := runCLI(t, binPath, env, "init", "--name", colName)
-	if !strings.Contains(stdout, "Created collection") {
-		// Output from init was changed from fmt.Printf to cmd.Printf in my previous tests
-		// Let's just check for 'test_collection' since it will output to stdout or stderr depending on what the command pipes
-		t.Logf("Output: %s", stdout)
+	stdout, stderr := runCLI(t, binPath, env, "init", "--name", colName)
+	output := stdout + stderr
+	if !strings.Contains(output, "Created collection") && !strings.Contains(output, "already exists") {
+		t.Fatalf("Expected 'Created collection' or 'already exists' in output, got: %s", output)
+	}
+
+	// Test 2: Add document
+	t.Log("Adding document...")
+	stdout, stderr = runCLI(t, binPath, env, "add", "--name", colName, "This is a test document about artificial intelligence.")
+	output = stdout + stderr
+	if !strings.Contains(output, "Added document") {
+		t.Fatalf("Expected 'Added document' in output, got: %s", output)
+	}
+
+	// Test 3: Search document
+	t.Log("Searching document...")
+	stdout, stderr = runCLI(t, binPath, env, "search", "--name", colName, "artificial intelligence")
+	output = stdout + stderr
+	if !strings.Contains(output, "This is a test document") {
+		t.Fatalf("Expected to find the document in search results, got: %s", output)
+	}
+
+	// Test 4: Collections list
+	t.Log("Listing collections...")
+	stdout, stderr = runCLI(t, binPath, env, "collections")
+	output = stdout + stderr
+	if !strings.Contains(output, colName) {
+		t.Fatalf("Expected to find the collection in list, got: %s", output)
+	}
+
+	// Test 5: Stats
+	t.Log("Getting stats...")
+	stdout, stderr = runCLI(t, binPath, env, "stats")
+	output = stdout + stderr
+	if !strings.Contains(output, "Total Documents:") {
+		t.Fatalf("Expected 'Total Documents:', got: %s", output)
 	}
 }
 
 func TestMainCoverage(t *testing.T) {
-    // Calling main will execute os.Exit, we just want to ensure it compiles correctly
-    // Since this tool executes the root command it's better to just skip main.go for direct coverage tests 
-    // or test the actual `cmd.Execute()` independently
+	// Calling main will execute os.Exit, we just want to ensure it compiles correctly
+	// Since this tool executes the root command it's better to just skip main.go for direct coverage tests
+	// or test the actual `cmd.Execute()` independently
 }

@@ -1,0 +1,25 @@
+# Mnemosyne configuration
+
+# Path to the SQLite database
+db_path: "~/.local/share/mnemosyne/mnemosyne.db"
+
+embedding:
+  # Path to the embedding model directory
+  model_path: "~/.local/share/mnemosyne/models/snowflake-arctic-embed-m-v1.5"
+  onnx_file: "onnx/model.onnx"
+  dimensions: 256
+  max_seq_length: 512
+  query_prefix: "Represent this sentence for searching relevant passages: "
+  document_prefix: ""
+  pooling: "none"
+
+reranker:
+  # Path to the reranker model directory
+  model_path: "~/.local/share/mnemosyne/models/ms-marco-MiniLM-L-6-v2"
+  max_seq_length: 512
+  enabled: true
+
+search:
+  rrf_k: 60
+  top_k: 10
+  rerank_candidates: 50

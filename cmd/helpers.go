@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -50,10 +51,10 @@ func openDB() (*db.DB, error) {
 // This is expensive (loads model into memory), so it should only be called by
 // commands that need embeddings (add, search). Commands like list, delete, init
 // should not call this.
-func openEmbedder(cfg *config.Config) (embedding.Embedder, error) {
+func openEmbedder(ctx context.Context, cfg *config.Config) (embedding.Embedder, error) {
 	// Auto-download ONNX Runtime and models if not present.
 	dataDir := config.DataDir()
-	if err := setup.EnsureReady(dataDir, func(file string, written, total int64) {
+	if err := setup.EnsureReady(ctx, dataDir, func(file string, written, total int64) {
 		// Simple progress: just print dots for now.
 		// A future enhancement could use a proper progress bar.
 	}); err != nil {

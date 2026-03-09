@@ -1,6 +1,7 @@
 package setup
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"net/http"
@@ -57,7 +58,7 @@ func TestDownloadFile(t *testing.T) {
 
 	// Test 1: Full download with checksum
 	var lastWritten int64
-	err := downloadFile(ts.URL, destPath, expectedHash, func(written, total int64) {
+	err := downloadFile(context.Background(), ts.URL, destPath, expectedHash, func(written, total int64) {
 		lastWritten = written
 	})
 	if err != nil {
@@ -69,7 +70,7 @@ func TestDownloadFile(t *testing.T) {
 
 	// Test 2: Skip existing file
 	lastWritten = 0 // Reset
-	err = downloadFile(ts.URL, destPath, expectedHash, func(written, total int64) {
+	err = downloadFile(context.Background(), ts.URL, destPath, expectedHash, func(written, total int64) {
 		lastWritten = written
 	})
 	if err != nil {
@@ -81,7 +82,7 @@ func TestDownloadFile(t *testing.T) {
 
 	// Test 3: Download failure (bad checksum)
 	badPath := filepath.Join(tmpDir, "bad.txt")
-	err = downloadFile(ts.URL, badPath, "invalidhash", nil)
+	err = downloadFile(context.Background(), ts.URL, badPath, "invalidhash", nil)
 	if err == nil {
 		t.Error("expected error for bad checksum")
 	}
@@ -96,13 +97,13 @@ func TestDownloadFile_Errors(t *testing.T) {
 	}))
 	defer ts.Close()
 	
-	err := downloadFile(ts.URL, filepath.Join(tmpDir, "404.txt"), "", nil)
+	err := downloadFile(context.Background(), ts.URL, filepath.Join(tmpDir, "404.txt"), "", nil)
 	if err == nil {
 		t.Error("expected error for 404 response")
 	}
 	
 	// Test invalid URL
-	err = downloadFile("http://invalid.url.that.doesnt.exist", filepath.Join(tmpDir, "invalid.txt"), "", nil)
+	err = downloadFile(context.Background(), "http://invalid.url.that.doesnt.exist", filepath.Join(tmpDir, "invalid.txt"), "", nil)
 	if err == nil {
 		t.Error("expected error for invalid URL")
 	}

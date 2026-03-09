@@ -1,6 +1,7 @@
 package setup
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -23,7 +24,7 @@ func TestEnsureReady_AlreadyReady(t *testing.T) {
 		}
 	}
 	
-	err := EnsureReady(tmpDir, nil)
+	err := EnsureReady(context.Background(), tmpDir, nil)
 	if err != nil {
 		t.Errorf("Expected no error for already ready env, got %v", err)
 	}
@@ -49,7 +50,7 @@ func TestRun_ErrorPropagation(t *testing.T) {
 	badPath := filepath.Join(tmpDir, "models")
 	os.WriteFile(badPath, []byte("not a dir"), 0644)
 	
-	err := Run(tmpDir, nil)
+	err := Run(context.Background(), tmpDir, nil)
 	if err == nil {
 		t.Error("Expected error when models dir cannot be created")
 	}
@@ -67,7 +68,7 @@ func TestDownloadModel(t *testing.T) {
 		},
 	}
 	
-	err := downloadModel(tmpDir, badModel, nil)
+	err := downloadModel(context.Background(), tmpDir, badModel, nil)
 	if err == nil {
 		t.Error("Expected error downloading non-existent model")
 	}
@@ -85,7 +86,7 @@ func TestRun_MockModels(t *testing.T) {
 	// Actually we can't easily override the global models, so we'll just check
 	// the error from a bad network path or let it fail downloading and cover the error path
 	
-	err := Run(tmpDir, func(file string, written, total int64) {})
+	err := Run(context.Background(), tmpDir, func(file string, written, total int64) {})
 	// we expect an error because the model doesn't exist locally or download fails due to bad repo/connection in tests,
 	// but this will execute the download code paths and improve coverage
 	if err == nil {
@@ -101,7 +102,7 @@ func TestInstallONNXRuntime_Errors(t *testing.T) {
 	badDir := filepath.Join(tmpDir, "file.txt")
 	os.WriteFile(badDir, []byte(""), 0644)
 	
-	err := installONNXRuntime(badDir, nil)
+	err := installONNXRuntime(context.Background(), badDir, nil)
 	if err == nil {
 		t.Error("Expected error when dataDir is invalid")
 	}
@@ -131,7 +132,7 @@ func TestEnsureReady_FirstTime(t *testing.T) {
 	}
 	defer func() { RerankerModel = oldRerank }()
 	
-	err := EnsureReady(tmpDir, func(file string, written, total int64) {})
+	err := EnsureReady(context.Background(), tmpDir, func(file string, written, total int64) {})
 	if err == nil {
 		t.Log("Expected an error since bad/repo doesn't exist")
 	}
