@@ -93,3 +93,30 @@ func TestOpen_TablesCreated(t *testing.T) {
 		t.Fatalf("documents table not found: %v", err)
 	}
 }
+
+func TestOpen_InvalidDirectory(t *testing.T) {
+	dir := t.TempDir()
+	// Create a file where a directory should be.
+	filePath := filepath.Join(dir, "notadir")
+	os.WriteFile(filePath, []byte("test"), 0644)
+	
+	dbPath := filepath.Join(filePath, "test.db")
+	
+	_, err := db.Open(dbPath)
+	if err == nil {
+		t.Error("expected error when opening DB with invalid directory path")
+	}
+}
+
+func TestOpen_InvalidDatabaseFile(t *testing.T) {
+	dir := t.TempDir()
+	dbPath := filepath.Join(dir, "corrupt.db")
+	
+	// Create a corrupted file.
+	os.WriteFile(dbPath, []byte("this is not a sqlite database"), 0644)
+	
+	_, err := db.Open(dbPath)
+	if err == nil {
+		t.Error("expected error when opening corrupted DB file")
+	}
+}

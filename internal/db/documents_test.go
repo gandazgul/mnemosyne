@@ -178,3 +178,23 @@ func TestCountDocuments(t *testing.T) {
 		t.Errorf("count = %d, want 2", count)
 	}
 }
+
+func TestInsertDocumentWithVector(t *testing.T) {
+	database := testDBWithVectors(t, 4)
+	c, _ := database.CreateCollection("docs")
+
+	vec := []float32{1.0, 0.5, 0.25, 0.125}
+	doc, err := database.InsertDocumentWithVector(c.ID, "vector doc", nil, vec)
+	if err != nil {
+		t.Fatalf("InsertDocumentWithVector() error = %v", err)
+	}
+
+	if doc == nil || doc.ID == 0 {
+		t.Fatal("expected non-zero ID")
+	}
+	
+	results, err := database.SearchVectors(c.ID, vec, 1)
+	if err != nil || len(results) == 0 || results[0].ID != doc.ID {
+		t.Errorf("expected to find inserted vector")
+	}
+}

@@ -213,3 +213,23 @@ func TestSortByRRFScore(t *testing.T) {
 		t.Errorf("expected doc 1 third, got doc %d", results[2].DocumentID)
 	}
 }
+
+func TestSortByRerankerScore(t *testing.T) {
+	results := []Result{
+		{DocumentID: 1, RerankerScore: 0.5},
+		{DocumentID: 2, RerankerScore: 2.5},
+		{DocumentID: 3, RerankerScore: 1.5},
+	}
+
+	SortByRerankerScore(results)
+
+	if results[0].DocumentID != 2 {
+		t.Errorf("expected doc 2 first, got doc %d", results[0].DocumentID)
+	}
+	if results[1].DocumentID != 3 {
+		t.Errorf("expected doc 3 second, got doc %d", results[1].DocumentID)
+	}
+	if results[2].DocumentID != 1 {
+		t.Errorf("expected doc 1 third, got doc %d", results[2].DocumentID)
+	}
+}
