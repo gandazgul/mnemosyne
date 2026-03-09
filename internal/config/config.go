@@ -79,13 +79,20 @@ type SearchConfig struct {
 	ReRankCandidates int `yaml:"rerank_candidates"`
 }
 
+func getEnvOrDefault(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
+
 // DefaultConfig returns the configuration with sensible defaults.
 func DefaultConfig() *Config {
 	dataDir := defaultDataDir()
 	modelsDir := findModelsDir(dataDir)
 
 	return &Config{
-		DBPath:         filepath.Join(dataDir, "mnemosyne.db"),
+		DBPath:         getEnvOrDefault("MNEMOSYNE_DB_PATH", filepath.Join(dataDir, "mnemosyne.db")),
 		OnnxRuntimeLib: findONNXRuntimeLib(dataDir),
 		Embedding: EmbeddingConfig{
 			ModelPath:       filepath.Join(modelsDir, "snowflake-arctic-embed-m-v1.5"),

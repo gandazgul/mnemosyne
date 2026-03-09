@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
 )
 
@@ -27,9 +26,9 @@ var versionCmd = &cobra.Command{
 	Short: "Print the version of mnemosyne",
 	Long:  "Display the version, git commit, and build date of this mnemosyne binary.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("mnemosyne %s\n", Version)
-		fmt.Printf("  commit: %s\n", Commit)
-		fmt.Printf("  built:  %s\n", Date)
+		cmd.Printf("mnemosyne %s\n", Version)
+		cmd.Printf("  commit: %s\n", Commit)
+		cmd.Printf("  built:  %s\n", Date)
 	},
 }
 

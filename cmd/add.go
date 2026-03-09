@@ -121,9 +121,9 @@ If --name is not provided, the current directory name is used.`,
 			preview = preview[:80] + "..."
 		}
 
-		fmt.Printf("Added document %d to collection %q (embedded %d dims)\n",
+		cmd.Printf("Added document %d to collection %q (embedded %d dims)\n",
 			doc.ID, collectionName, len(vec))
-		fmt.Printf("  %s\n", preview)
+		cmd.Printf("  %s\n", preview)
 
 		return nil
 	},

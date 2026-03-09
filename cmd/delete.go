@@ -48,8 +48,8 @@ var deleteCmd = &cobra.Command{
 			preview = preview[:80] + "..."
 		}
 
-		fmt.Printf("Deleted document %d\n", id)
-		fmt.Printf("  %s\n", preview)
+		cmd.Printf("Deleted document %d\n", id)
+		cmd.Printf("  %s\n", preview)
 
 		return nil
 	},

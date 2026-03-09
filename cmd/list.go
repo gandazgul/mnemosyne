@@ -54,7 +54,7 @@ Use --limit to restrict the number of results.`,
 		}
 
 		if len(docs) == 0 {
-			fmt.Printf("No documents in collection %q\n", collectionName)
+			cmd.Printf("No documents in collection %q\n", collectionName)
 			return nil
 		}
 
@@ -64,11 +64,11 @@ Use --limit to restrict the number of results.`,
 		}
 
 		if plain(formatFlag) {
-			fmt.Printf("Collection %q (%d documents)\n", collectionName, count)
+			cmd.Printf("Collection %q (%d documents)\n", collectionName, count)
 		} else {
-			fmt.Printf("Collection %s (%d documents)\n",
+			cmd.Printf("Collection %s (%d documents)\n",
 				boldCyan(collectionName), count)
-			fmt.Println(dimWhite(strings.Repeat("─", 60)))
+			cmd.Println(dimWhite(strings.Repeat("─", 60)))
 		}
 
 		for _, doc := range docs {
@@ -80,18 +80,18 @@ Use --limit to restrict the number of results.`,
 			ts := doc.CreatedAt.Format("2006-01-02 15:04:05")
 
 			if plain(formatFlag) {
-				fmt.Printf("  [%d]  %s\n", doc.ID, preview)
-				fmt.Printf("        %s\n", ts)
+				cmd.Printf("  [%d]  %s\n", doc.ID, preview)
+				cmd.Printf("        %s\n", ts)
 			} else {
-				fmt.Printf("  %s  %s\n",
+				cmd.Printf("  %s  %s\n",
 					boldYellow(fmt.Sprintf("[%d]", doc.ID)),
 					preview)
-				fmt.Printf("        %s\n", dimWhite(ts))
+				cmd.Printf("        %s\n", dimWhite(ts))
 			}
 		}
 
 		if limitFlag > 0 && int64(limitFlag) < count {
-			fmt.Printf("\nShowing %d of %d documents. Use --limit to see more.\n", limitFlag, count)
+			cmd.Printf("\nShowing %d of %d documents. Use --limit to see more.\n", limitFlag, count)
 		}
 
 		return nil

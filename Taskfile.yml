@@ -57,6 +57,15 @@ tasks:
     cmds:
       - go test -tags '{{.BUILD_TAGS}}' -race -v ./...
 
+  cover:
+    desc: Run tests and open HTML coverage report
+    env:
+      CGO_LDFLAGS: "-L{{.ROOT_DIR}}/{{.LIB_DIR}}"
+    cmds:
+      - go test -tags '{{.BUILD_TAGS}}' -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out
+      - rm coverage.out
+
   lint:
     desc: Run linter
     cmds:

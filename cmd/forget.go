@@ -49,11 +49,11 @@ is used as the collection name.`,
 			return fmt.Errorf("counting documents: %w", err)
 		}
 
-		fmt.Printf("This will permanently delete collection %q and all %d of its documents.\n", collectionName, docCount)
-		fmt.Println("This action cannot be undone.")
+		cmd.Printf("This will permanently delete collection %q and all %d of its documents.\n", collectionName, docCount)
+		cmd.Println("This action cannot be undone.")
 
 		if !yesFlag {
-			fmt.Printf("\nType the collection name to confirm: ")
+			cmd.Printf("\nType the collection name to confirm: ")
 			reader := bufio.NewReader(os.Stdin)
 			input, err := reader.ReadString('\n')
 			if err != nil {
@@ -77,7 +77,7 @@ is used as the collection name.`,
 			return fmt.Errorf("deleting collection: %w", err)
 		}
 
-		fmt.Printf("Deleted collection %q and %d documents.\n", collectionName, docCount)
+		cmd.Printf("Deleted collection %q and %d documents.\n", collectionName, docCount)
 
 		return nil
 	},

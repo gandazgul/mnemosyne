@@ -38,9 +38,9 @@ simply confirms it exists.`,
 		}
 
 		if created {
-			fmt.Printf("Created collection %q (id: %d)\n", collection.Name, collection.ID)
+			cmd.Printf("Created collection %q (id: %d)\n", collection.Name, collection.ID)
 		} else {
-			fmt.Printf("Collection %q already exists (id: %d)\n", collection.Name, collection.ID)
+			cmd.Printf("Collection %q already exists (id: %d)\n", collection.Name, collection.ID)
 		}
 
 		return nil
