@@ -33,7 +33,9 @@ jobs:
           python-version: '3.x'
 
       - name: Install huggingface-cli
-        run: pip install -U "huggingface_hub[cli]"
+        run: |
+          pip install -U "huggingface_hub[cli]"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
           
       - name: Install Task
         uses: arduino/setup-task@v2
