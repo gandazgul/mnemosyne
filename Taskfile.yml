@@ -116,10 +116,19 @@ tasks:
       ORT_ARCH:
         sh: |
           arch=$(uname -m)
-          if [ "$arch" = "arm64" ] || [ "$arch" = "aarch64" ]; then
-            echo "arm64"
+          os=$(uname -s | tr '[:upper:]' '[:lower:]')
+          if [ "$os" = "linux" ]; then
+            if [ "$arch" = "aarch64" ] || [ "$arch" = "arm64" ]; then
+              echo "aarch64"
+            else
+              echo "x64"
+            fi
           else
-            echo "x86_64"
+            if [ "$arch" = "aarch64" ] || [ "$arch" = "arm64" ]; then
+              echo "arm64"
+            else
+              echo "x86_64"
+            fi
           fi
       ORT_OS:
         sh: |
@@ -129,16 +138,14 @@ tasks:
           else
             echo "$os"
           fi
-      ORT_ARCHIVE:
-        sh: echo "onnxruntime-$(uname -s | tr '[:upper:]' '[:lower:]' | sed 's/darwin/osx/')-$(uname -m | sed 's/x86_64/x86_64/;s/aarch64/arm64/')"
+      ORT_FILE: "onnxruntime-{{.ORT_OS}}-{{.ORT_ARCH}}-{{.ONNXRUNTIME_VERSION}}.tgz"
+      URL: "https://github.com/microsoft/onnxruntime/releases/download/v{{.ONNXRUNTIME_VERSION}}/{{.ORT_FILE}}"
     cmds:
-      - mkdir -p {{.LIB_DIR}}
-      - echo "Downloading ONNX Runtime v{{.ONNXRUNTIME_VERSION}} for {{.ORT_OS}}-{{.ORT_ARCH}}..."
-      - >-
-        curl -fsSL
-        "https://github.com/microsoft/onnxruntime/releases/download/v{{.ONNXRUNTIME_VERSION}}/onnxruntime-{{.ORT_OS}}-{{.ORT_ARCH}}-{{.ONNXRUNTIME_VERSION}}.tgz"
-        | tar xz -C {{.LIB_DIR}} --strip-components=1
-        --include="*/lib/libonnxruntime*"
+      - mkdir -p {{.LIB_DIR}} tmp_ort
+      - echo "Downloading ONNX Runtime v{{.ONNXRUNTIME_VERSION}} from {{.URL}}"
+      - curl -fsSL "{{.URL}}" | tar xz -C tmp_ort
+      - cp -P tmp_ort/*/lib/libonnxruntime* {{.LIB_DIR}}/
+      - rm -rf tmp_ort
       - echo "ONNX Runtime library installed to {{.LIB_DIR}}/"
 
   download-tokenizers:
