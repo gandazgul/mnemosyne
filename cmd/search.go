@@ -63,7 +63,7 @@ If --name is not provided, the current directory name is used.`,
 		if err != nil {
 			return err
 		}
-		defer database.Close()
+		defer database.Close() //nolint:errcheck
 
 		collection, err := database.GetCollectionByName(collectionName)
 		if err != nil {
@@ -96,7 +96,7 @@ If --name is not provided, the current directory name is used.`,
 		if err != nil {
 			return fmt.Errorf("loading embedding model: %w", err)
 		}
-		defer embedder.Close()
+		defer embedder.Close() //nolint:errcheck
 
 		var rr reranker.Reranker
 		if !noRerankFlag {
@@ -105,7 +105,7 @@ If --name is not provided, the current directory name is used.`,
 				return fmt.Errorf("loading reranker model: %w", err)
 			}
 			if rr != nil {
-				defer rr.Close()
+				defer rr.Close() //nolint:errcheck
 			}
 		}
 

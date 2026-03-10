@@ -37,7 +37,7 @@ func TestONNXCrossEncoder(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create reranker: %v", err)
 	}
-	defer rr.Close()
+	defer rr.Close() //nolint:errcheck
 
 	query := "What is Go?"
 	docs := []string{

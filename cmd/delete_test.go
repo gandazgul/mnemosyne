@@ -17,7 +17,7 @@ func TestDeleteCmd(t *testing.T) {
 	}
 	col, _, _ := db.GetOrCreateCollection("col_a")
 	_, _ = db.InsertDocument(col.ID, "some doc", nil)
-	db.Close()
+	db.Close() //nolint:errcheck
 
 	outBuf := new(bytes.Buffer)
 	rootCmd.SetOut(outBuf)

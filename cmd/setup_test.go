@@ -38,7 +38,7 @@ func TestSetupCmd_AlreadyReady(t *testing.T) {
 	rootCmd.SetArgs([]string{"setup"})
 	err := rootCmd.Execute()
 
-	w.Close()
+	w.Close() //nolint:errcheck
 	os.Stdout = oldStdout
 
 	var buf bytes.Buffer
@@ -65,7 +65,7 @@ func TestSetupCmd_NotReady_FailsToDownload(t *testing.T) {
 	rootCmd.SetArgs([]string{"setup"})
 	err := rootCmd.Execute()
 
-	w.Close()
+	w.Close() //nolint:errcheck
 	os.Stdout = oldStdout
 
 	var buf bytes.Buffer

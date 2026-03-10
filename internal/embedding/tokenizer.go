@@ -126,6 +126,6 @@ func (t *Tokenizer) EncodeBatch(texts []string) ([]*EncodedInput, int, error) {
 // Close releases the tokenizer's native resources.
 func (t *Tokenizer) Close() {
 	if t.inner != nil {
-		t.inner.Close()
+		t.inner.Close() //nolint:errcheck
 	}
 }

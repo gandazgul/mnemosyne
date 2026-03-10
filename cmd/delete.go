@@ -23,7 +23,7 @@ var deleteCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		defer database.Close()
+		defer database.Close() //nolint:errcheck
 
 		// Fetch the document first so we can show what was deleted.
 		doc, err := database.GetDocumentByID(id)

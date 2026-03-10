@@ -139,7 +139,7 @@ func TestListDocuments_RowsCloseError(t *testing.T) {
 	if err != nil {
 		t.Fatalf("sql.Open: %v", err)
 	}
-	defer sqlDB.Close()
+	defer sqlDB.Close() //nolint:errcheck
 
 	err = queryAndClose(sqlDB, `SELECT id, collection_id, content, metadata, created_at FROM documents WHERE collection_id = ?`, int64(1))
 	if err == nil {
@@ -168,7 +168,7 @@ func TestListCollections_RowsCloseError(t *testing.T) {
 	if err != nil {
 		t.Fatalf("sql.Open: %v", err)
 	}
-	defer sqlDB.Close()
+	defer sqlDB.Close() //nolint:errcheck
 
 	err = queryAndClose(sqlDB, `SELECT id, name, created_at, doc_count FROM collections`)
 	if err == nil {

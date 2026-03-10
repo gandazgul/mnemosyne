@@ -16,7 +16,7 @@ func TestForgetCmd(t *testing.T) {
 		t.Fatalf("setup db: %v", err)
 	}
 	_, _, _ = db.GetOrCreateCollection("col_a")
-	db.Close()
+	db.Close() //nolint:errcheck
 
 	outBuf := new(bytes.Buffer)
 	rootCmd.SetOut(outBuf)

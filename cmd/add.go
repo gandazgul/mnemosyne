@@ -118,7 +118,7 @@ If --name is not provided, the current directory name is used.`,
 		if err != nil {
 			return err
 		}
-		defer database.Close()
+		defer database.Close() //nolint:errcheck
 
 		// Ensure the vector table exists with the configured embedding dimensions.
 		if err := database.EnsureVectorTable(cfg.Embedding.Dimensions); err != nil {
@@ -139,7 +139,7 @@ If --name is not provided, the current directory name is used.`,
 		if err != nil {
 			return fmt.Errorf("loading embedding model: %w", err)
 		}
-		defer embedder.Close()
+		defer embedder.Close() //nolint:errcheck
 
 		for i, chunk := range chunks {
 			// Generate the document embedding using the document prefix.

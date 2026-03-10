@@ -30,7 +30,7 @@ simply confirms it exists.`,
 		if err != nil {
 			return err
 		}
-		defer database.Close()
+		defer database.Close() //nolint:errcheck
 
 		collection, created, err := database.GetOrCreateCollection(collectionName)
 		if err != nil {

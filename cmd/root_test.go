@@ -16,7 +16,7 @@ func TestExecuteRootCommand(t *testing.T) {
 	rootCmd.SetArgs([]string{})
 	err := Execute()
 
-	w.Close()
+	w.Close() //nolint:errcheck
 	os.Stdout = oldStdout
 
 	var buf bytes.Buffer

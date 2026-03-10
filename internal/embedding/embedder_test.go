@@ -357,7 +357,7 @@ func TestONNXEmbedder_Embed(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewONNXEmbedder: %v", err)
 	}
-	defer embedder.Close()
+	defer embedder.Close() //nolint:errcheck
 
 	embedding, err := embedder.Embed("hello world")
 	if err != nil {
@@ -407,7 +407,7 @@ func TestONNXEmbedder_Deterministic(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewONNXEmbedder: %v", err)
 	}
-	defer embedder.Close()
+	defer embedder.Close() //nolint:errcheck
 
 	// Same input should produce the same output.
 	emb1, err := embedder.Embed("deterministic test")
@@ -443,7 +443,7 @@ func TestONNXEmbedder_DifferentInputsDifferentOutputs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewONNXEmbedder: %v", err)
 	}
-	defer embedder.Close()
+	defer embedder.Close() //nolint:errcheck
 
 	emb1, err := embedder.Embed("the cat sat on the mat")
 	if err != nil {
@@ -486,7 +486,7 @@ func TestONNXEmbedder_QueryDocumentPrefixes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewONNXEmbedder: %v", err)
 	}
-	defer embedder.Close()
+	defer embedder.Close() //nolint:errcheck
 
 	text := "golang concurrency patterns"
 
@@ -536,7 +536,7 @@ func TestONNXEmbedder_EmbedBatch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewONNXEmbedder: %v", err)
 	}
-	defer embedder.Close()
+	defer embedder.Close() //nolint:errcheck
 
 	texts := []string{
 		"machine learning algorithms",
@@ -613,7 +613,7 @@ func TestONNXEmbedder_MRLTruncation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewONNXEmbedder: %v", err)
 	}
-	defer embedder.Close()
+	defer embedder.Close() //nolint:errcheck
 
 	embedding, err := embedder.Embed("test MRL truncation")
 	if err != nil {
@@ -647,7 +647,7 @@ func TestONNXEmbedder_Dimensions(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewONNXEmbedder: %v", err)
 	}
-	defer embedder.Close()
+	defer embedder.Close() //nolint:errcheck
 
 	if embedder.Dimensions() != 256 {
 		t.Errorf("Dimensions() = %d, want 256", embedder.Dimensions())

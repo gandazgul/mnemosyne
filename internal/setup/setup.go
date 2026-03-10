@@ -148,7 +148,7 @@ func installONNXRuntime(ctx context.Context, dataDir string, progress ProgressFu
 	}); err != nil {
 		return err
 	}
-	defer os.Remove(tgzPath)
+	defer os.Remove(tgzPath) //nolint:errcheck
 
 	// Extract library files from the tarball.
 	if err := extractONNXRuntimeLib(tgzPath, libDir); err != nil {
@@ -164,13 +164,13 @@ func extractONNXRuntimeLib(tgzPath, destDir string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer f.Close() //nolint:errcheck
 
 	gz, err := gzip.NewReader(f)
 	if err != nil {
 		return err
 	}
-	defer gz.Close()
+	defer gz.Close() //nolint:errcheck
 
 	tr := tar.NewReader(gz)
 	for {
@@ -195,7 +195,7 @@ func extractONNXRuntimeLib(tgzPath, destDir string) error {
 
 		// Handle symlinks.
 		if hdr.Typeflag == tar.TypeSymlink {
-			os.Remove(destPath) // remove existing symlink if any
+			_ = os.Remove(destPath) // remove existing symlink if any
 			if err := os.Symlink(hdr.Linkname, destPath); err != nil {
 				return fmt.Errorf("create symlink %s -> %s: %w", base, hdr.Linkname, err)
 			}
@@ -207,10 +207,12 @@ func extractONNXRuntimeLib(tgzPath, destDir string) error {
 			return err
 		}
 		if _, err := io.Copy(out, tr); err != nil {
-			out.Close()
+			_ = out.Close()
 			return err
 		}
-		out.Close()
+		if err := out.Close(); err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -46,7 +46,7 @@ func TestStatsCmd_WithData(t *testing.T) {
 	c, _ := database.CreateCollection("test_col")
 	_, _ = database.InsertDocument(c.ID, "doc 1", nil)
 	_, _ = database.InsertDocument(c.ID, "doc 2", nil)
-	database.Close()
+	database.Close() //nolint:errcheck
 
 	outBuf := new(bytes.Buffer)
 	rootCmd.SetOut(outBuf)

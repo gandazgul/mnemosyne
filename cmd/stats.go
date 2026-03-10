@@ -20,7 +20,7 @@ var statsCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		defer database.Close()
+		defer database.Close() //nolint:errcheck
 
 		collections, err := database.ListCollections()
 		if err != nil {

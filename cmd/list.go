@@ -37,7 +37,7 @@ Use --limit to restrict the number of results.`,
 		if err != nil {
 			return err
 		}
-		defer database.Close()
+		defer database.Close() //nolint:errcheck
 
 		collection, err := database.GetCollectionByName(collectionName)
 		if err != nil {

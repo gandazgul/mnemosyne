@@ -29,7 +29,7 @@ func TestGetEnvOrDefault(t *testing.T) {
 	fallback := "fallback_value"
 
 	// 1. Not set
-	os.Unsetenv(key)
+	os.Unsetenv(key) //nolint:errcheck
 	val := getEnvOrDefault(key, fallback)
 	if val != fallback {
 		t.Errorf("expected fallback %q, got %q", fallback, val)
@@ -37,8 +37,8 @@ func TestGetEnvOrDefault(t *testing.T) {
 
 	// 2. Set
 	expected := "env_value"
-	os.Setenv(key, expected)
-	defer os.Unsetenv(key)
+	os.Setenv(key, expected) //nolint:errcheck
+	defer os.Unsetenv(key)   //nolint:errcheck
 
 	val = getEnvOrDefault(key, fallback)
 	if val != expected {
@@ -89,14 +89,14 @@ func TestFindONNXRuntimeLib(t *testing.T) {
 	// Test with explicit env var
 	envKey := "ONNXRUNTIME_SHARED_LIBRARY_PATH"
 	expectedEnvPath := filepath.Join(tmpDir, "env-libonnxruntime.so")
-	os.Setenv(envKey, expectedEnvPath)
-	defer os.Unsetenv(envKey)
+	os.Setenv(envKey, expectedEnvPath) //nolint:errcheck
+	defer os.Unsetenv(envKey)          //nolint:errcheck
 
 	path := findONNXRuntimeLib(tmpDir)
 	if path != expectedEnvPath {
 		t.Errorf("expected path from env var %q, got %q", expectedEnvPath, path)
 	}
-	os.Unsetenv(envKey)
+	os.Unsetenv(envKey) //nolint:errcheck
 
 	// Test finding in dataDir/lib
 	libDir := filepath.Join(tmpDir, "lib")
@@ -146,8 +146,8 @@ func TestFindModelsDir(t *testing.T) {
 func TestDefaultDataDir(t *testing.T) {
 	// Test XDG_DATA_HOME
 	expectedXDG := "/tmp/test-xdg"
-	os.Setenv("XDG_DATA_HOME", expectedXDG)
-	defer os.Unsetenv("XDG_DATA_HOME")
+	os.Setenv("XDG_DATA_HOME", expectedXDG) //nolint:errcheck
+	defer os.Unsetenv("XDG_DATA_HOME")      //nolint:errcheck
 
 	path := defaultDataDir()
 	expectedPath := filepath.Join(expectedXDG, "mnemosyne")
@@ -156,7 +156,7 @@ func TestDefaultDataDir(t *testing.T) {
 	}
 
 	// Test home dir fallback
-	os.Unsetenv("XDG_DATA_HOME")
+	os.Unsetenv("XDG_DATA_HOME") //nolint:errcheck
 
 	// Assuming HOME is set in test environment
 	path = defaultDataDir()

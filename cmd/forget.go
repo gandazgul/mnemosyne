@@ -33,7 +33,7 @@ is used as the collection name.`,
 		if err != nil {
 			return err
 		}
-		defer database.Close()
+		defer database.Close() //nolint:errcheck
 
 		// Verify the collection exists and show what will be deleted.
 		collection, err := database.GetCollectionByName(collectionName)

@@ -55,7 +55,7 @@ func NewONNXCrossEncoder(cfg config.RerankerConfig) (*ONNXCrossEncoder, error) {
 		nil,
 	)
 	if err != nil {
-		tk.Close()
+		tk.Close() //nolint:errcheck
 		return nil, fmt.Errorf("create ONNX session for %s: %w", modelFile, err)
 	}
 
@@ -224,7 +224,7 @@ func (e *ONNXCrossEncoder) Close() error {
 		}
 	}
 	if e.tokenizer != nil {
-		e.tokenizer.Close()
+		e.tokenizer.Close() //nolint:errcheck
 	}
 	if len(errs) > 0 {
 		return errs[0]

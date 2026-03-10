@@ -23,8 +23,8 @@ func TestColorize(t *testing.T) {
 	}
 
 	// Temporarily force color output even in tests
-	os.Setenv("CLICOLOR_FORCE", "1")
-	defer os.Unsetenv("CLICOLOR_FORCE")
+	os.Setenv("CLICOLOR_FORCE", "1")    //nolint:errcheck
+	defer os.Unsetenv("CLICOLOR_FORCE") //nolint:errcheck
 
 	styled := colorize("color", boldCyan, "test")
 	if styled == "test" {

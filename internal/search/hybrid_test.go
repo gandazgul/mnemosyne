@@ -100,7 +100,7 @@ func testDB(t *testing.T) *db.DB {
 		t.Fatalf("failed to open test database: %v", err)
 	}
 	t.Cleanup(func() {
-		database.Close()
+		database.Close() //nolint:errcheck
 	})
 	return database
 }

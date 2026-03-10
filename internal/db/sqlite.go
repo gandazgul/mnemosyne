@@ -60,7 +60,7 @@ func Open(dbPath string) (*DB, error) {
 
 	// Verify the connection works.
 	if err := conn.Ping(); err != nil {
-		conn.Close()
+		conn.Close() //nolint:errcheck
 		return nil, fmt.Errorf("pinging database: %w", err)
 	}
 
@@ -68,7 +68,7 @@ func Open(dbPath string) (*DB, error) {
 
 	// Run schema migrations to ensure tables exist.
 	if err := db.migrate(); err != nil {
-		conn.Close()
+		conn.Close() //nolint:errcheck
 		return nil, fmt.Errorf("running migrations: %w", err)
 	}
 

@@ -41,7 +41,7 @@ func TestOpenDB(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error opening test DB, got %v", err)
 	}
-	defer db.Close()
+	defer db.Close() //nolint:errcheck
 
 	if db == nil {
 		t.Error("expected valid DB instance, got nil")

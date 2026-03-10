@@ -17,7 +17,7 @@ var collectionsCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		defer database.Close()
+		defer database.Close() //nolint:errcheck
 
 		collections, err := database.ListCollections()
 		if err != nil {
@@ -33,7 +33,7 @@ var collectionsCmd = &cobra.Command{
 		cmd.Println("────────────────────────────────────────────────────────────")
 
 		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 4, ' ', 0)
-		fmt.Fprintln(w, "ID\tNAME\tDOCUMENTS\tCREATED")
+		fmt.Fprintln(w, "ID\tNAME\tDOCUMENTS\tCREATED") //nolint:errcheck
 
 		for _, c := range collections {
 			count, err := database.CountDocuments(c.ID)
@@ -42,7 +42,9 @@ var collectionsCmd = &cobra.Command{
 			}
 			fmt.Fprintf(w, "%d\t%s\t%d\t%s\n", c.ID, c.Name, count, c.CreatedAt.Format("2006-01-02 15:04:05"))
 		}
-		w.Flush()
+		if err := w.Flush(); err != nil {
+			return fmt.Errorf("flush writer: %w", err)
+		}
 
 		return nil
 	},

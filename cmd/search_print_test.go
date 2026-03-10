@@ -40,7 +40,7 @@ func TestPrintSearchResults(t *testing.T) {
 	// Test color with debug
 	printSearchResults(results, "query", "col_a", "color", true)
 
-	w.Close()
+	w.Close() //nolint:errcheck
 	os.Stdout = oldStdout
 
 	var buf bytes.Buffer

@@ -54,7 +54,7 @@ func downloadFile(ctx context.Context, url, destPath, expectedSHA256 string, pro
 	if err != nil {
 		return fmt.Errorf("HTTP request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck
 
 	// Handle response status.
 	switch resp.StatusCode {
@@ -66,7 +66,7 @@ func downloadFile(ctx context.Context, url, destPath, expectedSHA256 string, pro
 	case http.StatusRequestedRangeNotSatisfiable:
 		// File is already complete (or server doesn't support Range).
 		// Re-download from scratch.
-		resp.Body.Close()
+		resp.Body.Close() //nolint:errcheck
 		return downloadFile(ctx, url, destPath, expectedSHA256, progress)
 	default:
 		return fmt.Errorf("HTTP %d from %s", resp.StatusCode, url)
@@ -99,7 +99,7 @@ func downloadFile(ctx context.Context, url, destPath, expectedSHA256 string, pro
 		n, readErr := resp.Body.Read(buf)
 		if n > 0 {
 			if _, writeErr := f.Write(buf[:n]); writeErr != nil {
-				f.Close()
+				_ = f.Close()
 				return fmt.Errorf("write file: %w", writeErr)
 			}
 			written += int64(n)
@@ -111,11 +111,13 @@ func downloadFile(ctx context.Context, url, destPath, expectedSHA256 string, pro
 			break
 		}
 		if readErr != nil {
-			f.Close()
+			_ = f.Close()
 			return fmt.Errorf("read response: %w", readErr)
 		}
 	}
-	f.Close()
+	if err := f.Close(); err != nil {
+		return fmt.Errorf("close file: %w", err)
+	}
 
 	// Verify checksum if provided.
 	if expectedSHA256 != "" {
@@ -124,7 +126,7 @@ func downloadFile(ctx context.Context, url, destPath, expectedSHA256 string, pro
 			return fmt.Errorf("verify checksum: %w", err)
 		}
 		if !match {
-			os.Remove(partialPath)
+			os.Remove(partialPath) //nolint:errcheck
 			return fmt.Errorf("checksum mismatch for %s", filepath.Base(destPath))
 		}
 	}
@@ -143,7 +145,7 @@ func fileMatchesSHA256(path, expected string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer f.Close()
+	defer f.Close() //nolint:errcheck
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {

@@ -23,7 +23,7 @@ func testDB(t *testing.T) *db.DB {
 	}
 
 	t.Cleanup(func() {
-		database.Close()
+		database.Close() //nolint:errcheck
 	})
 
 	return database
@@ -37,7 +37,7 @@ func TestOpen_CreatesDirectory(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Open() error = %v", err)
 	}
-	defer database.Close()
+	defer database.Close() //nolint:errcheck
 
 	// Verify the file was created.
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
