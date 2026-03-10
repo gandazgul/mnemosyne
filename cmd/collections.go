@@ -40,7 +40,7 @@ var collectionsCmd = &cobra.Command{
 			if err != nil {
 				return fmt.Errorf("counting documents for %s: %w", c.Name, err)
 			}
-			fmt.Fprintf(w, "%d\t%s\t%d\t%s\n", c.ID, c.Name, count, c.CreatedAt.Format("2006-01-02 15:04:05"))
+			fmt.Fprintf(w, "%d\t%s\t%d\t%s\n", c.ID, c.Name, count, c.CreatedAt.Format("2006-01-02 15:04:05")) //nolint:errcheck
 		}
 		if err := w.Flush(); err != nil {
 			return fmt.Errorf("flush writer: %w", err)
