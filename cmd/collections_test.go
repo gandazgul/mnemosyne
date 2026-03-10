@@ -36,13 +36,13 @@ func TestCollectionsCmd_WithData(t *testing.T) {
 	if err != nil {
 		t.Fatalf("openDB: %v", err)
 	}
-	
+
 	c, _ := database.CreateCollection("test_col")
-	database.InsertDocument(c.ID, "doc 1", nil)
-	database.InsertDocument(c.ID, "doc 2", nil)
-	
+	_, _ = database.InsertDocument(c.ID, "doc 1", nil)
+	_, _ = database.InsertDocument(c.ID, "doc 2", nil)
+
 	c2, _ := database.CreateCollection("another_col")
-	database.InsertDocument(c2.ID, "doc 1", nil)
+	_, _ = database.InsertDocument(c2.ID, "doc 1", nil)
 	database.Close()
 
 	outBuf := new(bytes.Buffer)

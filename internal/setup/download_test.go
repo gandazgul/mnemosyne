@@ -15,12 +15,12 @@ func TestFileMatchesSHA256(t *testing.T) {
 	tmpDir := t.TempDir()
 	path := filepath.Join(tmpDir, "test.txt")
 	content := []byte("hello world")
-	os.WriteFile(path, content, 0644)
-	
+	_ = os.WriteFile(path, content, 0644)
+
 	h := sha256.New()
 	h.Write(content)
 	expected := hex.EncodeToString(h.Sum(nil))
-	
+
 	match, err := fileMatchesSHA256(path, expected)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -28,12 +28,12 @@ func TestFileMatchesSHA256(t *testing.T) {
 	if !match {
 		t.Error("expected checksum to match")
 	}
-	
+
 	match, _ = fileMatchesSHA256(path, "invalid")
 	if match {
 		t.Error("expected checksum to not match")
 	}
-	
+
 	// test non-existent file
 	_, err = fileMatchesSHA256(filepath.Join(tmpDir, "missing.txt"), expected)
 	if err == nil {
@@ -49,7 +49,7 @@ func TestDownloadFile(t *testing.T) {
 	expectedHash := hex.EncodeToString(h.Sum(nil))
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write(content)
+		_, _ = w.Write(content)
 	}))
 	defer ts.Close()
 
@@ -90,18 +90,18 @@ func TestDownloadFile(t *testing.T) {
 
 func TestDownloadFile_Errors(t *testing.T) {
 	tmpDir := t.TempDir()
-	
+
 	// Test HTTP error
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 	}))
 	defer ts.Close()
-	
+
 	err := downloadFile(context.Background(), ts.URL, filepath.Join(tmpDir, "404.txt"), "", nil)
 	if err == nil {
 		t.Error("expected error for 404 response")
 	}
-	
+
 	// Test invalid URL
 	err = downloadFile(context.Background(), "http://invalid.url.that.doesnt.exist", filepath.Join(tmpDir, "invalid.txt"), "", nil)
 	if err == nil {

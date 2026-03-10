@@ -8,9 +8,9 @@ func TestSearchFTS_BasicMatch(t *testing.T) {
 	database := testDB(t)
 	c, _ := database.CreateCollection("search-test")
 
-	database.InsertDocument(c.ID, "Go is a statically typed programming language", nil)
-	database.InsertDocument(c.ID, "Python is a dynamically typed language", nil)
-	database.InsertDocument(c.ID, "Rust focuses on memory safety", nil)
+	_, _ = database.InsertDocument(c.ID, "Go is a statically typed programming language", nil)
+	_, _ = database.InsertDocument(c.ID, "Python is a dynamically typed language", nil)
+	_, _ = database.InsertDocument(c.ID, "Rust focuses on memory safety", nil)
 
 	results, err := database.SearchFTS(c.ID, "programming language", 0)
 	if err != nil {
@@ -40,9 +40,9 @@ func TestSearchFTS_RankedByRelevance(t *testing.T) {
 	c, _ := database.CreateCollection("rank-test")
 
 	// Insert documents with varying relevance to "golang concurrency".
-	database.InsertDocument(c.ID, "Golang concurrency patterns using goroutines and channels in golang", nil)
-	database.InsertDocument(c.ID, "Introduction to concurrency", nil)
-	database.InsertDocument(c.ID, "Cooking recipes for beginners", nil)
+	_, _ = database.InsertDocument(c.ID, "Golang concurrency patterns using goroutines and channels in golang", nil)
+	_, _ = database.InsertDocument(c.ID, "Introduction to concurrency", nil)
+	_, _ = database.InsertDocument(c.ID, "Cooking recipes for beginners", nil)
 
 	results, err := database.SearchFTS(c.ID, "golang concurrency", 0)
 	if err != nil {
@@ -72,8 +72,8 @@ func TestSearchFTS_CollectionScoped(t *testing.T) {
 	c1, _ := database.CreateCollection("collection-a")
 	c2, _ := database.CreateCollection("collection-b")
 
-	database.InsertDocument(c1.ID, "Go programming in collection A", nil)
-	database.InsertDocument(c2.ID, "Go programming in collection B", nil)
+	_, _ = database.InsertDocument(c1.ID, "Go programming in collection A", nil)
+	_, _ = database.InsertDocument(c2.ID, "Go programming in collection B", nil)
 
 	// Search in collection A only.
 	results, err := database.SearchFTS(c1.ID, "programming", 0)
@@ -106,7 +106,7 @@ func TestSearchFTS_NoResults(t *testing.T) {
 	database := testDB(t)
 	c, _ := database.CreateCollection("empty-search")
 
-	database.InsertDocument(c.ID, "Hello world", nil)
+	_, _ = database.InsertDocument(c.ID, "Hello world", nil)
 
 	results, err := database.SearchFTS(c.ID, "nonexistentterm", 0)
 	if err != nil {
@@ -122,7 +122,7 @@ func TestSearchFTS_EmptyQuery(t *testing.T) {
 	database := testDB(t)
 	c, _ := database.CreateCollection("empty-query")
 
-	database.InsertDocument(c.ID, "Some document", nil)
+	_, _ = database.InsertDocument(c.ID, "Some document", nil)
 
 	results, err := database.SearchFTS(c.ID, "", 0)
 	if err != nil {
@@ -138,9 +138,9 @@ func TestSearchFTS_WithLimit(t *testing.T) {
 	database := testDB(t)
 	c, _ := database.CreateCollection("limit-test")
 
-	database.InsertDocument(c.ID, "Go tutorial part one", nil)
-	database.InsertDocument(c.ID, "Go tutorial part two", nil)
-	database.InsertDocument(c.ID, "Go tutorial part three", nil)
+	_, _ = database.InsertDocument(c.ID, "Go tutorial part one", nil)
+	_, _ = database.InsertDocument(c.ID, "Go tutorial part two", nil)
+	_, _ = database.InsertDocument(c.ID, "Go tutorial part three", nil)
 
 	results, err := database.SearchFTS(c.ID, "Go tutorial", 2)
 	if err != nil {
@@ -156,7 +156,7 @@ func TestSearchFTS_SpecialCharacters(t *testing.T) {
 	database := testDB(t)
 	c, _ := database.CreateCollection("special-chars")
 
-	database.InsertDocument(c.ID, "Hello world from Go", nil)
+	_, _ = database.InsertDocument(c.ID, "Hello world from Go", nil)
 
 	// These queries contain FTS5 special characters that should be sanitized.
 	queries := []string{
@@ -183,8 +183,8 @@ func TestSearchFTS_PhraseQuery(t *testing.T) {
 	database := testDB(t)
 	c, _ := database.CreateCollection("phrase-test")
 
-	database.InsertDocument(c.ID, "The quick brown fox jumps over the lazy dog", nil)
-	database.InsertDocument(c.ID, "A brown and quick animal", nil)
+	_, _ = database.InsertDocument(c.ID, "The quick brown fox jumps over the lazy dog", nil)
+	_, _ = database.InsertDocument(c.ID, "A brown and quick animal", nil)
 
 	// Phrase query: "quick brown" should match exact sequence.
 	results, err := database.SearchFTS(c.ID, `"quick brown"`, 0)
@@ -205,7 +205,7 @@ func TestSearchFTS_DocumentFields(t *testing.T) {
 	c, _ := database.CreateCollection("fields-test")
 
 	meta := `{"source": "test"}`
-	database.InsertDocument(c.ID, "searchable content here", &meta)
+	_, _ = database.InsertDocument(c.ID, "searchable content here", &meta)
 
 	results, err := database.SearchFTS(c.ID, "searchable", 0)
 	if err != nil {
@@ -250,7 +250,7 @@ func TestSearchFTS_AfterDelete(t *testing.T) {
 	}
 
 	// Delete the document.
-	database.DeleteDocument(doc.ID)
+	_ = database.DeleteDocument(doc.ID)
 
 	// Verify it's no longer searchable (trigger should have removed FTS entry).
 	results, err := database.SearchFTS(c.ID, "temporary", 0)
@@ -266,7 +266,7 @@ func TestSearchFTS_AfterCollectionDelete(t *testing.T) {
 	database := testDB(t)
 	c, _ := database.CreateCollection("cascade-fts")
 
-	database.InsertDocument(c.ID, "document in doomed collection", nil)
+	_, _ = database.InsertDocument(c.ID, "document in doomed collection", nil)
 
 	// Verify searchable.
 	results, _ := database.SearchFTS(c.ID, "doomed", 0)
@@ -275,7 +275,7 @@ func TestSearchFTS_AfterCollectionDelete(t *testing.T) {
 	}
 
 	// Delete the entire collection (CASCADE deletes documents, triggers update FTS).
-	database.DeleteCollection("cascade-fts")
+	_ = database.DeleteCollection("cascade-fts")
 
 	// Verify FTS is cleaned up.
 	results, err := database.SearchFTS(c.ID, "doomed", 0)
@@ -291,7 +291,7 @@ func TestSanitizeFTSQuery_UnbalancedQuotes(t *testing.T) {
 	database := testDB(t)
 	c, _ := database.CreateCollection("unbalanced-quotes")
 
-	database.InsertDocument(c.ID, "hello world from Go", nil)
+	_, _ = database.InsertDocument(c.ID, "hello world from Go", nil)
 
 	// Unbalanced quote should not cause an error.
 	results, err := database.SearchFTS(c.ID, `"hello`, 0)

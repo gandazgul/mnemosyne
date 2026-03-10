@@ -92,7 +92,7 @@ If --name is not provided, the current directory name is used.`,
 			return fmt.Errorf("ensuring vector table: %w", err)
 		}
 
-		embedder, err := openEmbedder(cmd.Context(), cfg)
+		embedder, cfg, err := openEmbedder(cmd.Context())
 		if err != nil {
 			return fmt.Errorf("loading embedding model: %w", err)
 		}

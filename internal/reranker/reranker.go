@@ -161,19 +161,19 @@ func (e *ONNXCrossEncoder) Score(query string, documents []string) ([]float32, e
 	if err != nil {
 		return nil, fmt.Errorf("create input_ids tensor: %w", err)
 	}
-	defer idsTensor.Destroy()
+	defer func() { _ = idsTensor.Destroy() }()
 
 	maskTensor, err := ort.NewTensor(inputShape, flatMask)
 	if err != nil {
 		return nil, fmt.Errorf("create attention_mask tensor: %w", err)
 	}
-	defer maskTensor.Destroy()
+	defer func() { _ = maskTensor.Destroy() }()
 
 	typeTensor, err := ort.NewTensor(inputShape, flatTokenTypes)
 	if err != nil {
 		return nil, fmt.Errorf("create token_type_ids tensor: %w", err)
 	}
-	defer typeTensor.Destroy()
+	defer func() { _ = typeTensor.Destroy() }()
 
 	// 4. Run inference
 	inputs := []ort.Value{idsTensor, maskTensor, typeTensor}
@@ -185,7 +185,7 @@ func (e *ONNXCrossEncoder) Score(query string, documents []string) ([]float32, e
 	}
 	defer func() {
 		if outputs[0] != nil {
-			outputs[0].Destroy()
+			_ = outputs[0].Destroy()
 		}
 	}()
 

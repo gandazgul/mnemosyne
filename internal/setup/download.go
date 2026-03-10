@@ -65,7 +65,6 @@ func downloadFile(ctx context.Context, url, destPath, expectedSHA256 string, pro
 		// Resume successful.
 	case http.StatusRequestedRangeNotSatisfiable:
 		// File is already complete (or server doesn't support Range).
-		existingSize = 0
 		// Re-download from scratch.
 		resp.Body.Close()
 		return downloadFile(ctx, url, destPath, expectedSHA256, progress)

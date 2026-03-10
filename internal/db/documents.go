@@ -46,7 +46,7 @@ func (db *DB) InsertDocumentWithVector(collectionID int64, content string, metad
 	if err != nil {
 		return nil, fmt.Errorf("beginning transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	result, err := tx.Exec(
 		"INSERT INTO documents (collection_id, content, metadata) VALUES (?, ?, ?)",

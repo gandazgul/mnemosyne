@@ -51,29 +51,29 @@ func openDB() (*db.DB, error) {
 // This is expensive (loads model into memory), so it should only be called by
 // commands that need embeddings (add, search). Commands like list, delete, init
 // should not call this.
-func openEmbedder(ctx context.Context, cfg *config.Config) (embedding.Embedder, error) {
+func openEmbedder(ctx context.Context) (embedding.Embedder, *config.Config, error) {
 	// Auto-download ONNX Runtime and models if not present.
 	dataDir := config.DataDir()
 	if err := setup.EnsureReady(ctx, dataDir, func(file string, written, total int64) {
 		// Simple progress: just print dots for now.
 		// A future enhancement could use a proper progress bar.
 	}); err != nil {
-		return nil, fmt.Errorf("setup: %w", err)
+		return nil, nil, fmt.Errorf("setup: %w", err)
 	}
 
 	// Re-load config after setup (paths may now resolve to downloaded files).
-	cfg = config.Load()
+	cfg := config.Load()
 
 	if err := embedding.InitONNXRuntime(cfg.OnnxRuntimeLib); err != nil {
-		return nil, fmt.Errorf("initializing ONNX Runtime: %w", err)
+		return nil, nil, fmt.Errorf("initializing ONNX Runtime: %w", err)
 	}
 
 	embedder, err := embedding.NewONNXEmbedder(cfg.Embedding)
 	if err != nil {
-		return nil, fmt.Errorf("creating embedder: %w", err)
+		return nil, nil, fmt.Errorf("creating embedder: %w", err)
 	}
 
-	return embedder, nil
+	return embedder, cfg, nil
 }
 
 // openReranker initializes a cross-encoder reranker from the config.

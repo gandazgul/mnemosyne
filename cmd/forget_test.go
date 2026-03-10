@@ -15,24 +15,24 @@ func TestForgetCmd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("setup db: %v", err)
 	}
-	db.GetOrCreateCollection("col_a")
+	_, _, _ = db.GetOrCreateCollection("col_a")
 	db.Close()
 
 	outBuf := new(bytes.Buffer)
 	rootCmd.SetOut(outBuf)
 	rootCmd.SetErr(outBuf)
-	
+
 	// Test --yes flag for automatic confirmation
 	rootCmd.SetArgs([]string{"forget", "--name", "col_a", "--yes"})
 	if err := rootCmd.Execute(); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	
+
 	output := outBuf.String()
 	if !strings.Contains(output, "Deleted collection ") {
 		t.Errorf("expected deleted message, got: %s", output)
 	}
-	
+
 	// Test missing collection
 	rootCmd.SetArgs([]string{"forget", "--name", "non_existent", "--yes"})
 	err = rootCmd.Execute()

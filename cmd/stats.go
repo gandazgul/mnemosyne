@@ -15,7 +15,7 @@ var statsCmd = &cobra.Command{
 	Long:  "Display statistics about the mnemosyne database and models.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cfg := config.Load()
-		
+
 		database, err := openDB()
 		if err != nil {
 			return err

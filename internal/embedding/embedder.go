@@ -220,13 +220,13 @@ func (e *ONNXEmbedder) embedTexts(texts []string) ([][]float32, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create input_ids tensor: %w", err)
 	}
-	defer idsTensor.Destroy()
+	defer func() { _ = idsTensor.Destroy() }()
 
 	maskTensor, err := ort.NewTensor(inputShape, flatMask)
 	if err != nil {
 		return nil, fmt.Errorf("create attention_mask tensor: %w", err)
 	}
-	defer maskTensor.Destroy()
+	defer func() { _ = maskTensor.Destroy() }()
 
 	// Build input list: always input_ids + attention_mask, optionally token_type_ids.
 	inputs := []ort.Value{idsTensor, maskTensor}
@@ -235,7 +235,7 @@ func (e *ONNXEmbedder) embedTexts(texts []string) ([][]float32, error) {
 		if err != nil {
 			return nil, fmt.Errorf("create token_type_ids tensor: %w", err)
 		}
-		defer tokenTypeTensor.Destroy()
+		defer func() { _ = tokenTypeTensor.Destroy() }()
 		inputs = append(inputs, tokenTypeTensor)
 	}
 
@@ -247,7 +247,7 @@ func (e *ONNXEmbedder) embedTexts(texts []string) ([][]float32, error) {
 	}
 	defer func() {
 		if outputs[0] != nil {
-			outputs[0].Destroy()
+			_ = outputs[0].Destroy()
 		}
 	}()
 

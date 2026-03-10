@@ -77,9 +77,9 @@ func TestListDocuments(t *testing.T) {
 	database := testDB(t)
 	c, _ := database.CreateCollection("docs")
 
-	database.InsertDocument(c.ID, "first", nil)
-	database.InsertDocument(c.ID, "second", nil)
-	database.InsertDocument(c.ID, "third", nil)
+	_, _ = database.InsertDocument(c.ID, "first", nil)
+	_, _ = database.InsertDocument(c.ID, "second", nil)
+	_, _ = database.InsertDocument(c.ID, "third", nil)
 
 	// List all (no limit).
 	docs, err := database.ListDocuments(c.ID, 0)
@@ -100,9 +100,9 @@ func TestListDocuments_WithLimit(t *testing.T) {
 	database := testDB(t)
 	c, _ := database.CreateCollection("docs")
 
-	database.InsertDocument(c.ID, "a", nil)
-	database.InsertDocument(c.ID, "b", nil)
-	database.InsertDocument(c.ID, "c", nil)
+	_, _ = database.InsertDocument(c.ID, "a", nil)
+	_, _ = database.InsertDocument(c.ID, "b", nil)
+	_, _ = database.InsertDocument(c.ID, "c", nil)
 
 	docs, err := database.ListDocuments(c.ID, 2)
 	if err != nil {
@@ -119,9 +119,9 @@ func TestListDocuments_CollectionScoped(t *testing.T) {
 	c1, _ := database.CreateCollection("collection-1")
 	c2, _ := database.CreateCollection("collection-2")
 
-	database.InsertDocument(c1.ID, "doc in c1", nil)
-	database.InsertDocument(c2.ID, "doc in c2", nil)
-	database.InsertDocument(c2.ID, "another in c2", nil)
+	_, _ = database.InsertDocument(c1.ID, "doc in c1", nil)
+	_, _ = database.InsertDocument(c2.ID, "doc in c2", nil)
+	_, _ = database.InsertDocument(c2.ID, "another in c2", nil)
 
 	docs1, _ := database.ListDocuments(c1.ID, 0)
 	docs2, _ := database.ListDocuments(c2.ID, 0)
@@ -170,8 +170,8 @@ func TestCountDocuments(t *testing.T) {
 		t.Errorf("empty collection count = %d, want 0", count)
 	}
 
-	database.InsertDocument(c.ID, "one", nil)
-	database.InsertDocument(c.ID, "two", nil)
+	_, _ = database.InsertDocument(c.ID, "one", nil)
+	_, _ = database.InsertDocument(c.ID, "two", nil)
 
 	count, _ = database.CountDocuments(c.ID)
 	if count != 2 {
@@ -192,7 +192,7 @@ func TestInsertDocumentWithVector(t *testing.T) {
 	if doc == nil || doc.ID == 0 {
 		t.Fatal("expected non-zero ID")
 	}
-	
+
 	results, err := database.SearchVectors(c.ID, vec, 1)
 	if err != nil || len(results) == 0 || results[0].ID != doc.ID {
 		t.Errorf("expected to find inserted vector")

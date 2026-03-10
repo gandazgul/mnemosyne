@@ -135,7 +135,7 @@ If --name is not provided, the current directory name is used.`,
 		}
 
 		// Initialize the embedder to generate a vector for this document.
-		embedder, err := openEmbedder(cmd.Context(), cfg)
+		embedder, _, err := openEmbedder(cmd.Context())
 		if err != nil {
 			return fmt.Errorf("loading embedding model: %w", err)
 		}

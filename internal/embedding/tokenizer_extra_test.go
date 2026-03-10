@@ -43,11 +43,9 @@ func TestTokenizer_FromFile_Error(t *testing.T) {
 	}
 }
 
-
 func TestEmbedder_Dimensions(t *testing.T) {
 	e := &ONNXEmbedder{dimensions: 123}
 	if e.Dimensions() != 123 {
 		t.Errorf("expected 123, got %d", e.Dimensions())
 	}
 }
-

@@ -23,7 +23,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	defer embedding.DestroyONNXRuntime()
+	defer func() { _ = embedding.DestroyONNXRuntime() }()
 
 	os.Exit(m.Run())
 }

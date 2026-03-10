@@ -118,9 +118,9 @@ func TestSearchVectors_BasicKNN(t *testing.T) {
 	doc2, _ := database.InsertDocument(c.ID, "somewhat close match", nil)
 	doc3, _ := database.InsertDocument(c.ID, "far away match", nil)
 
-	database.InsertVector(doc1.ID, c.ID, []float32{0.9, 0.1, 0.0, 0.0})
-	database.InsertVector(doc2.ID, c.ID, []float32{0.5, 0.5, 0.0, 0.0})
-	database.InsertVector(doc3.ID, c.ID, []float32{0.0, 0.0, 0.9, 0.1})
+	_ = database.InsertVector(doc1.ID, c.ID, []float32{0.9, 0.1, 0.0, 0.0})
+	_ = database.InsertVector(doc2.ID, c.ID, []float32{0.5, 0.5, 0.0, 0.0})
+	_ = database.InsertVector(doc3.ID, c.ID, []float32{0.0, 0.0, 0.9, 0.1})
 
 	// Query with a vector close to doc1.
 	query := []float32{1.0, 0.0, 0.0, 0.0}
@@ -152,7 +152,7 @@ func TestSearchVectors_ReturnsDocumentFields(t *testing.T) {
 
 	c, _ := database.CreateCollection("fields-test")
 	doc, _ := database.InsertDocument(c.ID, "the document content", nil)
-	database.InsertVector(doc.ID, c.ID, []float32{1.0, 0.0, 0.0, 0.0})
+	_ = database.InsertVector(doc.ID, c.ID, []float32{1.0, 0.0, 0.0, 0.0})
 
 	results, err := database.SearchVectors(c.ID, []float32{1.0, 0.0, 0.0, 0.0}, 1)
 	if err != nil {
@@ -190,8 +190,8 @@ func TestSearchVectors_CollectionScoped(t *testing.T) {
 
 	// Both documents have the same embedding.
 	vec := []float32{1.0, 0.0, 0.0, 0.0}
-	database.InsertVector(doc1.ID, c1.ID, vec)
-	database.InsertVector(doc2.ID, c2.ID, vec)
+	_ = database.InsertVector(doc1.ID, c1.ID, vec)
+	_ = database.InsertVector(doc2.ID, c2.ID, vec)
 
 	// Search in collection A should only return doc1.
 	results, err := database.SearchVectors(c1.ID, vec, 10)
@@ -227,7 +227,7 @@ func TestSearchVectors_Limit(t *testing.T) {
 	// Insert 5 documents.
 	for i := 0; i < 5; i++ {
 		doc, _ := database.InsertDocument(c.ID, "document", nil)
-		database.InsertVector(doc.ID, c.ID, []float32{float32(i) * 0.1, 0.1, 0.1, 0.1})
+		_ = database.InsertVector(doc.ID, c.ID, []float32{float32(i) * 0.1, 0.1, 0.1, 0.1})
 	}
 
 	// Request only 2 results.
@@ -261,7 +261,7 @@ func TestDeleteVector(t *testing.T) {
 
 	c, _ := database.CreateCollection("delete-vec-test")
 	doc, _ := database.InsertDocument(c.ID, "will be deleted", nil)
-	database.InsertVector(doc.ID, c.ID, []float32{1.0, 0.0, 0.0, 0.0})
+	_ = database.InsertVector(doc.ID, c.ID, []float32{1.0, 0.0, 0.0, 0.0})
 
 	// Verify vector exists.
 	results, err := database.SearchVectors(c.ID, []float32{1.0, 0.0, 0.0, 0.0}, 10)
@@ -307,9 +307,9 @@ func TestDeleteVectorsByCollection(t *testing.T) {
 	doc2, _ := database.InsertDocument(c1.ID, "another doc in c1", nil)
 	doc3, _ := database.InsertDocument(c2.ID, "doc in c2", nil)
 
-	database.InsertVector(doc1.ID, c1.ID, []float32{1.0, 0.0, 0.0, 0.0})
-	database.InsertVector(doc2.ID, c1.ID, []float32{0.0, 1.0, 0.0, 0.0})
-	database.InsertVector(doc3.ID, c2.ID, []float32{0.0, 0.0, 1.0, 0.0})
+	_ = database.InsertVector(doc1.ID, c1.ID, []float32{1.0, 0.0, 0.0, 0.0})
+	_ = database.InsertVector(doc2.ID, c1.ID, []float32{0.0, 1.0, 0.0, 0.0})
+	_ = database.InsertVector(doc3.ID, c2.ID, []float32{0.0, 0.0, 1.0, 0.0})
 
 	// Delete all vectors in collection 1.
 	if err := database.DeleteVectorsByCollection(c1.ID); err != nil {

@@ -9,7 +9,7 @@ func TestSearchCmd_Empty(t *testing.T) {
 	outBuf := new(bytes.Buffer)
 	rootCmd.SetOut(outBuf)
 	rootCmd.SetErr(outBuf)
-	
+
 	// Error: Empty query
 	rootCmd.SetArgs([]string{"search", ""})
 	err := rootCmd.Execute()
@@ -22,7 +22,7 @@ func TestSearchCmd_InvalidFormat(t *testing.T) {
 	outBuf := new(bytes.Buffer)
 	rootCmd.SetOut(outBuf)
 	rootCmd.SetErr(outBuf)
-	
+
 	// Error: Invalid format
 	rootCmd.SetArgs([]string{"search", "query", "--format", "invalid-fmt"})
 	err := rootCmd.Execute()

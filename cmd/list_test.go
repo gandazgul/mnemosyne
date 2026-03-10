@@ -15,19 +15,19 @@ func TestListCmd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("setup db: %v", err)
 	}
-	db.GetOrCreateCollection("col_a")
+	_, _, _ = db.GetOrCreateCollection("col_a")
 	db.Close()
 
 	outBuf := new(bytes.Buffer)
 	rootCmd.SetOut(outBuf)
 	rootCmd.SetErr(outBuf)
-	
+
 	// Since list defaults to current dir (cmd), pass name explicitly
 	rootCmd.SetArgs([]string{"list", "--name", "col_a"})
 	if err := rootCmd.Execute(); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	
+
 	output := outBuf.String()
 	if !strings.Contains(output, `No documents in collection "col_a"`) {
 		t.Errorf("expected collection name in output, got: %s", output)

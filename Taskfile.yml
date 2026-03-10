@@ -67,10 +67,12 @@ tasks:
       - rm coverage.out
 
   lint:
-    desc: Run linter
+    desc: Run formatters and linters
     env:
       CGO_LDFLAGS: "-L{{.ROOT_DIR}}/{{.LIB_DIR}}"
     cmds:
+      - go fmt ./...
+      - go vet -tags '{{.BUILD_TAGS}}' ./...
       - golangci-lint run --build-tags '{{.BUILD_TAGS}}' ./...
 
   install:

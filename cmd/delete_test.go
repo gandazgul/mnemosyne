@@ -22,29 +22,29 @@ func TestDeleteCmd(t *testing.T) {
 	outBuf := new(bytes.Buffer)
 	rootCmd.SetOut(outBuf)
 	rootCmd.SetErr(outBuf)
-	
+
 	// Test deleting real doc
 	rootCmd.SetArgs([]string{"delete", "1"})
 	if err := rootCmd.Execute(); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	
+
 	output := outBuf.String()
 	if !strings.Contains(output, "Deleted document") {
 		t.Errorf("expected deleted message, got: %s", output)
 	}
-	
+
 	outBuf.Reset()
-	
+
 	// Test invalid doc id
 	rootCmd.SetArgs([]string{"delete", "not_an_id"})
 	err = rootCmd.Execute()
 	if err == nil {
 		t.Error("expected error for invalid id")
 	}
-	
+
 	outBuf.Reset()
-	
+
 	// Test non-existent doc
 	rootCmd.SetArgs([]string{"delete", "999"})
 	err = rootCmd.Execute()

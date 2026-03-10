@@ -22,7 +22,7 @@ func TestResolveCollectionName(t *testing.T) {
 		t.Fatalf("failed to get wd: %v", err)
 	}
 	expected := filepath.Base(cwd)
-	
+
 	name, err = resolveCollectionName("")
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
@@ -42,7 +42,7 @@ func TestOpenDB(t *testing.T) {
 		t.Fatalf("expected no error opening test DB, got %v", err)
 	}
 	defer db.Close()
-	
+
 	if db == nil {
 		t.Error("expected valid DB instance, got nil")
 	}

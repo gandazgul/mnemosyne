@@ -100,7 +100,7 @@ func TestFindONNXRuntimeLib(t *testing.T) {
 
 	// Test finding in dataDir/lib
 	libDir := filepath.Join(tmpDir, "lib")
-	os.MkdirAll(libDir, 0755)
+	_ = os.MkdirAll(libDir, 0755)
 
 	var libName string
 	if runtime.GOOS == "darwin" {
@@ -110,7 +110,7 @@ func TestFindONNXRuntimeLib(t *testing.T) {
 	}
 
 	expectedLibPath := filepath.Join(libDir, libName)
-	os.WriteFile(expectedLibPath, []byte("dummy lib"), 0755)
+	_ = os.WriteFile(expectedLibPath, []byte("dummy lib"), 0755)
 
 	path = findONNXRuntimeLib(tmpDir)
 	if path != expectedLibPath {
@@ -136,7 +136,7 @@ func TestFindModelsDir(t *testing.T) {
 	}
 
 	// 2. Create the dir -> should return it
-	os.MkdirAll(modelsDir, 0755)
+	_ = os.MkdirAll(modelsDir, 0755)
 	path = findModelsDir(tmpDir)
 	if path != modelsDir {
 		t.Errorf("expected path %q, got %q", modelsDir, path)

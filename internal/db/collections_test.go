@@ -107,8 +107,8 @@ func TestListCollections(t *testing.T) {
 
 	// Create two collections and add a doc to one.
 	c1, _ := database.CreateCollection("alpha")
-	database.CreateCollection("beta")
-	database.InsertDocument(c1.ID, "test doc", nil)
+	_, _ = database.CreateCollection("beta")
+	_, _ = database.InsertDocument(c1.ID, "test doc", nil)
 
 	collections, err = database.ListCollections()
 	if err != nil {
@@ -138,7 +138,7 @@ func TestDeleteCollection(t *testing.T) {
 
 	c, _ := database.CreateCollection("to-delete")
 	// Add a document to verify CASCADE.
-	database.InsertDocument(c.ID, "orphan doc", nil)
+	_, _ = database.InsertDocument(c.ID, "orphan doc", nil)
 
 	err := database.DeleteCollection("to-delete")
 	if err != nil {
