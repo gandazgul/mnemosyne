@@ -37,7 +37,7 @@ builds:
       - CGO_ENABLED=1
       - CC=zig cc -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-macos
       - CXX=zig c++ -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-macos
-      - CGO_LDFLAGS=-L{{ .Env.PWD }}/lib_darwin_{{ .Arch }}
+      - CGO_LDFLAGS=-L{{ .Env.PWD }}/lib_darwin_{{ .Arch }} -F{{ .Env.PWD }}/lib_darwin_{{ .Arch }}
       - CGO_CFLAGS=-I{{ .Env.PWD }}/include
     flags:
       - -tags=sqlite_fts5
