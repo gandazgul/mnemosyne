@@ -22,6 +22,8 @@ builds:
       - CXX=zig c++ -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-linux-musl
       - CGO_LDFLAGS=-L{{ .Env.PWD }}/lib_linux_{{ .Arch }}
       - CGO_CFLAGS=-I{{ .Env.PWD }}/include
+      - ZIG_LOCAL_CACHE_DIR={{ .Env.PWD }}/.zig-cache-{{ .Os }}-{{ .Arch }}
+      - ZIG_GLOBAL_CACHE_DIR={{ .Env.PWD }}/.zig-cache-{{ .Os }}-{{ .Arch }}
     flags:
       - -tags=sqlite_fts5
     ldflags:
@@ -39,6 +41,8 @@ builds:
       - CXX=zig c++ -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-macos
       - CGO_LDFLAGS=-L{{ .Env.PWD }}/lib_darwin_{{ .Arch }}
       - CGO_CFLAGS=-I{{ .Env.PWD }}/include
+      - ZIG_LOCAL_CACHE_DIR={{ .Env.PWD }}/.zig-cache-{{ .Os }}-{{ .Arch }}
+      - ZIG_GLOBAL_CACHE_DIR={{ .Env.PWD }}/.zig-cache-{{ .Os }}-{{ .Arch }}
     flags:
       - -tags=sqlite_fts5
     ldflags:
