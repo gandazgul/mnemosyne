@@ -24,3 +24,7 @@ lib/
 
 # task runner
 .task/
+
+# Downloaded files for compilation
+include/
+sqlite.zip

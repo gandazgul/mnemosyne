@@ -1,7 +1,13 @@
 #!/bin/bash
 set -e
 
-mkdir -p lib_linux_amd64 lib_linux_arm64 lib_darwin_amd64 lib_darwin_arm64 tmp_ort
+mkdir -p lib_linux_amd64 lib_linux_arm64 lib_darwin_amd64 lib_darwin_arm64 tmp_ort include
+
+# Download SQLite headers for cross-compilation
+curl -fsSL https://sqlite.org/2024/sqlite-amalgamation-3450300.zip -o sqlite.zip
+unzip -q -o sqlite.zip
+cp sqlite-amalgamation-3450300/sqlite3.h sqlite-amalgamation-3450300/sqlite3ext.h include/
+rm -rf sqlite-amalgamation-3450300 sqlite.zip
 
 ORT_VER="1.23.1"
 TOK_VER="1.25.0"
