@@ -1,45 +1,88 @@
-name: Build
+name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  build:
+  test-and-build:
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
-            goos: linux
+            target: linux-amd64
           - os: macos-latest
-            goos: darwin
-          - os: windows-latest
-            goos: windows
+            target: darwin-arm64
 
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-go@v5
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version-file: 'go.mod'
+          cache: true
 
-      - uses: actions/setup-node@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          node-version: '20'
+          python-version: '3.x'
 
-      - name: Install Wails CLI
-        run: go install github.com/wailsapp/wails/v3/cmd/wails3@latest
+      - name: Install Hugging Face CLI (hf)
+        run: |
+          pip install -U "huggingface_hub" "hf_transfer"
 
       - name: Install Task
         uses: arduino/setup-task@v2
-
-      - name: Build
-        run: wails3 build
-
-      - uses: actions/upload-artifact@v4
         with:
-          name: app-${{ matrix.goos }}
-          path: bin/
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Setup Native Libraries
+        run: |
+          go mod tidy
+          task download-onnxruntime
+          task download-tokenizers
+
+      - name: Run Linter
+        if: matrix.os == 'ubuntu-latest'
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: latest
+          args: --build-tags sqlite_fts5 --timeout=5m
+        env:
+          CGO_LDFLAGS: "-L${{ github.workspace }}/lib"
+
+      - name: Cache Models
+        uses: actions/cache@v4
+        with:
+          path: models
+          key: ${{ runner.os }}-models-${{ hashFiles('Taskfile.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-models-
+
+      - name: Download Models
+        run: task download-models
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+
+      - name: Test
+        run: task test
+
+      - name: Build Dev Binary
+        run: task build
+
+      - name: Rename Binary
+        run: |
+          mv mnemosyne mnemosyne-${{ matrix.target }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mnemosyne-${{ matrix.target }}
+          path: mnemosyne-${{ matrix.target }}
+          retention-days: 7

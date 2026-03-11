@@ -95,6 +95,7 @@ tasks:
 
   download-models:
     desc: Download ONNX models from HuggingFace
+    dotenv: ['.env']
     vars:
       HF_CMD:
         sh: command -v hf >/dev/null 2>&1 && echo "hf" || echo "huggingface-cli"

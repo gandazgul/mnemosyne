@@ -1,5 +1,6 @@
 # Build artifacts
 mnemosyne
+dist/
 
 # Go
 *.exe
