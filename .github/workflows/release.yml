@@ -9,29 +9,40 @@ permissions:
   contents: write
 
 jobs:
-  goreleaser:
-    runs-on: ubuntu-latest
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            goos: linux
+          - os: macos-latest
+            goos: darwin
+          - os: windows-latest
+            goos: windows
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5
         with:
-          go-version-file: 'go.mod'
+          go-version: '1.24'
 
-      - name: Setup Zig
-        uses: goto-bus-stop/setup-zig@v2
+      - uses: actions/setup-node@v4
         with:
-          version: 0.15.2
+          node-version: '20'
 
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v3/cmd/wails3@latest
+
+      - name: Install Task
+        uses: arduino/setup-task@v2
+
+      - name: Build
+        run: wails3 build
+
+      - uses: actions/upload-artifact@v4
         with:
-          distribution: goreleaser
-          version: 'latest'
-          args: release --clean
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PWD: ${{ github.workspace }}
+          name: app-${{ matrix.goos }}
+          path: bin/
