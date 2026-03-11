@@ -42,7 +42,7 @@ builds:
     flags:
       - -tags=sqlite_fts5
     ldflags:
-      - -s -w -X github.com/gandazgul/mnemosyne/cmd.Version={{.Version}} -X github.com/gandazgul/mnemosyne/cmd.Commit={{.Commit}} -X github.com/gandazgul/mnemosyne/cmd.Date={{.Date}}
+      - -X github.com/gandazgul/mnemosyne/cmd.Version={{.Version}} -X github.com/gandazgul/mnemosyne/cmd.Commit={{.Commit}} -X github.com/gandazgul/mnemosyne/cmd.Date={{.Date}}
 
 archives:
   - formats:
