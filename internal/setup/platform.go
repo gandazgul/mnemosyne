@@ -49,8 +49,14 @@ func ortOS() (string, error) {
 func ortArch() (string, error) {
 	switch runtime.GOARCH {
 	case "arm64":
+		if runtime.GOOS == "linux" {
+			return "aarch64", nil
+		}
 		return "arm64", nil
 	case "amd64":
+		if runtime.GOOS == "linux" {
+			return "x64", nil
+		}
 		return "x86_64", nil
 	default:
 		return "", fmt.Errorf("unsupported architecture: %s", runtime.GOARCH)
