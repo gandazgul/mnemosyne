@@ -29,3 +29,4 @@ lib/
 # Downloaded files for compilation
 include/
 sqlite.zip
+macosx-sdks/
