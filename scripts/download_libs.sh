@@ -32,9 +32,11 @@ curl -fsSL "https://github.com/daulet/tokenizers/releases/download/v${TOK_VER}/l
 # darwin amd64
 extract_ort "https://github.com/microsoft/onnxruntime/releases/download/v${ORT_VER}/onnxruntime-osx-x86_64-${ORT_VER}.tgz" lib_darwin_amd64
 curl -fsSL "https://github.com/daulet/tokenizers/releases/download/v${TOK_VER}/libtokenizers.darwin-x86_64.tar.gz" | tar xz -C lib_darwin_amd64
+touch lib_darwin_amd64/libresolv.tbd
 
 # darwin arm64
 extract_ort "https://github.com/microsoft/onnxruntime/releases/download/v${ORT_VER}/onnxruntime-osx-arm64-${ORT_VER}.tgz" lib_darwin_arm64
 curl -fsSL "https://github.com/daulet/tokenizers/releases/download/v${TOK_VER}/libtokenizers.darwin-aarch64.tar.gz" | tar xz -C lib_darwin_arm64
+touch lib_darwin_arm64/libresolv.tbd
 
 rm -rf tmp_ort
