@@ -163,24 +163,9 @@ mnemosyne/
 ├── lib/                      # Native libraries (gitignored)
 ├── main.go                   # Entry point
 ├── Taskfile.yml              # Build/test/run tasks
-├── IMPLEMENTATION_PLAN.md    # Detailed phased build plan
+├── ROADMAP.md                # Future features and out-of-scope ideas
 └── go.mod
 ```
-
-## Implementation Status
-
-- [x] **Phase 1**: Skeleton CLI + project setup
-- [x] **Phase 2**: SQLite + document storage (CRUD)
-- [x] **Phase 3**: Full-text search (FTS5 + BM25)
-- [x] **Phase 4**: Embedding model (ONNX Runtime)
-- [x] **Phase 5**: Vector storage + search (sqlite-vec)
-- [x] **Phase 6**: Hybrid search + Reciprocal Rank Fusion
-- [x] **Phase 7**: Cross-encoder reranker
-- [x] **Phase 8**: Polish and extras
-- [x] **Phase 9**: GitHub CI/CD + versioned releases
-
-See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) for the full plan with architecture
-diagrams, database schema, search pipeline details, and Go concepts covered per phase.
 
 ## Technology Stack
 
