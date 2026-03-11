@@ -18,8 +18,8 @@ builds:
       - arm64
     env:
       - CGO_ENABLED=1
-      - CC={{ .Env.PWD }}/scripts/zcc.sh -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-linux-musl
-      - CXX={{ .Env.PWD }}/scripts/zcxx.sh -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-linux-musl
+      - CC=zig cc -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-linux-musl
+      - CXX=zig c++ -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-linux-musl
       - CGO_LDFLAGS=-L{{ .Env.PWD }}/lib_linux_{{ .Arch }}
       - CGO_CFLAGS=-I{{ .Env.PWD }}/include
     flags:
@@ -35,8 +35,8 @@ builds:
       - arm64
     env:
       - CGO_ENABLED=1
-      - CC={{ .Env.PWD }}/scripts/zcc.sh -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-macos
-      - CXX={{ .Env.PWD }}/scripts/zcxx.sh -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-macos
+      - CC=zig cc -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-macos
+      - CXX=zig c++ -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-macos
       - CGO_LDFLAGS=-L{{ .Env.PWD }}/lib_darwin_{{ .Arch }}
       - CGO_CFLAGS=-I{{ .Env.PWD }}/include
     flags:
