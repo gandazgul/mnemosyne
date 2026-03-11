@@ -35,10 +35,10 @@ builds:
       - arm64
     env:
       - CGO_ENABLED=1
-      - CC=zig cc -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-macos
-      - CXX=zig c++ -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-macos
+      - CC=zig cc -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-macos -isysroot {{ .Env.SDKROOT }} -iwithsysroot /usr/include -iframeworkwithsysroot /System/Library/Frameworks
+      - CXX=zig c++ -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-macos -isysroot {{ .Env.SDKROOT }} -iwithsysroot /usr/include -iframeworkwithsysroot /System/Library/Frameworks
       - CGO_LDFLAGS=-L{{ .Env.GITHUB_WORKSPACE }}/lib_darwin_{{ .Arch }} -F{{ .Env.GITHUB_WORKSPACE }}/lib_darwin_{{ .Arch }} -L{{ .Env.SDKROOT }}/usr/lib -F{{ .Env.SDKROOT }}/System/Library/Frameworks
-      - CGO_CFLAGS=-I{{ .Env.GITHUB_WORKSPACE }}/include
+      - CGO_CFLAGS=-I{{ .Env.GITHUB_WORKSPACE }}/include -isysroot {{ .Env.SDKROOT }}
     flags:
       - -tags=sqlite_fts5
     ldflags:
