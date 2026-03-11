@@ -192,13 +192,13 @@ tasks:
     dotenv: ['.env']
     vars:
       CONFIRM: '{{.CONFIRM | default "false"}}'
-      SDKROOT:
+      SDK_PATH:
         sh: xcrun --show-sdk-path 2>/dev/null || echo ""
     cmds:
       - command -v zig >/dev/null 2>&1 || { echo >&2 "zig is required but it's not installed. Aborting."; exit 1; }
       - command -v goreleaser >/dev/null 2>&1 || { echo >&2 "goreleaser is required but it's not installed. Aborting."; exit 1; }
       - |
-        export SDKROOT="{{.SDKROOT}}"
+        export SDK_PATH="{{.SDK_PATH}}"
         if [ "{{.CONFIRM}}" = "true" ]; then
           echo "Running official GoReleaser release..."
           goreleaser release --clean
