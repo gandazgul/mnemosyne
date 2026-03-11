@@ -187,7 +187,21 @@ tasks:
       - task: download-models
 
   release:
-    desc: Create a new release tag and push it
+    desc: 'Release using GoReleaser (default: snapshot, use CONFIRM=true for official release)'
+    dotenv: ['.env']
+    vars:
+      CONFIRM: '{{.CONFIRM | default "false"}}'
+      SDKROOT:
+        sh: xcrun --show-sdk-path 2>/dev/null || echo ""
     cmds:
-      - git tag {{.CLI_ARGS}}
-      - git push origin {{.CLI_ARGS}}
+      - command -v zig >/dev/null 2>&1 || { echo >&2 "zig is required but it's not installed. Aborting."; exit 1; }
+      - command -v goreleaser >/dev/null 2>&1 || { echo >&2 "goreleaser is required but it's not installed. Aborting."; exit 1; }
+      - |
+        export SDKROOT="{{.SDKROOT}}"
+        if [ "{{.CONFIRM}}" = "true" ]; then
+          echo "Running official GoReleaser release..."
+          goreleaser release --clean
+        else
+          echo "Running snapshot GoReleaser release... (run with CONFIRM=true for official release)"
+          goreleaser release --clean --snapshot
+        fi

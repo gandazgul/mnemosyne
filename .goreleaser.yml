@@ -18,14 +18,14 @@ builds:
       - arm64
     env:
       - CGO_ENABLED=1
-      - CC=zig cc -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-linux-musl
-      - CXX=zig c++ -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-linux-musl
-      - CGO_LDFLAGS=-L{{ .Env.PWD }}/lib_linux_{{ .Arch }}
-      - CGO_CFLAGS=-I{{ .Env.PWD }}/include
+      - CC=zig cc -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-linux-gnu
+      - CXX=zig c++ -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-linux-gnu
+      - CGO_LDFLAGS=-L{{ .Env.PWD }}/lib_linux_{{ .Arch }} -lrt -ldl -lm -lstdc++
+      - CGO_CFLAGS=-I{{ .Env.PWD }}/include -D_GNU_SOURCE -Du_int8_t=uint8_t -Du_int16_t=uint16_t -Du_int32_t=uint32_t -Du_int64_t=uint64_t
     flags:
       - -tags=sqlite_fts5
     ldflags:
-      - -s -w -X github.com/gandazgul/mnemosyne/cmd.Version={{.Version}} -X github.com/gandazgul/mnemosyne/cmd.Commit={{.Commit}} -X github.com/gandazgul/mnemosyne/cmd.Date={{.Date}}
+      - -w -extldflags "-lstdc++" -X github.com/gandazgul/mnemosyne/cmd.Version={{.Version}} -X github.com/gandazgul/mnemosyne/cmd.Commit={{.Commit}} -X github.com/gandazgul/mnemosyne/cmd.Date={{.Date}}
 
   - id: "darwin"
     goos:
@@ -37,12 +37,12 @@ builds:
       - CGO_ENABLED=1
       - CC=zig cc -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-macos
       - CXX=zig c++ -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-macos
-      - CGO_LDFLAGS=-L{{ .Env.PWD }}/lib_darwin_{{ .Arch }} -F{{ .Env.PWD }}/lib_darwin_{{ .Arch }}
+      - CGO_LDFLAGS=-L{{ .Env.PWD }}/lib_darwin_{{ .Arch }} -F{{ .Env.PWD }}/lib_darwin_{{ .Arch }} -L{{ .Env.SDKROOT }}/usr/lib -F{{ .Env.SDKROOT }}/System/Library/Frameworks
       - CGO_CFLAGS=-I{{ .Env.PWD }}/include
     flags:
       - -tags=sqlite_fts5
     ldflags:
-      - -X github.com/gandazgul/mnemosyne/cmd.Version={{.Version}} -X github.com/gandazgul/mnemosyne/cmd.Commit={{.Commit}} -X github.com/gandazgul/mnemosyne/cmd.Date={{.Date}}
+      - -w -X github.com/gandazgul/mnemosyne/cmd.Version={{.Version}} -X github.com/gandazgul/mnemosyne/cmd.Commit={{.Commit}} -X github.com/gandazgul/mnemosyne/cmd.Date={{.Date}}
 
 archives:
   - formats:

@@ -9,40 +9,34 @@ permissions:
   contents: write
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            goos: linux
-          - os: macos-latest
-            goos: darwin
-          - os: windows-latest
-            goos: windows
-    runs-on: ${{ matrix.os }}
+  goreleaser:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-go@v5
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: '1.22'
 
-      - uses: actions/setup-node@v4
+      - name: Install Zig
+        uses: goto-bus-stop/setup-zig@v2
         with:
-          node-version: '20'
+          version: 0.11.0
+          
+      - name: Install macOS SDK
+        run: |
+          git clone https://github.com/joseluisq/macosx-sdks.git
+          echo "SDKROOT=$(pwd)/macosx-sdks/MacOSX13.3.sdk" >> $GITHUB_ENV
 
-      - name: Install Wails CLI
-        run: go install github.com/wailsapp/wails/v3/cmd/wails3@latest
-
-      - name: Install Task
-        uses: arduino/setup-task@v2
-
-      - name: Build
-        run: wails3 build
-
-      - uses: actions/upload-artifact@v4
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v5
         with:
-          name: app-${{ matrix.goos }}
-          path: bin/
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
