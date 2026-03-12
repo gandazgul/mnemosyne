@@ -1,7 +1,6 @@
 # [Mnemosyne](https://en.wikipedia.org/wiki/Mnemosyne)
 
 [![CI](https://github.com/gandazgul/mnemosyne/actions/workflows/ci.yml/badge.svg)](https://github.com/gandazgul/mnemosyne/actions/workflows/ci.yml)
-[![Release](https://github.com/gandazgul/mnemosyne/actions/workflows/release.yml/badge.svg)](https://github.com/gandazgul/mnemosyne/actions/workflows/release.yml)
 
 A local document storage and retrieval CLI tool built in Go. Store small
 documents (sentences to paragraphs) and retrieve them using hybrid search:
@@ -51,6 +50,8 @@ task build
 ./mnemosyne setup
 
 # Initialize a collection (uses current directory name by default)
+# Note: If a collection with this name already exists elsewhere,
+# init will error out to prevent accidental linking.
 ./mnemosyne init
 
 # Add documents (triggers model download on first use if not already set up)
@@ -68,10 +69,14 @@ task build
 # Delete a document by ID
 ./mnemosyne delete 1
 
-# Use a named collection
-./mnemosyne init --name myproject
-./mnemosyne add --name myproject "some text"
-./mnemosyne search --name myproject "some query"
+# Use a named collection (with --name or -n)
+./mnemosyne init -n myproject
+./mnemosyne add -n myproject "some text"
+./mnemosyne search -n myproject "some query"
+
+# Use the global collection shortcut
+./mnemosyne add -g "Global memory"
+./mnemosyne search --global "global memory"
 
 # Delete an entire collection
 ./mnemosyne forget myproject

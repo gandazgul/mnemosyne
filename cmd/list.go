@@ -18,6 +18,7 @@ If --name is not provided, the current directory name is used.
 Use --limit to restrict the number of results.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		nameFlag, _ := cmd.Flags().GetString("name")
+		globalFlag, _ := cmd.Flags().GetBool("global")
 		limitFlag, _ := cmd.Flags().GetInt("limit")
 		formatFlag, _ := cmd.Flags().GetString("format")
 
@@ -28,7 +29,7 @@ Use --limit to restrict the number of results.`,
 			color.NoColor = true
 		}
 
-		collectionName, err := resolveCollectionName(nameFlag)
+		collectionName, err := resolveCollectionName(nameFlag, globalFlag)
 		if err != nil {
 			return err
 		}
@@ -99,7 +100,8 @@ Use --limit to restrict the number of results.`,
 }
 
 func init() {
-	listCmd.Flags().String("name", "", "collection name (defaults to current directory name)")
+	listCmd.Flags().StringP("name", "n", "", "collection name (defaults to current directory name)")
+	listCmd.Flags().BoolP("global", "g", false, "use the global collection")
 	listCmd.Flags().Int("limit", 20, "maximum number of documents to show")
 	listCmd.Flags().String("format", "color", "output format: color (default) or plain")
 	rootCmd.AddCommand(listCmd)

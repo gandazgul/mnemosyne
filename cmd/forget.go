@@ -22,9 +22,10 @@ If --name is not provided, the base name of the current working directory
 is used as the collection name.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		nameFlag, _ := cmd.Flags().GetString("name")
+		globalFlag, _ := cmd.Flags().GetBool("global")
 		yesFlag, _ := cmd.Flags().GetBool("yes")
 
-		collectionName, err := resolveCollectionName(nameFlag)
+		collectionName, err := resolveCollectionName(nameFlag, globalFlag)
 		if err != nil {
 			return err
 		}
@@ -84,7 +85,8 @@ is used as the collection name.`,
 }
 
 func init() {
-	forgetCmd.Flags().String("name", "", "collection name (defaults to current directory name)")
+	forgetCmd.Flags().StringP("name", "n", "", "collection name (defaults to current directory name)")
+	forgetCmd.Flags().BoolP("global", "g", false, "use the global collection")
 	forgetCmd.Flags().Bool("yes", false, "skip confirmation prompt")
 	rootCmd.AddCommand(forgetCmd)
 }

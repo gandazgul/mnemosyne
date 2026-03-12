@@ -14,8 +14,19 @@ import (
 )
 
 // resolveCollectionName returns the collection name from the --name flag,
-// or the base name of the current working directory if the flag is empty.
-func resolveCollectionName(name string) (string, error) {
+// the --global flag (which forces "global"), or the base name of the current working directory.
+func resolveCollectionName(name string, global bool) (string, error) {
+	if global {
+		if name != "" {
+			return "", fmt.Errorf("cannot use both --global and --name flags")
+		}
+		return "global", nil
+	}
+
+	if name == "global" {
+		return "", fmt.Errorf("the name 'global' is reserved; use the --global or -g flag instead")
+	}
+
 	if name != "" {
 		return name, nil
 	}
@@ -26,7 +37,12 @@ func resolveCollectionName(name string) (string, error) {
 		return "", fmt.Errorf("getting current directory: %w", err)
 	}
 
-	return filepath.Base(cwd), nil
+	base := filepath.Base(cwd)
+	if base == "global" {
+		return "", fmt.Errorf("current directory is named 'global', which is reserved; use the --global or -g flag instead")
+	}
+
+	return base, nil
 }
 
 // openDB loads config and opens the database connection.

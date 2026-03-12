@@ -16,8 +16,10 @@ const description = "A local document store with hybrid search"
 // Running `mnemosyne` with no args prints a welcome message and usage info.
 var rootCmd = &cobra.Command{
 	// Use is how the command appears in help text.
-	Use:   "mnemosyne",
-	Short: description,
+	Use:           "mnemosyne",
+	Short:         description,
+	SilenceUsage:  true, // Don't print usage when RunE returns an error
+	SilenceErrors: true, // We handle printing errors in main.go
 	Long: `Mnemosyne - Local Document Storage & Retrieval
 
 Store small documents (sentences to paragraphs) and retrieve them

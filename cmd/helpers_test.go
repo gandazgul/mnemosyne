@@ -8,7 +8,7 @@ import (
 
 func TestResolveCollectionName(t *testing.T) {
 	// 1. Name provided explicitly
-	name, err := resolveCollectionName("explicit_name")
+	name, err := resolveCollectionName("explicit_name", false)
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
 	}
@@ -16,14 +16,41 @@ func TestResolveCollectionName(t *testing.T) {
 		t.Errorf("expected 'explicit_name', got %v", name)
 	}
 
-	// 2. No name provided (uses cwd)
+	// 2. Global flag provided
+	name, err = resolveCollectionName("", true)
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+	if name != "global" {
+		t.Errorf("expected 'global', got %v", name)
+	}
+
+	// 3. Global flag and conflicting name provided
+	_, err = resolveCollectionName("other_name", true)
+	if err == nil {
+		t.Errorf("expected error for conflicting flags, got nil")
+	}
+
+	// 4. Global flag and matching name provided (now an error)
+	_, err = resolveCollectionName("global", true)
+	if err == nil {
+		t.Errorf("expected error for using both flags, got nil")
+	}
+
+	// 5. Name is 'global', no global flag
+	_, err = resolveCollectionName("global", false)
+	if err == nil {
+		t.Errorf("expected error when using 'global' as name, got nil")
+	}
+
+	// 6. No name provided (uses cwd)
 	cwd, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("failed to get wd: %v", err)
 	}
 	expected := filepath.Base(cwd)
 
-	name, err = resolveCollectionName("")
+	name, err = resolveCollectionName("", false)
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
 	}

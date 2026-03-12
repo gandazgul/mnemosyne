@@ -26,6 +26,7 @@ The collection must already exist (use 'mnemosyne init' first).
 If --name is not provided, the current directory name is used.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		nameFlag, _ := cmd.Flags().GetString("name")
+		globalFlag, _ := cmd.Flags().GetBool("global")
 		fileFlag, _ := cmd.Flags().GetString("file")
 		stdinFlag, _ := cmd.Flags().GetBool("stdin")
 
@@ -106,7 +107,7 @@ If --name is not provided, the current directory name is used.`,
 		}
 
 		// Resolve collection.
-		collectionName, err := resolveCollectionName(nameFlag)
+		collectionName, err := resolveCollectionName(nameFlag, globalFlag)
 		if err != nil {
 			return err
 		}
@@ -170,7 +171,8 @@ If --name is not provided, the current directory name is used.`,
 }
 
 func init() {
-	addCmd.Flags().String("name", "", "collection name (defaults to current directory name)")
+	addCmd.Flags().StringP("name", "n", "", "collection name (defaults to current directory name)")
+	addCmd.Flags().BoolP("global", "g", false, "use the global collection")
 	addCmd.Flags().String("file", "", "read content from a file")
 	addCmd.Flags().Bool("stdin", false, "read content from stdin")
 	rootCmd.AddCommand(addCmd)

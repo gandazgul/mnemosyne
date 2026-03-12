@@ -33,6 +33,7 @@ If --name is not provided, the current directory name is used.`,
 	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		nameFlag, _ := cmd.Flags().GetString("name")
+		globalFlag, _ := cmd.Flags().GetBool("global")
 		limitFlag, _ := cmd.Flags().GetInt("limit")
 		rrfKFlag, _ := cmd.Flags().GetInt("rrf-k")
 		rerankCandidatesFlag, _ := cmd.Flags().GetInt("rerank-candidates")
@@ -54,7 +55,7 @@ If --name is not provided, the current directory name is used.`,
 		}
 
 		// Resolve collection.
-		collectionName, err := resolveCollectionName(nameFlag)
+		collectionName, err := resolveCollectionName(nameFlag, globalFlag)
 		if err != nil {
 			return err
 		}
@@ -212,7 +213,8 @@ func printSearchResults(results []search.Result, query, collectionName, formatFl
 }
 
 func init() {
-	searchCmd.Flags().String("name", "", "collection name (defaults to current directory name)")
+	searchCmd.Flags().StringP("name", "n", "", "collection name (defaults to current directory name)")
+	searchCmd.Flags().BoolP("global", "g", false, "use the global collection")
 	searchCmd.Flags().Int("limit", 3, "maximum number of results to return")
 	searchCmd.Flags().Int("rrf-k", 0, "RRF fusion constant (default from config, typically 60)")
 	searchCmd.Flags().Int("rerank-candidates", 0, "number of candidates to pass to the reranker")

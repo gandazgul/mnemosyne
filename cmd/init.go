@@ -20,8 +20,10 @@ This command is idempotent: running it again for an existing collection
 simply confirms it exists.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		nameFlag, _ := cmd.Flags().GetString("name")
+		globalFlag, _ := cmd.Flags().GetBool("global")
+		isDefault := nameFlag == "" && !globalFlag
 
-		collectionName, err := resolveCollectionName(nameFlag)
+		collectionName, err := resolveCollectionName(nameFlag, globalFlag)
 		if err != nil {
 			return err
 		}
@@ -31,6 +33,18 @@ simply confirms it exists.`,
 			return err
 		}
 		defer database.Close() //nolint:errcheck
+
+		// Prevent accidentally linking to an existing collection when using the directory name.
+		if isDefault {
+			existing, err := database.GetCollectionByName(collectionName)
+			if err != nil {
+				return fmt.Errorf("checking collection existence: %w", err)
+			}
+			if existing != nil {
+				cmd.SilenceUsage = true // Don't show help for this semantic error
+				return fmt.Errorf("collection %q (derived from current directory) already exists. Please pass --name or -n to specify a different name, or pass explicitly to confirm", collectionName)
+			}
+		}
 
 		collection, created, err := database.GetOrCreateCollection(collectionName)
 		if err != nil {
@@ -48,6 +62,7 @@ simply confirms it exists.`,
 }
 
 func init() {
-	initCmd.Flags().String("name", "", "collection name (defaults to current directory name)")
+	initCmd.Flags().StringP("name", "n", "", "collection name (defaults to current directory name)")
+	initCmd.Flags().BoolP("global", "g", false, "use the global collection")
 	rootCmd.AddCommand(initCmd)
 }
