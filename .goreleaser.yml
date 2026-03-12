@@ -1,78 +1,50 @@
-# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+version: 2
+
 project_name: mnemosyne
-# This is an example .goreleaser.yml file with some sensible defaults.
-# Make sure to check the documentation at https://goreleaser.com
+
 before:
   hooks:
-    # You may remove this if you don't use go modules.
-    - go mod tidy
     - ./scripts/download_libs.sh
 
+env:
+  - CGO_ENABLED=1
+
 builds:
-  - goos:
-      - darwin
+  - id: "linux"
+    goos:
       - linux
-      - windows
     goarch:
       - amd64
       - arm64
-    ldflags:
-      - -s -w
-    flags:
-      - -trimpath
-      - >-
-        {{- if eq .Os "linux" }}-buildmode=pie{{- end }}
     env:
       - CGO_ENABLED=1
-      - >-
-        {{- if eq .Os "darwin" }}SDKROOT={{ .Env.SDK_PATH }}{{- end }}
-      - >-
-        {{- if eq .Os "darwin" }}MACOSX_DEPLOYMENT_TARGET=11.0{{- end }}
-      - >-
-        {{- if eq .Os "darwin" }}CGO_CFLAGS=-isysroot {{ .Env.SDK_PATH }} -mmacosx-version-min=11.0{{- end }}
-      - >-
-        {{- if eq .Os "darwin" }}CGO_CXXFLAGS=-isysroot {{ .Env.SDK_PATH }} -mmacosx-version-min=11.0{{- end }}
-      - >-
-        {{- if eq .Os "darwin" }}CGO_LDFLAGS=-isysroot {{ .Env.SDK_PATH }}{{- end }}
-      - >-
-        {{- if eq .Os "darwin" }}
-          {{- if eq .Arch "amd64"}}CC=clang -arch x86_64 -isysroot {{ .Env.SDK_PATH }}{{- end }}
-          {{- if eq .Arch "arm64"}}CC=clang -arch arm64 -isysroot {{ .Env.SDK_PATH }}{{- end }}
-        {{- else if eq .Os "linux" }}
-          {{- if eq .Arch "amd64" }}CC=zig cc -target x86_64-linux-musl -lc{{- end }}
-          {{- if eq .Arch "arm64"}}CC=zig cc -target aarch64-linux-musl -lc{{- end }}
-        {{- else if eq .Os "windows" }}
-          {{- if eq .Arch "amd64" }}CC=zig cc -target x86_64-windows-gnu -lc{{- end }}
-          {{- if eq .Arch "arm64"}}CC=zig cc -target aarch64-windows-gnu -lc{{- end }}
-        {{- end }}
-      - >-
-        {{- if eq .Os "darwin" }}
-          {{- if eq .Arch "amd64"}}CXX=clang++ -arch x86_64 -isysroot {{ .Env.SDK_PATH }}{{- end }}
-          {{- if eq .Arch "arm64"}}CXX=clang++ -arch arm64 -isysroot {{ .Env.SDK_PATH }}{{- end }}
-        {{- else if eq .Os "linux" }}
-          {{- if eq .Arch "amd64" }}CXX=zig c++ -target x86_64-linux-musl -lc{{- end }}
-          {{- if eq .Arch "arm64"}}CXX=zig c++ -target aarch64-linux-musl -lc{{- end }}
-        {{- else if eq .Os "windows" }}
-          {{- if eq .Arch "amd64" }}CXX=zig c++ -target x86_64-windows-gnu -lc{{- end }}
-          {{- if eq .Arch "arm64"}}CXX=zig c++ -target aarch64-windows-gnu -lc{{- end }}
-        {{- end }}
+      - CC=zig cc -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-linux-gnu
+      - CXX=zig c++ -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-linux-gnu
+      - CGO_LDFLAGS=-L{{ .Env.PWD }}/lib/linux_{{ .Arch }} -lrt -ldl -lm -lstdc++
+      - CGO_CFLAGS=-I{{ .Env.PWD }}/include -D_GNU_SOURCE -Du_int8_t=uint8_t -Du_int16_t=uint16_t -Du_int32_t=uint32_t -Du_int64_t=uint64_t
+    flags:
+      - -tags=sqlite_fts5
+    ldflags:
+      - -w -extldflags "-lstdc++" -X github.com/gandazgul/mnemosyne/cmd.Version={{.Version}} -X github.com/gandazgul/mnemosyne/cmd.Commit={{.Commit}} -X github.com/gandazgul/mnemosyne/cmd.Date={{.Date}}
+
+  - id: "darwin"
+    goos:
+      - darwin
+    goarch:
+      - arm64
+    env:
+      - CGO_ENABLED=1
+      - CGO_LDFLAGS=-L{{ .Env.GITHUB_WORKSPACE }}/lib/darwin_{{ .Arch }} -F{{ .Env.GITHUB_WORKSPACE }}/lib/darwin_{{ .Arch }} -L{{ .Env.SDK_PATH }}/usr/lib -F{{ .Env.SDK_PATH }}/System/Library/Frameworks
+      - CGO_CFLAGS=-I{{ .Env.GITHUB_WORKSPACE }}/include -isysroot {{ .Env.SDK_PATH }}
+    flags:
+      - -tags=sqlite_fts5
+    ldflags:
+      - -w -X github.com/gandazgul/mnemosyne/cmd.Version={{.Version}} -X github.com/gandazgul/mnemosyne/cmd.Commit={{.Commit}} -X github.com/gandazgul/mnemosyne/cmd.Date={{.Date}}
 
 archives:
   - formats:
       - tar.gz
-    # this name template makes the OS and Arch compatible with the results of uname.
-    name_template: >-
-      {{ .ProjectName }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
-    # use zip for windows archives
-    format_overrides:
-      - goos: windows
-        formats:
-          - zip
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
 checksum:
   name_template: "checksums.txt"
@@ -86,3 +58,13 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
+      - "^chore:"
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: Bug Fixes
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: Others
+      order: 999

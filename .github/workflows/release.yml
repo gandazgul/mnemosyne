@@ -30,7 +30,7 @@ jobs:
       - name: Install macOS SDK
         run: |
           git clone https://github.com/joseluisq/macosx-sdks.git
-          echo "SDKROOT=$(pwd)/macosx-sdks/MacOSX13.3.sdk" >> $GITHUB_ENV
+          echo "SDK_PATH=$(pwd)/macosx-sdks/MacOSX13.3.sdk" >> $GITHUB_ENV
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
