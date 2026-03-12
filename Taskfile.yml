@@ -221,6 +221,14 @@ tasks:
       - task: download-tokenizers
       - task: download-models
 
+  tag:
+    desc: Create and push a git tag for the current version (must be run after setup to get the version)
+    vars:
+      VERSION: '{{.VERSION}}'
+    cmds:
+      - git tag -a "v{{.VERSION}}" -m "Release v{{.VERSION}}"
+      - git push origin "v{{.VERSION}}"
+
   release:
     desc: 'Release using GoReleaser (default: snapshot, use CONFIRM=true for official release)'
     dotenv: ['.env']
