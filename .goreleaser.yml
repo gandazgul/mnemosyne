@@ -4,7 +4,7 @@ project_name: mnemosyne
 
 before:
   hooks:
-    - ./scripts/download_libs.sh
+    - task download-all-libs
 
 env:
   - CGO_ENABLED=1

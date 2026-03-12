@@ -8,7 +8,8 @@ require (
 	github.com/fatih/color v1.18.0
 	github.com/mattn/go-sqlite3 v1.14.34
 	github.com/spf13/cobra v1.10.2
-	github.com/yalue/onnxruntime_go v1.27.0
+	// this is just the bindings and it doesnt match the version of onnxruntime. the version wrapped here is 1.23.1
+	github.com/yalue/onnxruntime_go v1.16.0
 )
 
 require (

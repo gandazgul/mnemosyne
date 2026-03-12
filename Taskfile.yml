@@ -14,10 +14,10 @@ vars:
   HF_MODEL_RERANK: "cross-encoder/ms-marco-MiniLM-L-6-v2"
   MODELS_DIR: models
   LIB_DIR: lib
-  # ONNX Runtime version - use 1.23.1 for x86_64 macOS support, 1.24.1+ for arm64 only
+  # ONNX Runtime version - version 1.24.1+ will support arm64 only
   ONNXRUNTIME_VERSION: "1.23.1"
   # daulet/tokenizers release version (check go.mod)
-  TOKENIZERS_VERSION: "1.25.0"
+  TOKENIZERS_VERSION: "1.26.0"
 
 tasks:
   default:
@@ -93,8 +93,38 @@ tasks:
     cmds:
       - rm -f {{.BINARY_NAME}}
 
+  download-all-libs:
+    desc: Download all required native libraries for all target architectures (used by release)
+    cmds:
+      - mkdir -p {{.LIB_DIR}}/linux_amd64 {{.LIB_DIR}}/linux_arm64 {{.LIB_DIR}}/darwin_arm64 {{.LIB_DIR}}/darwin_amd64 tmp_libs
+      # Linux amd64
+      - curl -fsSL "https://github.com/microsoft/onnxruntime/releases/download/v{{.ONNXRUNTIME_VERSION}}/onnxruntime-linux-x64-{{.ONNXRUNTIME_VERSION}}.tgz" | tar xz -C tmp_libs
+      - cp -rP tmp_libs/*/lib/libonnxruntime* {{.LIB_DIR}}/linux_amd64/
+      - rm -rf tmp_libs/*
+      - curl -fsSL "https://github.com/daulet/tokenizers/releases/download/v{{.TOKENIZERS_VERSION}}/libtokenizers.linux-x86_64.tar.gz" | tar xz -C {{.LIB_DIR}}/linux_amd64
+      # Linux arm64
+      - curl -fsSL "https://github.com/microsoft/onnxruntime/releases/download/v{{.ONNXRUNTIME_VERSION}}/onnxruntime-linux-aarch64-{{.ONNXRUNTIME_VERSION}}.tgz" | tar xz -C tmp_libs
+      - cp -rP tmp_libs/*/lib/libonnxruntime* {{.LIB_DIR}}/linux_arm64/
+      - rm -rf tmp_libs/*
+      - curl -fsSL "https://github.com/daulet/tokenizers/releases/download/v{{.TOKENIZERS_VERSION}}/libtokenizers.linux-aarch64.tar.gz" | tar xz -C {{.LIB_DIR}}/linux_arm64
+      # macOS arm64
+      - curl -fsSL "https://github.com/microsoft/onnxruntime/releases/download/v{{.ONNXRUNTIME_VERSION}}/onnxruntime-osx-arm64-{{.ONNXRUNTIME_VERSION}}.tgz" | tar xz -C tmp_libs
+      - cp -rP tmp_libs/*/lib/libonnxruntime* {{.LIB_DIR}}/darwin_arm64/
+      - rm -rf tmp_libs/*
+      - curl -fsSL "https://github.com/daulet/tokenizers/releases/download/v{{.TOKENIZERS_VERSION}}/libtokenizers.darwin-aarch64.tar.gz" | tar xz -C {{.LIB_DIR}}/darwin_arm64
+      # macOS amd64
+      - curl -fsSL "https://github.com/microsoft/onnxruntime/releases/download/v{{.ONNXRUNTIME_VERSION}}/onnxruntime-osx-x86_64-{{.ONNXRUNTIME_VERSION}}.tgz" | tar xz -C tmp_libs
+      - cp -rP tmp_libs/*/lib/libonnxruntime* {{.LIB_DIR}}/darwin_amd64/
+      - rm -rf tmp_libs/*
+      - curl -fsSL "https://github.com/daulet/tokenizers/releases/download/v{{.TOKENIZERS_VERSION}}/libtokenizers.darwin-x86_64.tar.gz" | tar xz -C {{.LIB_DIR}}/darwin_amd64
+      # Clean up
+      - rm -rf tmp_libs
+
   download-models:
     desc: Download ONNX models from HuggingFace
+    status:
+      - test -f {{.MODELS_DIR}}/snowflake-arctic-embed-m-v1.5/onnx/model.onnx
+      - test -f {{.MODELS_DIR}}/ms-marco-MiniLM-L-6-v2/onnx/model.onnx
     dotenv: ['.env']
     vars:
       HF_CMD:
@@ -117,6 +147,8 @@ tasks:
 
   download-onnxruntime:
     desc: Download ONNX Runtime shared library for the current platform
+    status:
+      - ls {{.LIB_DIR}}/libonnxruntime* >/dev/null 2>&1
     vars:
       # Map to ONNX Runtime naming conventions
       ORT_ARCH:
@@ -156,6 +188,8 @@ tasks:
 
   download-tokenizers:
     desc: Download pre-built libtokenizers for the current platform
+    status:
+      - test -f {{.LIB_DIR}}/libtokenizers.a
     vars:
       ARCH:
         sh: uname -m
