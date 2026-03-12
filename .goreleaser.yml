@@ -20,8 +20,8 @@ builds:
       - CGO_ENABLED=1
       - CC=zig cc -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-linux-gnu
       - CXX=zig c++ -target {{ if eq .Arch "arm64" }}aarch64{{ else }}x86_64{{ end }}-linux-gnu
-      - CGO_LDFLAGS=-L{{ .Env.PWD }}/lib/linux_{{ .Arch }} -lrt -ldl -lm -lstdc++
-      - CGO_CFLAGS=-I{{ .Env.PWD }}/include -D_GNU_SOURCE -Du_int8_t=uint8_t -Du_int16_t=uint16_t -Du_int32_t=uint32_t -Du_int64_t=uint64_t
+      - CGO_LDFLAGS=-L{{ .Env.GITHUB_WORKSPACE }}/lib/linux_{{ .Arch }} -lrt -ldl -lm -lstdc++
+      - CGO_CFLAGS=-I{{ .Env.GITHUB_WORKSPACE }}/include -D_GNU_SOURCE -Du_int8_t=uint8_t -Du_int16_t=uint16_t -Du_int32_t=uint32_t -Du_int64_t=uint64_t
     flags:
       - -tags=sqlite_fts5
     ldflags:
