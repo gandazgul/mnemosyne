@@ -21,6 +21,7 @@ Use --limit to restrict the number of results.`,
 		globalFlag, _ := cmd.Flags().GetBool("global")
 		limitFlag, _ := cmd.Flags().GetInt("limit")
 		formatFlag, _ := cmd.Flags().GetString("format")
+		tagsFlag, _ := cmd.Flags().GetStringSlice("tag")
 
 		if err := validateFormat(formatFlag); err != nil {
 			return err
@@ -49,7 +50,7 @@ Use --limit to restrict the number of results.`,
 				collectionName, collectionName)
 		}
 
-		docs, err := database.ListDocuments(collection.ID, limitFlag)
+		docs, err := database.ListDocuments(collection.ID, tagsFlag, limitFlag)
 		if err != nil {
 			return fmt.Errorf("listing documents: %w", err)
 		}
@@ -59,7 +60,7 @@ Use --limit to restrict the number of results.`,
 			return nil
 		}
 
-		count, err := database.CountDocuments(collection.ID)
+		count, err := database.CountDocuments(collection.ID, tagsFlag)
 		if err != nil {
 			return fmt.Errorf("counting documents: %w", err)
 		}
@@ -104,5 +105,6 @@ func init() {
 	listCmd.Flags().BoolP("global", "g", false, "use the global collection")
 	listCmd.Flags().Int("limit", 20, "maximum number of documents to show")
 	listCmd.Flags().String("format", "color", "output format: color (default) or plain")
+	listCmd.Flags().StringSliceP("tag", "t", nil, "filter results by one or more tags (must match all)")
 	rootCmd.AddCommand(listCmd)
 }

@@ -41,6 +41,7 @@ If --name is not provided, the current directory name is used.`,
 		thresholdFlag, _ := cmd.Flags().GetFloat64("threshold")
 		debugFlag, _ := cmd.Flags().GetBool("debug")
 		formatFlag, _ := cmd.Flags().GetString("format")
+		tagsFlag, _ := cmd.Flags().GetStringSlice("tag")
 
 		if err := validateFormat(formatFlag); err != nil {
 			return err
@@ -120,6 +121,7 @@ If --name is not provided, the current directory name is used.`,
 			Threshold:        thresholdFlag,
 			ApplyThreshold:   cmd.Flags().Changed("threshold"),
 			NoRerank:         noRerankFlag,
+			Tags:             tagsFlag,
 		})
 		if err != nil {
 			return fmt.Errorf("searching: %w", err)
@@ -222,5 +224,6 @@ func init() {
 	searchCmd.Flags().Float64("threshold", 0.0, "minimum score for a result to be included (e.g., 0.0 or 5.0 for reranker, 0.016 for RRF)")
 	searchCmd.Flags().Bool("debug", false, "show scores, ranks, and sources for each result")
 	searchCmd.Flags().String("format", "color", "output format: color (default) or plain")
+	searchCmd.Flags().StringSliceP("tag", "t", nil, "filter results by one or more tags (must match all)")
 	rootCmd.AddCommand(searchCmd)
 }

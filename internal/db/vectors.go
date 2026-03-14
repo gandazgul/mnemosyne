@@ -67,14 +67,13 @@ func (db *DB) InsertVector(documentID, collectionID int64, embedding []float32) 
 // The query embedding is matched against stored vectors using the MATCH operator.
 // The collection_id metadata column filters results within the KNN scan itself,
 // so the requested limit is always satisfied (unlike post-filtering via a join).
-func (db *DB) SearchVectors(collectionID int64, queryEmbedding []float32, limit int) (results []VectorResult, err error) {
+func (db *DB) SearchVectors(collectionID int64, queryEmbedding []float32, tags []string, limit int) (results []VectorResult, err error) {
 	if limit <= 0 {
 		limit = 10
 	}
 
 	// The KNN query:
 	// - MATCH runs the vector similarity search
-	// - k = ? limits results
 	// - collection_id = ? filters within the KNN scan
 	// We join back to the documents table to get the full document content.
 	query := `
@@ -83,10 +82,29 @@ func (db *DB) SearchVectors(collectionID int64, queryEmbedding []float32, limit 
 		FROM docs_vec v
 		JOIN documents d ON d.id = v.document_id
 		WHERE v.embedding MATCH ?
-		  AND v.k = ?
 		  AND v.collection_id = ?`
 
-	rows, err := db.conn.Query(query, SerializeFloat32(queryEmbedding), limit, collectionID)
+	// If filtering by tags, sqlite-vec evaluates k=? BEFORE filtering on d.metadata.
+	// We fetch more candidates from the KNN scan when filtering to compensate.
+	scanLimit := limit
+	if len(tags) > 0 {
+		scanLimit = limit * 10
+	}
+	query += " AND v.k = ?"
+
+	args := []interface{}{SerializeFloat32(queryEmbedding), collectionID, scanLimit}
+
+	for _, tag := range tags {
+		query += " AND EXISTS (SELECT 1 FROM json_each(d.metadata, '$.tags') WHERE value = ?)"
+		args = append(args, tag)
+	}
+
+	if len(tags) > 0 {
+		query += " LIMIT ?"
+		args = append(args, limit)
+	}
+
+	rows, err := db.conn.Query(query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("vector search: %w", err)
 	}

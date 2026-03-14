@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -29,6 +30,19 @@ If --name is not provided, the current directory name is used.`,
 		globalFlag, _ := cmd.Flags().GetBool("global")
 		fileFlag, _ := cmd.Flags().GetString("file")
 		stdinFlag, _ := cmd.Flags().GetBool("stdin")
+		tagsFlag, _ := cmd.Flags().GetStringSlice("tag")
+
+		// Prepare metadata from tags
+		var metadataJSON *string
+		if len(tagsFlag) > 0 {
+			metadataMap := map[string]interface{}{"tags": tagsFlag}
+			b, err := json.Marshal(metadataMap)
+			if err != nil {
+				return fmt.Errorf("encoding tags: %w", err)
+			}
+			s := string(b)
+			metadataJSON = &s
+		}
 
 		// Determine the content to store.
 		var rawContent string
@@ -150,7 +164,7 @@ If --name is not provided, the current directory name is used.`,
 			}
 
 			// Insert the document and its vector atomically.
-			doc, err := database.InsertDocumentWithVector(collection.ID, chunk, nil, vec)
+			doc, err := database.InsertDocumentWithVector(collection.ID, chunk, metadataJSON, vec)
 			if err != nil {
 				return fmt.Errorf("adding document chunk %d: %w", i+1, err)
 			}
@@ -175,5 +189,6 @@ func init() {
 	addCmd.Flags().BoolP("global", "g", false, "use the global collection")
 	addCmd.Flags().String("file", "", "read content from a file")
 	addCmd.Flags().Bool("stdin", false, "read content from stdin")
+	addCmd.Flags().StringSliceP("tag", "t", nil, "add one or more tags to the document (e.g. --tag core --tag ux)")
 	rootCmd.AddCommand(addCmd)
 }

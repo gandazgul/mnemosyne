@@ -105,22 +105,28 @@ func (db *DB) GetDocumentByID(id int64) (*Document, error) {
 
 // ListDocuments returns documents in a collection, ordered by creation time (newest first).
 // Use limit <= 0 for no limit.
-func (db *DB) ListDocuments(collectionID int64, limit int) (docs []Document, err error) {
+func (db *DB) ListDocuments(collectionID int64, tags []string, limit int) (docs []Document, err error) {
 	query := `
 		SELECT id, collection_id, content, metadata, created_at
 		FROM documents
-		WHERE collection_id = ?
-		ORDER BY id DESC`
+		WHERE collection_id = ?`
 
-	var rows *sql.Rows
+	var args []interface{}
+	args = append(args, collectionID)
+
+	for _, tag := range tags {
+		query += " AND EXISTS (SELECT 1 FROM json_each(metadata, '$.tags') WHERE value = ?)"
+		args = append(args, tag)
+	}
+
+	query += " ORDER BY id DESC"
 
 	if limit > 0 {
 		query += " LIMIT ?"
-		rows, err = db.conn.Query(query, collectionID, limit)
-	} else {
-		rows, err = db.conn.Query(query, collectionID)
+		args = append(args, limit)
 	}
 
+	rows, err := db.conn.Query(query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("listing documents: %w", err)
 	}
@@ -162,12 +168,17 @@ func (db *DB) DeleteDocument(id int64) error {
 }
 
 // CountDocuments returns the number of documents in a collection.
-func (db *DB) CountDocuments(collectionID int64) (int64, error) {
+func (db *DB) CountDocuments(collectionID int64, tags []string) (int64, error) {
+	query := "SELECT COUNT(*) FROM documents WHERE collection_id = ?"
+	args := []interface{}{collectionID}
+
+	for _, tag := range tags {
+		query += " AND EXISTS (SELECT 1 FROM json_each(metadata, '$.tags') WHERE value = ?)"
+		args = append(args, tag)
+	}
+
 	var count int64
-	err := db.conn.QueryRow(
-		"SELECT COUNT(*) FROM documents WHERE collection_id = ?",
-		collectionID,
-	).Scan(&count)
+	err := db.conn.QueryRow(query, args...).Scan(&count)
 
 	if err != nil {
 		return 0, fmt.Errorf("counting documents: %w", err)

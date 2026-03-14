@@ -124,7 +124,7 @@ func TestSearchVectors_BasicKNN(t *testing.T) {
 
 	// Query with a vector close to doc1.
 	query := []float32{1.0, 0.0, 0.0, 0.0}
-	results, err := database.SearchVectors(c.ID, query, 3)
+	results, err := database.SearchVectors(c.ID, query, nil, 3)
 	if err != nil {
 		t.Fatalf("SearchVectors() error = %v", err)
 	}
@@ -154,7 +154,7 @@ func TestSearchVectors_ReturnsDocumentFields(t *testing.T) {
 	doc, _ := database.InsertDocument(c.ID, "the document content", nil)
 	_ = database.InsertVector(doc.ID, c.ID, []float32{1.0, 0.0, 0.0, 0.0})
 
-	results, err := database.SearchVectors(c.ID, []float32{1.0, 0.0, 0.0, 0.0}, 1)
+	results, err := database.SearchVectors(c.ID, []float32{1.0, 0.0, 0.0, 0.0}, nil, 1)
 	if err != nil {
 		t.Fatalf("SearchVectors() error = %v", err)
 	}
@@ -194,7 +194,7 @@ func TestSearchVectors_CollectionScoped(t *testing.T) {
 	_ = database.InsertVector(doc2.ID, c2.ID, vec)
 
 	// Search in collection A should only return doc1.
-	results, err := database.SearchVectors(c1.ID, vec, 10)
+	results, err := database.SearchVectors(c1.ID, vec, nil, 10)
 	if err != nil {
 		t.Fatalf("SearchVectors(c1) error = %v", err)
 	}
@@ -207,7 +207,7 @@ func TestSearchVectors_CollectionScoped(t *testing.T) {
 	}
 
 	// Search in collection B should only return doc2.
-	results, err = database.SearchVectors(c2.ID, vec, 10)
+	results, err = database.SearchVectors(c2.ID, vec, nil, 10)
 	if err != nil {
 		t.Fatalf("SearchVectors(c2) error = %v", err)
 	}
@@ -231,7 +231,7 @@ func TestSearchVectors_Limit(t *testing.T) {
 	}
 
 	// Request only 2 results.
-	results, err := database.SearchVectors(c.ID, []float32{0.0, 0.1, 0.1, 0.1}, 2)
+	results, err := database.SearchVectors(c.ID, []float32{0.0, 0.1, 0.1, 0.1}, nil, 2)
 	if err != nil {
 		t.Fatalf("SearchVectors() error = %v", err)
 	}
@@ -246,7 +246,7 @@ func TestSearchVectors_NoResults(t *testing.T) {
 	c, _ := database.CreateCollection("empty-test")
 
 	// Search with no documents in the collection.
-	results, err := database.SearchVectors(c.ID, []float32{1.0, 0.0, 0.0, 0.0}, 10)
+	results, err := database.SearchVectors(c.ID, []float32{1.0, 0.0, 0.0, 0.0}, nil, 10)
 	if err != nil {
 		t.Fatalf("SearchVectors() error = %v", err)
 	}
@@ -264,7 +264,7 @@ func TestDeleteVector(t *testing.T) {
 	_ = database.InsertVector(doc.ID, c.ID, []float32{1.0, 0.0, 0.0, 0.0})
 
 	// Verify vector exists.
-	results, err := database.SearchVectors(c.ID, []float32{1.0, 0.0, 0.0, 0.0}, 10)
+	results, err := database.SearchVectors(c.ID, []float32{1.0, 0.0, 0.0, 0.0}, nil, 10)
 	if err != nil {
 		t.Fatalf("SearchVectors() error = %v", err)
 	}
@@ -278,7 +278,7 @@ func TestDeleteVector(t *testing.T) {
 	}
 
 	// Verify vector is gone.
-	results, err = database.SearchVectors(c.ID, []float32{1.0, 0.0, 0.0, 0.0}, 10)
+	results, err = database.SearchVectors(c.ID, []float32{1.0, 0.0, 0.0, 0.0}, nil, 10)
 	if err != nil {
 		t.Fatalf("SearchVectors() after delete error = %v", err)
 	}
@@ -317,7 +317,7 @@ func TestDeleteVectorsByCollection(t *testing.T) {
 	}
 
 	// Collection 1 should have no vector results.
-	results, err := database.SearchVectors(c1.ID, []float32{1.0, 0.0, 0.0, 0.0}, 10)
+	results, err := database.SearchVectors(c1.ID, []float32{1.0, 0.0, 0.0, 0.0}, nil, 10)
 	if err != nil {
 		t.Fatalf("SearchVectors(c1) error = %v", err)
 	}
@@ -326,7 +326,7 @@ func TestDeleteVectorsByCollection(t *testing.T) {
 	}
 
 	// Collection 2 should still have its vector.
-	results, err = database.SearchVectors(c2.ID, []float32{0.0, 0.0, 1.0, 0.0}, 10)
+	results, err = database.SearchVectors(c2.ID, []float32{0.0, 0.0, 1.0, 0.0}, nil, 10)
 	if err != nil {
 		t.Fatalf("SearchVectors(c2) error = %v", err)
 	}
