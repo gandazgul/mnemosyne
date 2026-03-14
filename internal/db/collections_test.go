@@ -152,7 +152,7 @@ func TestDeleteCollection(t *testing.T) {
 	}
 
 	// Verify documents were cascaded.
-	docs, _ := database.ListDocuments(c.ID, 0)
+	docs, _ := database.ListDocuments(c.ID, nil, 0)
 	if len(docs) != 0 {
 		t.Errorf("expected 0 documents after cascade, got %d", len(docs))
 	}

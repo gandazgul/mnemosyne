@@ -45,7 +45,7 @@ is used as the collection name.`,
 			return fmt.Errorf("collection %q does not exist", collectionName)
 		}
 
-		docCount, err := database.CountDocuments(collection.ID)
+		docCount, err := database.CountDocuments(collection.ID, nil)
 		if err != nil {
 			return fmt.Errorf("counting documents: %w", err)
 		}

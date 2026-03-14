@@ -36,7 +36,7 @@ var collectionsCmd = &cobra.Command{
 		fmt.Fprintln(w, "ID\tNAME\tDOCUMENTS\tCREATED") //nolint:errcheck
 
 		for _, c := range collections {
-			count, err := database.CountDocuments(c.ID)
+			count, err := database.CountDocuments(c.ID, nil)
 			if err != nil {
 				return fmt.Errorf("counting documents for %s: %w", c.Name, err)
 			}

@@ -41,6 +41,9 @@ type Options struct {
 	// NoRerank disables the cross-encoder reranking step, even if a
 	// reranker is available in the engine.
 	NoRerank bool
+
+	// Tags filters results to only those matching the specified tags.
+	Tags []string
 }
 
 // Engine performs hybrid search combining FTS5 and vector similarity,
@@ -76,7 +79,7 @@ func (e *Engine) Search(opts Options) ([]Result, error) {
 	}
 
 	// Run both searches.
-	ftsResults, err := e.db.SearchFTS(opts.CollectionID, opts.Query, candidates)
+	ftsResults, err := e.db.SearchFTS(opts.CollectionID, opts.Query, opts.Tags, candidates)
 	if err != nil {
 		return nil, fmt.Errorf("FTS search: %w", err)
 	}
@@ -86,7 +89,7 @@ func (e *Engine) Search(opts Options) ([]Result, error) {
 		return nil, fmt.Errorf("embedding query: %w", err)
 	}
 
-	vecResults, err := e.db.SearchVectors(opts.CollectionID, queryVec, candidates)
+	vecResults, err := e.db.SearchVectors(opts.CollectionID, queryVec, opts.Tags, candidates)
 	if err != nil {
 		return nil, fmt.Errorf("vector search: %w", err)
 	}

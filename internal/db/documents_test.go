@@ -82,7 +82,7 @@ func TestListDocuments(t *testing.T) {
 	_, _ = database.InsertDocument(c.ID, "third", nil)
 
 	// List all (no limit).
-	docs, err := database.ListDocuments(c.ID, 0)
+	docs, err := database.ListDocuments(c.ID, nil, 0)
 	if err != nil {
 		t.Fatalf("ListDocuments() error = %v", err)
 	}
@@ -104,7 +104,7 @@ func TestListDocuments_WithLimit(t *testing.T) {
 	_, _ = database.InsertDocument(c.ID, "b", nil)
 	_, _ = database.InsertDocument(c.ID, "c", nil)
 
-	docs, err := database.ListDocuments(c.ID, 2)
+	docs, err := database.ListDocuments(c.ID, nil, 2)
 	if err != nil {
 		t.Fatalf("ListDocuments() error = %v", err)
 	}
@@ -123,8 +123,8 @@ func TestListDocuments_CollectionScoped(t *testing.T) {
 	_, _ = database.InsertDocument(c2.ID, "doc in c2", nil)
 	_, _ = database.InsertDocument(c2.ID, "another in c2", nil)
 
-	docs1, _ := database.ListDocuments(c1.ID, 0)
-	docs2, _ := database.ListDocuments(c2.ID, 0)
+	docs1, _ := database.ListDocuments(c1.ID, nil, 0)
+	docs2, _ := database.ListDocuments(c2.ID, nil, 0)
 
 	if len(docs1) != 1 {
 		t.Errorf("collection-1 has %d docs, want 1", len(docs1))
@@ -165,7 +165,7 @@ func TestCountDocuments(t *testing.T) {
 	database := testDB(t)
 	c, _ := database.CreateCollection("docs")
 
-	count, _ := database.CountDocuments(c.ID)
+	count, _ := database.CountDocuments(c.ID, nil)
 	if count != 0 {
 		t.Errorf("empty collection count = %d, want 0", count)
 	}
@@ -173,7 +173,7 @@ func TestCountDocuments(t *testing.T) {
 	_, _ = database.InsertDocument(c.ID, "one", nil)
 	_, _ = database.InsertDocument(c.ID, "two", nil)
 
-	count, _ = database.CountDocuments(c.ID)
+	count, _ = database.CountDocuments(c.ID, nil)
 	if count != 2 {
 		t.Errorf("count = %d, want 2", count)
 	}
@@ -193,7 +193,7 @@ func TestInsertDocumentWithVector(t *testing.T) {
 		t.Fatal("expected non-zero ID")
 	}
 
-	results, err := database.SearchVectors(c.ID, vec, 1)
+	results, err := database.SearchVectors(c.ID, vec, nil, 1)
 	if err != nil || len(results) == 0 || results[0].ID != doc.ID {
 		t.Errorf("expected to find inserted vector")
 	}

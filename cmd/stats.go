@@ -29,7 +29,7 @@ var statsCmd = &cobra.Command{
 
 		var totalDocs int64
 		for _, c := range collections {
-			count, err := database.CountDocuments(c.ID)
+			count, err := database.CountDocuments(c.ID, nil)
 			if err != nil {
 				return fmt.Errorf("counting documents: %w", err)
 			}

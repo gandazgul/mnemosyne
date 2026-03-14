@@ -31,7 +31,7 @@ type SearchResult struct {
 // Special characters that could break the query are escaped.
 //
 // Use limit <= 0 for no limit.
-func (db *DB) SearchFTS(collectionID int64, query string, limit int) (results []SearchResult, err error) {
+func (db *DB) SearchFTS(collectionID int64, query string, tags []string, limit int) (results []SearchResult, err error) {
 	// Sanitize the query: remove characters that are FTS5 operators/syntax
 	// that the user probably doesn't intend. We keep alphanumeric, spaces,
 	// and double quotes (for phrase queries).
@@ -51,11 +51,17 @@ func (db *DB) SearchFTS(collectionID int64, query string, limit int) (results []
 		FROM docs_fts
 		JOIN documents d ON d.id = docs_fts.rowid
 		WHERE docs_fts MATCH ?
-		  AND d.collection_id = ?
-		ORDER BY rank DESC`
+		  AND d.collection_id = ?`
 
 	var args []interface{}
 	args = append(args, sanitized, collectionID)
+
+	for _, tag := range tags {
+		sql += " AND EXISTS (SELECT 1 FROM json_each(d.metadata, '$.tags') WHERE value = ?)"
+		args = append(args, tag)
+	}
+
+	sql += " ORDER BY rank DESC"
 
 	if limit > 0 {
 		sql += " LIMIT ?"
