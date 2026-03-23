@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/gandazgul/mnemosyne/internal/chunker"
 	"github.com/gandazgul/mnemosyne/internal/config"
 	"github.com/spf13/cobra"
 )
@@ -80,35 +81,48 @@ If --name is not provided, the current directory name is used.`,
 		// Split content into chunks if it came from file or stdin.
 		var chunks []string
 		if fileFlag != "" || stdinFlag {
-			// Basic chunking: split by double newlines (paragraphs)
-			parts := strings.Split(rawContent, "\n\n")
-			for _, p := range parts {
-				p = strings.TrimSpace(p)
-				if p != "" {
-					// If a chunk is still very large, further split by single newlines.
-					// This is a naive approach; a proper tokenizer-based chunker would be better.
-					if len(p) > 2000 {
-						lines := strings.Split(p, "\n")
-						var currentChunk strings.Builder
-						for _, line := range lines {
-							line = strings.TrimSpace(line)
-							if line == "" {
-								continue
-							}
-							if currentChunk.Len()+len(line) > 2000 && currentChunk.Len() > 0 {
-								chunks = append(chunks, currentChunk.String())
-								currentChunk.Reset()
+			isMarkdown := false
+			if fileFlag != "" && strings.HasSuffix(strings.ToLower(fileFlag), ".md") {
+				isMarkdown = true
+			} else if strings.HasPrefix(strings.TrimSpace(rawContent), "#") {
+				isMarkdown = true
+			}
+
+			if isMarkdown {
+				semanticChunks := chunker.ChunkDocument([]byte(rawContent), 2000)
+				for _, sc := range semanticChunks {
+					chunks = append(chunks, sc.Content)
+				}
+			} else {
+				// Basic chunking: split by double newlines (paragraphs)
+				parts := strings.Split(rawContent, "\n\n")
+				for _, p := range parts {
+					p = strings.TrimSpace(p)
+					if p != "" {
+						// If a chunk is still very large, further split by single newlines.
+						if len(p) > 2000 {
+							lines := strings.Split(p, "\n")
+							var currentChunk strings.Builder
+							for _, line := range lines {
+								line = strings.TrimSpace(line)
+								if line == "" {
+									continue
+								}
+								if currentChunk.Len()+len(line) > 2000 && currentChunk.Len() > 0 {
+									chunks = append(chunks, currentChunk.String())
+									currentChunk.Reset()
+								}
+								if currentChunk.Len() > 0 {
+									currentChunk.WriteString(" ")
+								}
+								currentChunk.WriteString(line)
 							}
 							if currentChunk.Len() > 0 {
-								currentChunk.WriteString(" ")
+								chunks = append(chunks, currentChunk.String())
 							}
-							currentChunk.WriteString(line)
+						} else {
+							chunks = append(chunks, p)
 						}
-						if currentChunk.Len() > 0 {
-							chunks = append(chunks, currentChunk.String())
-						}
-					} else {
-						chunks = append(chunks, p)
 					}
 				}
 			}

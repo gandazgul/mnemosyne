@@ -12,6 +12,8 @@ require (
 	github.com/yalue/onnxruntime_go v1.16.0
 )
 
+require github.com/yuin/goldmark v1.7.17
+
 require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect

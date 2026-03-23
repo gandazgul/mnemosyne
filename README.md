@@ -12,6 +12,7 @@ All ML inference runs locally via ONNX Runtime. No cloud APIs required.
 ## Features
 
 - **Document storage** in SQLite with metadata support
+- **Semantic Markdown Chunking** using `yuin/goldmark` AST to intelligently split and preserve heading context when adding `.md` files
 - **Full-text search** via SQLite FTS5 with BM25 ranking
 - **Vector search** via sqlite-vec with cosine similarity
 - **Hybrid search** combining both via Reciprocal Rank Fusion (RRF)
@@ -58,6 +59,7 @@ task build
 ./mnemosyne add "Go is a statically typed programming language"
 ./mnemosyne add "Rust focuses on memory safety and zero-cost abstractions"
 ./mnemosyne add --file notes.txt
+./mnemosyne add --file README.md # Automatically chunks by semantic headings
 
 # Search documents (hybrid: FTS5 + vector, fused with RRF)
 ./mnemosyne search "programming language"
