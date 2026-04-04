@@ -124,7 +124,10 @@ func EnsureReady(ctx context.Context, dataDir string, progress ProgressFunc) err
 	fmt.Println("This is a one-time download (~500 MB total).")
 	fmt.Println()
 
-	return Run(ctx, dataDir, progress)
+	bar := NewProgressBar(os.Stdout)
+	err := Run(ctx, dataDir, bar.Update)
+	bar.Finish()
+	return err
 }
 
 // installONNXRuntime downloads and extracts the ONNX Runtime shared library.

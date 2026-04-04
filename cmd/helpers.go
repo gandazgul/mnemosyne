@@ -71,8 +71,8 @@ func openEmbedder(ctx context.Context) (embedding.Embedder, *config.Config, erro
 	// Auto-download ONNX Runtime and models if not present.
 	dataDir := config.DataDir()
 	if err := setup.EnsureReady(ctx, dataDir, func(file string, written, total int64) {
-		// Simple progress: just print dots for now.
-		// A future enhancement could use a proper progress bar.
+		// Auto-download uses simple inline progress.
+		// The setup command uses a full progress bar.
 	}); err != nil {
 		return nil, nil, fmt.Errorf("setup: %w", err)
 	}

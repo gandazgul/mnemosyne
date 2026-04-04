@@ -7,6 +7,8 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
 )
 
@@ -42,5 +44,6 @@ All ML inference runs locally via ONNX Runtime. No cloud APIs needed.`,
 // It parses command-line arguments and dispatches to the right subcommand.
 // Returns an error if command execution fails.
 func Execute() error {
+	rootCmd.SetOut(os.Stdout)
 	return rootCmd.Execute()
 }

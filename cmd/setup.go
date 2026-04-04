@@ -37,22 +37,12 @@ Note: This happens automatically on first use of 'add' or 'search'.`,
 		printStatus(status)
 		fmt.Println()
 
-		// Run setup with simple progress output.
-		var currentFile string
-		err := setup.Run(cmd.Context(), dataDir, func(file string, written, total int64) {
-			if file != currentFile {
-				if currentFile != "" {
-					fmt.Println(" done")
-				}
-				currentFile = file
-				fmt.Printf("  Downloading %s...", file)
-			}
-		})
+		// Run setup with progress bar.
+		progress := setup.NewProgressBar(cmd.OutOrStdout())
+		err := setup.Run(cmd.Context(), dataDir, progress.Update)
+		progress.Finish()
 		if err != nil {
 			return err
-		}
-		if currentFile != "" {
-			fmt.Println(" done")
 		}
 
 		fmt.Println()

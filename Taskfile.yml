@@ -93,6 +93,13 @@ tasks:
     cmds:
       - rm -f {{.BINARY_NAME}}
 
+  uninstall:
+    desc: "Remove downloaded assets and the installed binary (use: task uninstall -- --db to also delete database)"
+    cmds:
+      - ./{{.BINARY_NAME}} cleanup {{.CLI_ARGS}} || mnemosyne cleanup {{.CLI_ARGS}}
+      - rm -f $(go env GOPATH)/bin/{{.BINARY_NAME}}
+      - echo "Removed $(go env GOPATH)/bin/{{.BINARY_NAME}}"
+
   download-all-libs:
     desc: Download all required native libraries for all target architectures (used by release)
     cmds:
@@ -135,15 +142,11 @@ tasks:
       - >-
         {{.HF_CMD}} download {{.HF_MODEL_EMBED}}
         --local-dir {{.MODELS_DIR}}/snowflake-arctic-embed-m-v1.5
-        --include "onnx/model.onnx"
-        --include "tokenizer*"
-        --include "config.json"
+        --include "onnx/model.onnx" "tokenizer*" "config.json"
       - >-
         {{.HF_CMD}} download {{.HF_MODEL_RERANK}}
         --local-dir {{.MODELS_DIR}}/ms-marco-MiniLM-L-6-v2
-        --include "onnx/model.onnx"
-        --include "tokenizer*"
-        --include "config.json"
+        --include "onnx/model.onnx" "tokenizer*" "config.json"
 
   download-onnxruntime:
     desc: Download ONNX Runtime shared library for the current platform
