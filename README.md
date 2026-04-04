@@ -188,18 +188,29 @@ mnemosyne/
 | Reranker model   | ms-marco-MiniLM-L-6-v2 (cross-encoder) |
 | Task runner      | [Task](https://taskfile.dev/)    |
 
-## OpenCode Integration
+## Integrations
+
+### OpenCode
 
 Mnemosyne integrates with [OpenCode](https://opencode.ai/) via the
-[opencode-mnemosyne](https://github.com/gandazgul/opencode-mnemosyne) plugin,
-giving your AI coding agent persistent memory across sessions -- entirely local,
-no cloud APIs.
+[opencode-mnemosyne](https://github.com/gandazgul/opencode-mnemosyne) plugin.
 
 The plugin provides `memory_recall`, `memory_store`, `memory_delete` (plus global
 variants) and automatically injects memory instructions during context compaction.
 
 See the [plugin README](https://github.com/gandazgul/opencode-mnemosyne) for
 full details.
+
+### Pi
+
+Mnemosyne also integrates with [Pi](https://github.com/mariozechner/pi-coding-agent)
+via the [pi-mnemosyne](https://github.com/gandazgul/pi-mnemosyne) extension.
+
+The plugin provides `memory_recall`, `memory_store`, `memory_delete` (plus global
+variants) and automatically injects memory with `before_agent_start`.
+
+See the [extension README](https://github.com/gandazgul/pi-mnemosyne) for
+installation and usage details.
 
 ## Acknowledgements
 
