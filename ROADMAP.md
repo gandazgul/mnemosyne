@@ -4,20 +4,17 @@ This document outlines the planned features, ideas for the future, and explicitl
 
 ## 🎯 Planned Features (Priority)
 
-* **Export/Import (Backup & Restore)**: Add commands to easily dump collections and restore them on other machines.
-  * **Format**: JSONL (JSON Lines) to handle streaming and large collections.
-  * **Data Included**: Include raw vector data to make imports fast and model-independent.
-  * **Scope Options**: `mnemosyne collection -n name --export` (single collection) or `mnemosyne --export` (full DB, with size confirmation warning).
+* Make sure low scoring results dont get returned. Not sure if this needs the benchmarking datasets first to establish the baseline score.
 * **Re-indexing Tool**: Add a command (e.g., `mnemosyne collection re-index`) to safely regenerate FTS and Vector data if the user changes their embedding model or vector dimensions in the config.
   * **Process**: In-place rebuild (drop/recreate `docs_vec` virtual table with new dimensions, re-embed everything with a progress bar).
   * **Safety**: Wrapped in a SQLite transaction for safe rollback on failure or cancellation.
+* Benchmarking: use the huggingface and other embedding and memory benchmarks to validate the quality of our vector search and embedding performance. This will help us identify any issues with our implementation and ensure that we are providing a high-quality experience for our users.
+  * Make the benchmarks reproducible and publish results in a file linked from the README.
 
 ## ✅ Completed
 
+* **Export/Import (Backup & Restore)**: Add commands to easily dump collections and restore them on other machines.
 * **Semantic Chunking & Markdown Ingestion**: Improve ingestion to intelligently chunk markdown files based on semantic boundaries. This allows entire project `.md` files to be ingested as contextual memories.
-  * **Strategy**: Parse Markdown AST and chunk by headings.
-  * **Context Preservation**: Prepend heading hierarchy path to chunk text for better LLM context.
-  * **Fallback**: Use paragraph/sentence splitting if a section is too large.
 * **Memory Classification & Metadata**: Support adding metadata/tags during ingestion to classify memories (e.g., "always-load" vs. "contextual"). This allows consuming tools and agents to know which memories must be read entirely versus which should be queried dynamically.
 * **Short Name Flag**: Added `-n` as a short flag for `--name` across all relevant commands.
 * **Init Safety**: Running `mnemosyne init` in a directory that matches an existing collection's name now errors out to prevent accidental linking.
