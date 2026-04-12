@@ -88,10 +88,12 @@ func exportSingleCollection(cmd *cobra.Command, database *db.DB, collectionName,
 
 	count, err := backup.ExportCollection(w, database, collectionName)
 	if err != nil {
+		os.Remove(outputPath) //nolint:errcheck // best-effort cleanup
 		return err
 	}
 
 	if err := w.Flush(); err != nil {
+		os.Remove(outputPath) //nolint:errcheck // best-effort cleanup
 		return fmt.Errorf("flushing output: %w", err)
 	}
 

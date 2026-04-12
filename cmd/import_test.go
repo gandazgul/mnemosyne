@@ -58,6 +58,11 @@ func TestImportCmd_DirAndNameConflict(t *testing.T) {
 }
 
 func TestImportCmd_SingleFile(t *testing.T) {
+	// Reset flags that may have been set by previous tests (Cobra flag state
+	// persists because rootCmd is a package-level variable).
+	importCmd.Flags().Set("dir", "")  //nolint:errcheck
+	importCmd.Flags().Set("name", "") //nolint:errcheck
+
 	tmpDir := t.TempDir()
 	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
 
@@ -108,6 +113,10 @@ func TestImportCmd_SingleFile(t *testing.T) {
 }
 
 func TestImportCmd_EmptyDir(t *testing.T) {
+	// Reset flags that may have been set by previous tests.
+	importCmd.Flags().Set("dir", "")  //nolint:errcheck
+	importCmd.Flags().Set("name", "") //nolint:errcheck
+
 	tmpDir := t.TempDir()
 	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
 

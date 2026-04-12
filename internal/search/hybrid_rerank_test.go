@@ -107,13 +107,12 @@ func TestEngine_Search_Rerank_Threshold(t *testing.T) {
 
 	engine := search.NewEngine(database, embedder, reranker)
 	results, err := engine.Search(search.Options{
-		CollectionID:     collID,
-		Query:            "programming language",
-		Limit:            10,
-		RRFK:             60,
-		ReRankCandidates: 10,
-		ApplyThreshold:   true,
-		Threshold:        2.0, // Only Python should pass
+		CollectionID:      collID,
+		Query:             "programming language",
+		Limit:             10,
+		RRFK:              60,
+		ReRankCandidates:  10,
+		RerankerThreshold: 2.0, // Only Python should pass
 	})
 	if err != nil {
 		t.Fatalf("Search() error: %v", err)
@@ -147,8 +146,7 @@ func TestEngine_Search_NoRerank_Threshold(t *testing.T) {
 		Limit:            10,
 		RRFK:             60,
 		ReRankCandidates: 10,
-		ApplyThreshold:   true,
-		Threshold:        0.02, // A reasonable RRF threshold for this mock
+		RRFThreshold:     0.02, // A reasonable RRF threshold for this mock
 	})
 	if err != nil {
 		t.Fatalf("Search() error: %v", err)
@@ -169,6 +167,97 @@ func TestEngine_Search_NoRerank_Threshold(t *testing.T) {
 		if r.IsReranked {
 			t.Errorf("expected doc not to be reranked")
 		}
+	}
+}
+
+func TestEngine_Search_Rerank_DefaultThreshold(t *testing.T) {
+	embedder := newMockEmbedder([]string{"go", "python", "programming"})
+	database := testDB(t)
+
+	docs := []string{
+		"Go programming language",
+		"Python programming language",
+		"Cooking recipes",
+	}
+
+	collID := seedCollection(t, database, embedder, "test", docs)
+
+	// Cooking scores negative = irrelevant, Go scores just above 0
+	reranker := newMockReranker(map[string]float32{
+		"Go programming language":     0.5,
+		"Python programming language": 5.0,
+		"Cooking recipes":             -5.0,
+	})
+
+	engine := search.NewEngine(database, embedder, reranker)
+	// No explicit threshold set — zero-value RerankerThreshold (0.0) filters negatives
+	results, err := engine.Search(search.Options{
+		CollectionID:     collID,
+		Query:            "programming language",
+		Limit:            10,
+		RRFK:             60,
+		ReRankCandidates: 10,
+	})
+	if err != nil {
+		t.Fatalf("Search() error: %v", err)
+	}
+
+	// Cooking (-5.0) should be filtered by default threshold of 0.0
+	for _, r := range results {
+		if r.Content == "Cooking recipes" {
+			t.Errorf("expected 'Cooking recipes' to be filtered by default threshold, got score %f", r.RerankerScore)
+		}
+	}
+
+	if len(results) != 2 {
+		t.Errorf("expected 2 results after default threshold, got %d", len(results))
+	}
+}
+
+func TestEngine_Search_DisableThreshold(t *testing.T) {
+	embedder := newMockEmbedder([]string{"go", "python", "programming"})
+	database := testDB(t)
+
+	docs := []string{
+		"Go programming language",
+		"Python programming language",
+		"Cooking recipes",
+	}
+
+	collID := seedCollection(t, database, embedder, "test", docs)
+
+	reranker := newMockReranker(map[string]float32{
+		"Go programming language":     1.5,
+		"Python programming language": 5.0,
+		"Cooking recipes":             -5.0,
+	})
+
+	engine := search.NewEngine(database, embedder, reranker)
+	results, err := engine.Search(search.Options{
+		CollectionID:     collID,
+		Query:            "programming language",
+		Limit:            10,
+		RRFK:             60,
+		ReRankCandidates: 10,
+		DisableThreshold: true, // All results should be returned
+	})
+	if err != nil {
+		t.Fatalf("Search() error: %v", err)
+	}
+
+	// With threshold disabled, all 3 docs should be returned including Cooking
+	if len(results) != 3 {
+		t.Errorf("expected 3 results with threshold disabled, got %d", len(results))
+	}
+
+	foundCooking := false
+	for _, r := range results {
+		if r.Content == "Cooking recipes" {
+			foundCooking = true
+		}
+	}
+	if !foundCooking {
+		t.Errorf("expected 'Cooking recipes' to be included when threshold is disabled")
 	}
 }
 

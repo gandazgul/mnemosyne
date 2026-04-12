@@ -29,14 +29,16 @@ type Options struct {
 	// If zero, defaults to Limit.
 	ReRankCandidates int
 
-	// Threshold is the minimum score a result must have to be included.
-	// If reranking is enabled, this applies to the RerankerScore (logits).
-	// If reranking is disabled, this applies to the RRFScore.
-	// Only applied if ApplyThreshold is true.
-	Threshold float64
+	// RerankerThreshold is the minimum reranker score (logit) for inclusion.
+	// Applied to reranked results. Default from config: 0.0.
+	RerankerThreshold float64
 
-	// ApplyThreshold indicates whether Threshold should be used to filter results.
-	ApplyThreshold bool
+	// RRFThreshold is the minimum RRF fusion score for inclusion.
+	// Applied when reranking is disabled. Default from config: 0.01.
+	RRFThreshold float64
+
+	// DisableThreshold skips all score-based filtering when true.
+	DisableThreshold bool
 
 	// NoRerank disables the cross-encoder reranking step, even if a
 	// reranker is available in the engine.
@@ -191,17 +193,16 @@ func (e *Engine) Search(opts Options) ([]Result, error) {
 		SortByRerankerScore(results)
 	}
 
-	// Filter by threshold if requested.
-	if opts.ApplyThreshold {
+	// Filter by threshold (always applied unless explicitly disabled).
+	if !opts.DisableThreshold {
 		filtered := results[:0]
 		for _, r := range results {
 			if r.IsReranked {
-				// Reranker score is float32, Threshold is float64
-				if float64(r.RerankerScore) >= opts.Threshold {
+				if float64(r.RerankerScore) >= opts.RerankerThreshold {
 					filtered = append(filtered, r)
 				}
 			} else {
-				if r.RRFScore >= opts.Threshold {
+				if r.RRFScore >= opts.RRFThreshold {
 					filtered = append(filtered, r)
 				}
 			}

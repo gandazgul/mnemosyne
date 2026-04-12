@@ -39,6 +39,7 @@ If --name is not provided, the current directory name is used.`,
 		rerankCandidatesFlag, _ := cmd.Flags().GetInt("rerank-candidates")
 		noRerankFlag, _ := cmd.Flags().GetBool("no-rerank")
 		thresholdFlag, _ := cmd.Flags().GetFloat64("threshold")
+		noThresholdFlag, _ := cmd.Flags().GetBool("no-threshold")
 		debugFlag, _ := cmd.Flags().GetBool("debug")
 		formatFlag, _ := cmd.Flags().GetString("format")
 		tagsFlag, _ := cmd.Flags().GetStringSlice("tag")
@@ -111,17 +112,26 @@ If --name is not provided, the current directory name is used.`,
 			}
 		}
 
+		// Determine thresholds: use config defaults, override with --threshold flag.
+		rerankerThreshold := cfg.Search.RerankerThreshold
+		rrfThreshold := cfg.Search.RRFThreshold
+		if cmd.Flags().Changed("threshold") {
+			rerankerThreshold = thresholdFlag
+			rrfThreshold = thresholdFlag
+		}
+
 		engine := search.NewEngine(database, embedder, rr)
 		results, err := engine.Search(search.Options{
-			CollectionID:     collection.ID,
-			Query:            query,
-			Limit:            limitFlag,
-			RRFK:             rrfK,
-			ReRankCandidates: rerankCandidates,
-			Threshold:        thresholdFlag,
-			ApplyThreshold:   cmd.Flags().Changed("threshold"),
-			NoRerank:         noRerankFlag,
-			Tags:             tagsFlag,
+			CollectionID:      collection.ID,
+			Query:             query,
+			Limit:             limitFlag,
+			RRFK:              rrfK,
+			ReRankCandidates:  rerankCandidates,
+			RerankerThreshold: rerankerThreshold,
+			RRFThreshold:      rrfThreshold,
+			DisableThreshold:  noThresholdFlag,
+			NoRerank:          noRerankFlag,
+			Tags:              tagsFlag,
 		})
 		if err != nil {
 			return fmt.Errorf("searching: %w", err)
@@ -221,7 +231,8 @@ func init() {
 	searchCmd.Flags().Int("rrf-k", 0, "RRF fusion constant (default from config, typically 60)")
 	searchCmd.Flags().Int("rerank-candidates", 0, "number of candidates to pass to the reranker")
 	searchCmd.Flags().Bool("no-rerank", false, "disable the cross-encoder reranking step")
-	searchCmd.Flags().Float64("threshold", 0.0, "minimum score for a result to be included (e.g., 0.0 or 5.0 for reranker, 0.016 for RRF)")
+	searchCmd.Flags().Float64("threshold", 0.0, "minimum score for a result to be included (overrides both reranker and RRF defaults)")
+	searchCmd.Flags().Bool("no-threshold", false, "disable score-based filtering (return all results)")
 	searchCmd.Flags().Bool("debug", false, "show scores, ranks, and sources for each result")
 	searchCmd.Flags().String("format", "color", "output format: color (default) or plain")
 	searchCmd.Flags().StringSliceP("tag", "t", nil, "filter results by one or more tags (must match all)")

@@ -23,3 +23,7 @@ search:
   rrf_k: 60
   top_k: 10
   rerank_candidates: 50
+  # Minimum reranker score (logit) for inclusion. Negative = irrelevant.
+  reranker_threshold: 0.0
+  # Minimum RRF score for inclusion (when reranking is disabled).
+  rrf_threshold: 0.01

@@ -77,6 +77,16 @@ type SearchConfig struct {
 	RRFK             int `yaml:"rrf_k"`
 	TopK             int `yaml:"top_k"`
 	ReRankCandidates int `yaml:"rerank_candidates"`
+
+	// RerankerThreshold is the minimum reranker score (logit) for a result
+	// to be included. Negative logits typically indicate irrelevant results.
+	// Default: 0.0
+	RerankerThreshold float64 `yaml:"reranker_threshold"`
+
+	// RRFThreshold is the minimum RRF fusion score for a result to be included
+	// when reranking is disabled. With k=60, a single-source rank-1 result
+	// scores ~0.016. Default: 0.01
+	RRFThreshold float64 `yaml:"rrf_threshold"`
 }
 
 func getEnvOrDefault(key, fallback string) string {
@@ -111,9 +121,11 @@ func DefaultConfig() *Config {
 			Enabled:      true,
 		},
 		Search: SearchConfig{
-			RRFK:             60,
-			TopK:             10,
-			ReRankCandidates: 50,
+			RRFK:              60,
+			TopK:              10,
+			ReRankCandidates:  50,
+			RerankerThreshold: 0.0,
+			RRFThreshold:      0.01,
 		},
 	}
 }

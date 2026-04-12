@@ -4,7 +4,6 @@ This document outlines the planned features, ideas for the future, and explicitl
 
 ## 🎯 Planned Features (Priority)
 
-* Make sure low scoring results dont get returned. Not sure if this needs the benchmarking datasets first to establish the baseline score.
 * **Re-indexing Tool**: Add a command (e.g., `mnemosyne collection re-index`) to safely regenerate FTS and Vector data if the user changes their embedding model or vector dimensions in the config.
   * **Process**: In-place rebuild (drop/recreate `docs_vec` virtual table with new dimensions, re-embed everything with a progress bar).
   * **Safety**: Wrapped in a SQLite transaction for safe rollback on failure or cancellation.
@@ -12,6 +11,8 @@ This document outlines the planned features, ideas for the future, and explicitl
   * Make the benchmarks reproducible and publish results in a file linked from the README.
 
 ## ✅ Completed
+
+* **Default Score Thresholds**: Low-scoring results are now filtered by default. Reranker threshold (0.0) filters negative-logit results; RRF threshold (0.01) filters very low rank single-source results. Configurable via `config.yaml` or `--threshold` flag. Use `--no-threshold` to disable.
 
 * **Export/Import (Backup & Restore)**: Add commands to easily dump collections and restore them on other machines.
 * **Semantic Chunking & Markdown Ingestion**: Improve ingestion to intelligently chunk markdown files based on semantic boundaries. This allows entire project `.md` files to be ingested as contextual memories.
