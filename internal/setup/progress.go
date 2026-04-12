@@ -40,7 +40,7 @@ func (p *ProgressBar) Update(file string, written, total int64) {
 	if newFile {
 		// Finish the previous line.
 		if p.currentFile != "" {
-			fmt.Fprintln(p.w)
+			fmt.Fprintln(p.w) //nolint:errcheck
 		}
 		p.currentFile = file
 		p.lastUpdate = 0 // force render on new file
@@ -84,7 +84,7 @@ func (p *ProgressBar) Finish() {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	if p.currentFile != "" {
-		fmt.Fprintln(p.w)
+		fmt.Fprintln(p.w) //nolint:errcheck
 		p.currentFile = ""
 	}
 }
@@ -93,10 +93,10 @@ func (p *ProgressBar) Finish() {
 func (p *ProgressBar) writeLine(line string) {
 	if p.isTTY {
 		// Carriage return + clear to end of line, then write.
-		fmt.Fprintf(p.w, "\r\033[K%s", line)
+		fmt.Fprintf(p.w, "\r\033[K%s", line) //nolint:errcheck
 	} else {
 		// Non-TTY (piped output): just print with newline.
-		fmt.Fprintln(p.w, line)
+		fmt.Fprintln(p.w, line) //nolint:errcheck
 	}
 }
 

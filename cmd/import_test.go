@@ -12,7 +12,7 @@ import (
 	"github.com/gandazgul/mnemosyne/internal/db"
 )
 
-func TestExportCmd_NoFlags(t *testing.T) {
+func TestImportCmd_NoArgs(t *testing.T) {
 	tmpDir := t.TempDir()
 	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
 
@@ -20,14 +20,14 @@ func TestExportCmd_NoFlags(t *testing.T) {
 	rootCmd.SetOut(outBuf)
 	rootCmd.SetErr(outBuf)
 
-	rootCmd.SetArgs([]string{"export"})
+	rootCmd.SetArgs([]string{"import"})
 	err := rootCmd.Execute()
 	if err == nil {
-		t.Error("expected error when no flags provided")
+		t.Error("expected error when no args or flags provided")
 	}
 }
 
-func TestExportCmd_CollectionNotFound(t *testing.T) {
+func TestImportCmd_DirAndFileConflict(t *testing.T) {
 	tmpDir := t.TempDir()
 	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
 
@@ -35,18 +35,51 @@ func TestExportCmd_CollectionNotFound(t *testing.T) {
 	rootCmd.SetOut(outBuf)
 	rootCmd.SetErr(outBuf)
 
-	rootCmd.SetArgs([]string{"export", "--name", "nonexistent"})
+	rootCmd.SetArgs([]string{"import", "--dir", tmpDir, "somefile.jsonl"})
 	err := rootCmd.Execute()
 	if err == nil {
-		t.Error("expected error for nonexistent collection")
+		t.Error("expected error when --dir used with a file argument")
 	}
 }
 
-func TestExportCmd_SingleCollection(t *testing.T) {
+func TestImportCmd_DirAndNameConflict(t *testing.T) {
 	tmpDir := t.TempDir()
 	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
 
-	// Create collection with a document.
+	outBuf := new(bytes.Buffer)
+	rootCmd.SetOut(outBuf)
+	rootCmd.SetErr(outBuf)
+
+	rootCmd.SetArgs([]string{"import", "--dir", tmpDir, "--name", "foo"})
+	err := rootCmd.Execute()
+	if err == nil {
+		t.Error("expected error when --dir used with --name")
+	}
+}
+
+func TestImportCmd_SingleFile(t *testing.T) {
+	tmpDir := t.TempDir()
+	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+
+	// Create a JSONL export file to import.
+	header := backup.Header{
+		Version:    backup.FormatVersion,
+		Collection: "testcol",
+		DocCount:   1,
+	}
+	doc := backup.DocRecord{
+		Content: "hello world",
+		Vector:  []float32{0.1, 0.2, 0.3},
+	}
+
+	headerJSON, _ := json.Marshal(header)
+	docJSON, _ := json.Marshal(doc)
+	exportFile := filepath.Join(tmpDir, "testcol.jsonl")
+	if err := os.WriteFile(exportFile, []byte(string(headerJSON)+"\n"+string(docJSON)+"\n"), 0644); err != nil {
+		t.Fatalf("writing export file: %v", err)
+	}
+
+	// Ensure vector table exists so import can work.
 	database, err := db.Open(filepath.Join(tmpDir, "mnemosyne.db"))
 	if err != nil {
 		t.Fatalf("opening DB: %v", err)
@@ -54,13 +87,42 @@ func TestExportCmd_SingleCollection(t *testing.T) {
 	if err := database.EnsureVectorTable(3); err != nil {
 		t.Fatalf("ensuring vector table: %v", err)
 	}
-	col, err := database.CreateCollection("myproject")
-	if err != nil {
-		t.Fatalf("creating collection: %v", err)
+	database.Close() //nolint:errcheck
+
+	outBuf := new(bytes.Buffer)
+	rootCmd.SetOut(outBuf)
+	rootCmd.SetErr(outBuf)
+
+	rootCmd.SetArgs([]string{"import", exportFile})
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatalf("import failed: %v", err)
 	}
-	_, err = database.InsertDocumentWithVector(col.ID, "test content", nil, []float32{1, 2, 3})
+
+	output := outBuf.String()
+	if !strings.Contains(output, "Imported 1 documents") {
+		t.Errorf("unexpected output: %s", output)
+	}
+	if !strings.Contains(output, "testcol") {
+		t.Errorf("expected collection name in output: %s", output)
+	}
+}
+
+func TestImportCmd_EmptyDir(t *testing.T) {
+	tmpDir := t.TempDir()
+	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+
+	emptyDir := filepath.Join(tmpDir, "empty")
+	if err := os.MkdirAll(emptyDir, 0755); err != nil {
+		t.Fatalf("creating empty dir: %v", err)
+	}
+
+	// Ensure vector table exists.
+	database, err := db.Open(filepath.Join(tmpDir, "mnemosyne.db"))
 	if err != nil {
-		t.Fatalf("inserting: %v", err)
+		t.Fatalf("opening DB: %v", err)
+	}
+	if err := database.EnsureVectorTable(3); err != nil {
+		t.Fatalf("ensuring vector table: %v", err)
 	}
 	database.Close() //nolint:errcheck
 
@@ -68,69 +130,12 @@ func TestExportCmd_SingleCollection(t *testing.T) {
 	rootCmd.SetOut(outBuf)
 	rootCmd.SetErr(outBuf)
 
-	outputPath := filepath.Join(tmpDir, "out.jsonl")
-	rootCmd.SetArgs([]string{"export", "--name", "myproject", "-o", outputPath})
+	rootCmd.SetArgs([]string{"import", "--dir", emptyDir})
 	if err := rootCmd.Execute(); err != nil {
-		t.Fatalf("export failed: %v", err)
+		t.Fatalf("import --dir on empty dir failed: %v", err)
 	}
 
-	output := outBuf.String()
-	if !strings.Contains(output, "Exported 1 documents") {
-		t.Errorf("unexpected output: %s", output)
-	}
-
-	// Verify file exists and has valid JSONL.
-	data, err := os.ReadFile(outputPath)
-	if err != nil {
-		t.Fatalf("reading output file: %v", err)
-	}
-
-	lines := strings.Split(strings.TrimSpace(string(data)), "\n")
-	if len(lines) != 2 {
-		t.Fatalf("expected 2 lines (header + 1 doc), got %d", len(lines))
-	}
-
-	var header backup.Header
-	if err := json.Unmarshal([]byte(lines[0]), &header); err != nil {
-		t.Fatalf("parsing header: %v", err)
-	}
-	if header.Collection != "myproject" {
-		t.Errorf("header collection = %q", header.Collection)
-	}
-}
-
-// Tests using --all come last because Cobra bool flags persist across test
-// runs in the same process (rootCmd is a package-level variable).
-
-func TestExportCmd_AllEmpty(t *testing.T) {
-	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
-
-	outBuf := new(bytes.Buffer)
-	rootCmd.SetOut(outBuf)
-	rootCmd.SetErr(outBuf)
-
-	rootCmd.SetArgs([]string{"export", "--all", "--yes", "--name", ""})
-	if err := rootCmd.Execute(); err != nil {
-		t.Fatalf("export --all failed: %v", err)
-	}
-
-	if !strings.Contains(outBuf.String(), "No collections to export") {
+	if !strings.Contains(outBuf.String(), "No .jsonl files found") {
 		t.Errorf("unexpected output: %s", outBuf.String())
-	}
-}
-
-func TestExportCmd_ConflictingFlags(t *testing.T) {
-	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
-
-	outBuf := new(bytes.Buffer)
-	rootCmd.SetOut(outBuf)
-	rootCmd.SetErr(outBuf)
-
-	rootCmd.SetArgs([]string{"export", "--all", "--name", "foo"})
-	err := rootCmd.Execute()
-	if err == nil {
-		t.Error("expected error when --all and --name both provided")
 	}
 }

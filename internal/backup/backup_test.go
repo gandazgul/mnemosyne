@@ -151,9 +151,9 @@ func TestImportCollection(t *testing.T) {
 
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
-	enc.Encode(header)  //nolint:errcheck
-	enc.Encode(doc1)    //nolint:errcheck
-	enc.Encode(doc2)    //nolint:errcheck
+	enc.Encode(header) //nolint:errcheck
+	enc.Encode(doc1)   //nolint:errcheck
+	enc.Encode(doc2)   //nolint:errcheck
 
 	// Import.
 	hdr, count, err := ImportCollection(&buf, database, "")
