@@ -20,5 +20,5 @@ type Header struct {
 type DocRecord struct {
 	Content  string    `json:"content"`
 	Metadata *string   `json:"metadata,omitempty"`
-	Vector   []float32 `json:"vector"`
+	Vector   []float32 `json:"vector,omitempty"`
 }

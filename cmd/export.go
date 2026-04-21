@@ -23,9 +23,13 @@ Each exported file contains a header line with metadata followed by one line
 per document, including the raw vector embedding. This makes imports fast
 and model-independent (no re-embedding required).
 
+Use --no-embeddings to exclude vector data from the export. This produces
+much smaller files but requires re-embedding on import.
+
 Examples:
   mnemosyne export --name my-project              # → my-project.jsonl
   mnemosyne export --name my-project -o backup.jsonl
+  mnemosyne export --name my-project --no-embeddings
   mnemosyne export --all                           # → one .jsonl per collection
   mnemosyne export --all -o ./backups/             # → ./backups/<name>.jsonl`,
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -34,6 +38,7 @@ Examples:
 		allFlag, _ := cmd.Flags().GetBool("all")
 		outputFlag, _ := cmd.Flags().GetString("output")
 		yesFlag, _ := cmd.Flags().GetBool("yes")
+		noEmbeddings, _ := cmd.Flags().GetBool("no-embeddings")
 
 		if allFlag && (nameFlag != "" || globalFlag) {
 			return fmt.Errorf("cannot use --all with --name or --global")
@@ -53,7 +58,7 @@ Examples:
 		}
 
 		if allFlag {
-			return exportAll(cmd, database, outputFlag, yesFlag)
+			return exportAll(cmd, database, outputFlag, yesFlag, noEmbeddings)
 		}
 
 		var collectionName string
@@ -67,12 +72,12 @@ Examples:
 			}
 		}
 
-		return exportSingleCollection(cmd, database, collectionName, outputFlag)
+		return exportSingleCollection(cmd, database, collectionName, outputFlag, noEmbeddings)
 	},
 }
 
 // exportSingleCollection exports one collection to a JSONL file.
-func exportSingleCollection(cmd *cobra.Command, database *db.DB, collectionName, outputFlag string) error {
+func exportSingleCollection(cmd *cobra.Command, database *db.DB, collectionName, outputFlag string, noEmbeddings bool) error {
 	outputPath := outputFlag
 	if outputPath == "" {
 		outputPath = collectionName + ".jsonl"
@@ -86,7 +91,7 @@ func exportSingleCollection(cmd *cobra.Command, database *db.DB, collectionName,
 
 	w := bufio.NewWriter(f)
 
-	count, err := backup.ExportCollection(w, database, collectionName)
+	count, err := backup.ExportCollection(w, database, collectionName, noEmbeddings)
 	if err != nil {
 		os.Remove(outputPath) //nolint:errcheck // best-effort cleanup
 		return err
@@ -102,7 +107,7 @@ func exportSingleCollection(cmd *cobra.Command, database *db.DB, collectionName,
 }
 
 // exportAll exports every collection to individual JSONL files.
-func exportAll(cmd *cobra.Command, database *db.DB, outputFlag string, skipConfirm bool) error {
+func exportAll(cmd *cobra.Command, database *db.DB, outputFlag string, skipConfirm, noEmbeddings bool) error {
 	collections, err := database.ListCollections()
 	if err != nil {
 		return fmt.Errorf("listing collections: %w", err)
@@ -152,7 +157,7 @@ func exportAll(cmd *cobra.Command, database *db.DB, outputFlag string, skipConfi
 		}
 
 		w := bufio.NewWriter(f)
-		count, err := backup.ExportCollection(w, database, c.Name)
+		count, err := backup.ExportCollection(w, database, c.Name, noEmbeddings)
 		if err != nil {
 			f.Close() //nolint:errcheck
 			return err
@@ -177,5 +182,6 @@ func init() {
 	exportCmd.Flags().Bool("all", false, "export all collections")
 	exportCmd.Flags().StringP("output", "o", "", "output file or directory path")
 	exportCmd.Flags().Bool("yes", false, "skip confirmation prompt for --all")
+	exportCmd.Flags().Bool("no-embeddings", false, "exclude vector embeddings from export")
 	rootCmd.AddCommand(exportCmd)
 }

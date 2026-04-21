@@ -55,7 +55,7 @@ func TestExportCollection(t *testing.T) {
 
 	// Export to buffer.
 	var buf bytes.Buffer
-	count, err := ExportCollection(&buf, database, "test-export")
+	count, err := ExportCollection(&buf, database, "test-export", false)
 	if err != nil {
 		t.Fatalf("exporting: %v", err)
 	}
@@ -122,7 +122,7 @@ func TestExportCollection_NotFound(t *testing.T) {
 	database, _ := setupTestDB(t)
 
 	var buf bytes.Buffer
-	_, err := ExportCollection(&buf, database, "nonexistent")
+	_, err := ExportCollection(&buf, database, "nonexistent", false)
 	if err == nil {
 		t.Error("expected error for nonexistent collection")
 	}
@@ -286,7 +286,7 @@ func TestRoundTrip(t *testing.T) {
 
 	// Export.
 	var buf bytes.Buffer
-	count, err := ExportCollection(&buf, database, "roundtrip")
+	count, err := ExportCollection(&buf, database, "roundtrip", false)
 	if err != nil {
 		t.Fatalf("exporting: %v", err)
 	}
