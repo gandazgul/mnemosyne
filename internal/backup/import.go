@@ -9,14 +9,20 @@ import (
 	"github.com/gandazgul/mnemosyne/internal/db"
 )
 
+// EmbedFunc generates an embedding vector for the given content.
+// If nil, auto-embedding is disabled and documents without vectors will cause an error.
+type EmbedFunc func(content string) ([]float32, error)
+
 // batchSize is the number of documents to insert per transaction.
 const batchSize = 500
 
 // ImportCollection reads a JSONL file and inserts documents into the database.
 // If overrideName is non-empty, it is used instead of the collection name from
 // the file header. Creates the collection if it doesn't exist.
+// If embedFn is provided, documents without vectors will be auto-embedded;
+// otherwise documents without vectors cause an error.
 // Returns the header and the number of imported documents.
-func ImportCollection(r io.Reader, database *db.DB, overrideName string) (*Header, int64, error) {
+func ImportCollection(r io.Reader, database *db.DB, overrideName string, embedFn EmbedFunc) (*Header, int64, error) {
 	scanner := bufio.NewScanner(r)
 
 	// Increase scanner buffer for potentially large lines (vectors can be big).
@@ -61,6 +67,16 @@ func ImportCollection(r io.Reader, database *db.DB, overrideName string) (*Heade
 		if err := json.Unmarshal(scanner.Bytes(), &doc); err != nil {
 			return &header, imported, fmt.Errorf("parsing document at line %d: %w", imported+2, err)
 		}
+
+		// Auto-embed if vector is missing and embedder is available.
+		if len(doc.Vector) == 0 && embedFn != nil {
+			vec, err := embedFn(doc.Content)
+			if err != nil {
+				return &header, imported, fmt.Errorf("embedding document at line %d: %w", imported+2, err)
+			}
+			doc.Vector = vec
+		}
+
 		batch = append(batch, doc)
 
 		if len(batch) >= batchSize {
@@ -94,6 +110,9 @@ func ImportCollection(r io.Reader, database *db.DB, overrideName string) (*Heade
 func insertBatch(database *db.DB, collectionID int64, docs []DocRecord) (int64, error) {
 	var inserted int64
 	for i, doc := range docs {
+		if len(doc.Vector) == 0 {
+			return inserted, fmt.Errorf("document %d in batch has no embedding and no embedder was provided", i+1)
+		}
 		_, err := database.InsertDocumentWithVector(collectionID, doc.Content, doc.Metadata, doc.Vector)
 		if err != nil {
 			return inserted, fmt.Errorf("inserting document %d in batch: %w", i+1, err)

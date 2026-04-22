@@ -156,7 +156,7 @@ func TestImportCollection(t *testing.T) {
 	enc.Encode(doc2)   //nolint:errcheck
 
 	// Import.
-	hdr, count, err := ImportCollection(&buf, database, "")
+	hdr, count, err := ImportCollection(&buf, database, "", nil)
 	if err != nil {
 		t.Fatalf("importing: %v", err)
 	}
@@ -205,7 +205,7 @@ func TestImportCollection_OverrideName(t *testing.T) {
 	enc.Encode(header) //nolint:errcheck
 	enc.Encode(doc)    //nolint:errcheck
 
-	_, count, err := ImportCollection(&buf, database, "override-name")
+	_, count, err := ImportCollection(&buf, database, "override-name", nil)
 	if err != nil {
 		t.Fatalf("importing with override: %v", err)
 	}
@@ -242,7 +242,7 @@ func TestImportCollection_VersionMismatch(t *testing.T) {
 	var buf bytes.Buffer
 	json.NewEncoder(&buf).Encode(header) //nolint:errcheck
 
-	_, _, err := ImportCollection(&buf, database, "")
+	_, _, err := ImportCollection(&buf, database, "", nil)
 	if err == nil {
 		t.Error("expected error for version mismatch")
 	}
@@ -255,7 +255,7 @@ func TestImportCollection_EmptyFile(t *testing.T) {
 	database, _ := setupTestDB(t)
 
 	var buf bytes.Buffer
-	_, _, err := ImportCollection(&buf, database, "")
+	_, _, err := ImportCollection(&buf, database, "", nil)
 	if err == nil {
 		t.Error("expected error for empty file")
 	}
@@ -296,7 +296,7 @@ func TestRoundTrip(t *testing.T) {
 
 	// Import into new collection name.
 	importBuf := bytes.NewReader(buf.Bytes())
-	_, imported, err := ImportCollection(importBuf, database, "roundtrip-copy")
+	_, imported, err := ImportCollection(importBuf, database, "roundtrip-copy", nil)
 	if err != nil {
 		t.Fatalf("importing: %v", err)
 	}
@@ -339,5 +339,189 @@ func TestRoundTrip(t *testing.T) {
 		if !contentSet[c] {
 			t.Errorf("missing content %q in imported docs", c)
 		}
+	}
+}
+
+func TestExportCollection_NoEmbeddings(t *testing.T) {
+	database, _ := setupTestDB(t)
+
+	// Create a collection and add documents.
+	col, err := database.CreateCollection("test-no-embed")
+	if err != nil {
+		t.Fatalf("creating collection: %v", err)
+	}
+
+	vec1 := []float32{0.1, 0.2, 0.3}
+	vec2 := []float32{0.4, 0.5, 0.6}
+	meta := `{"tags":["core"]}`
+
+	id1, err := database.InsertDocumentWithVector(col.ID, "hello world", nil, vec1)
+	if err != nil {
+		t.Fatalf("inserting doc 1: %v", err)
+	}
+	id2, err := database.InsertDocumentWithVector(col.ID, "goodbye world", &meta, vec2)
+	if err != nil {
+		t.Fatalf("inserting doc 2: %v", err)
+	}
+
+	// Export with skipEmbeddings=true.
+	var buf bytes.Buffer
+	count, err := ExportCollection(&buf, database, "test-no-embed", true)
+	if err != nil {
+		t.Fatalf("exporting: %v", err)
+	}
+	if count != 2 {
+		t.Errorf("expected 2 exported, got %d", count)
+	}
+
+	// Parse output.
+	lines := strings.Split(strings.TrimSpace(buf.String()), "\n")
+	if len(lines) != 3 {
+		t.Fatalf("expected 3 lines (header + 2 docs), got %d", len(lines))
+	}
+
+	// Check first document: should have original_document_id, no vector.
+	var doc1 DocRecord
+	if err := json.Unmarshal([]byte(lines[1]), &doc1); err != nil {
+		t.Fatalf("parsing doc 1: %v", err)
+	}
+	if doc1.OriginalDocumentID != id1.ID {
+		t.Errorf("doc1 original_document_id = %d, want %d", doc1.OriginalDocumentID, id1.ID)
+	}
+	if len(doc1.Vector) != 0 {
+		t.Errorf("doc1 vector should be empty, got %d elements", len(doc1.Vector))
+	}
+
+	// Check second document.
+	var doc2 DocRecord
+	if err := json.Unmarshal([]byte(lines[2]), &doc2); err != nil {
+		t.Fatalf("parsing doc 2: %v", err)
+	}
+	if doc2.OriginalDocumentID != id2.ID {
+		t.Errorf("doc2 original_document_id = %d, want %d", doc2.OriginalDocumentID, id2.ID)
+	}
+	if len(doc2.Vector) != 0 {
+		t.Errorf("doc2 vector should be empty, got %d elements", len(doc2.Vector))
+	}
+
+	// Verify raw JSON lines contain original_document_id.
+	rawLines := strings.Split(strings.TrimSpace(buf.String()), "\n")
+	if !strings.Contains(rawLines[1], "original_document_id") {
+		t.Error("doc1 JSON should contain original_document_id field")
+	}
+	if !strings.Contains(rawLines[2], "original_document_id") {
+		t.Error("doc2 JSON should contain original_document_id field")
+	}
+	if strings.Contains(rawLines[1], "vector") {
+		t.Error("doc1 JSON should not contain vector field when skipEmbeddings=true")
+	}
+}
+
+func TestExportCollection_WithEmbeddings_IncludesOriginalDocumentID(t *testing.T) {
+	database, _ := setupTestDB(t)
+
+	col, err := database.CreateCollection("test-with-embed")
+	if err != nil {
+		t.Fatalf("creating collection: %v", err)
+	}
+
+	id1, err := database.InsertDocumentWithVector(col.ID, "hello", nil, []float32{1, 2, 3})
+	if err != nil {
+		t.Fatalf("inserting doc: %v", err)
+	}
+
+	var buf bytes.Buffer
+	_, err = ExportCollection(&buf, database, "test-with-embed", false)
+	if err != nil {
+		t.Fatalf("exporting: %v", err)
+	}
+
+	lines := strings.Split(strings.TrimSpace(buf.String()), "\n")
+	var doc DocRecord
+	if err := json.Unmarshal([]byte(lines[1]), &doc); err != nil {
+		t.Fatalf("parsing doc: %v", err)
+	}
+	if doc.OriginalDocumentID != id1.ID {
+		t.Errorf("original_document_id = %d, want %d", doc.OriginalDocumentID, id1.ID)
+	}
+	if len(doc.Vector) != 3 {
+		t.Errorf("vector length = %d, want 3", len(doc.Vector))
+	}
+}
+
+func TestImportCollection_WithEmbedFunc(t *testing.T) {
+	database, _ := setupTestDB(t)
+
+	// Build JSONL content with no vectors.
+	header := Header{
+		Version:    FormatVersion,
+		ExportedAt: "2025-01-01T00:00:00Z",
+		Collection: "auto-embed",
+		DocCount:   2,
+	}
+	doc1 := DocRecord{Content: "first doc"}
+	doc2 := DocRecord{Content: "second doc"}
+
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.Encode(header) //nolint:errcheck
+	enc.Encode(doc1)   //nolint:errcheck
+	enc.Encode(doc2)   //nolint:errcheck
+
+	// Provide a mock embed function.
+	mockVec := []float32{0.5, 0.6, 0.7}
+	embedFn := func(content string) ([]float32, error) {
+		return mockVec, nil
+	}
+
+	hdr, count, err := ImportCollection(&buf, database, "", embedFn)
+	if err != nil {
+		t.Fatalf("importing with embedFn: %v", err)
+	}
+	if count != 2 {
+		t.Errorf("expected 2 imported, got %d", count)
+	}
+	if hdr.Collection != "auto-embed" {
+		t.Errorf("header collection = %q", hdr.Collection)
+	}
+
+	// Verify documents were inserted with the mock vector.
+	col, err := database.GetCollectionByName("auto-embed")
+	if err != nil {
+		t.Fatalf("getting collection: %v", err)
+	}
+	docCount, err := database.CountDocuments(col.ID, nil)
+	if err != nil {
+		t.Fatalf("counting documents: %v", err)
+	}
+	if docCount != 2 {
+		t.Errorf("document count = %d, want 2", docCount)
+	}
+}
+
+func TestImportCollection_NoVectorNoEmbedder(t *testing.T) {
+	database, _ := setupTestDB(t)
+
+	// Build JSONL content with no vectors.
+	header := Header{
+		Version:    FormatVersion,
+		ExportedAt: "2025-01-01T00:00:00Z",
+		Collection: "no-embed",
+		DocCount:   1,
+	}
+	doc := DocRecord{Content: "test doc"}
+
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.Encode(header) //nolint:errcheck
+	enc.Encode(doc)    //nolint:errcheck
+
+	// Import without embedFn should fail.
+	_, _, err := ImportCollection(&buf, database, "", nil)
+	if err == nil {
+		t.Fatal("expected error when no vector and no embedder")
+	}
+	if !strings.Contains(err.Error(), "no embedding and no embedder was provided") {
+		t.Errorf("unexpected error: %v", err)
 	}
 }

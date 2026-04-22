@@ -45,8 +45,9 @@ func ExportCollection(w io.Writer, database *db.DB, collectionName string, skipE
 	if skipEmbeddings {
 		err = database.StreamDocuments(collection.ID, func(rec db.ExportRecord) error {
 			doc := DocRecord{
-				Content:  rec.Content,
-				Metadata: rec.Metadata,
+				Content:            rec.Content,
+				Metadata:           rec.Metadata,
+				OriginalDocumentID: rec.ID,
 			}
 			if err := enc.Encode(doc); err != nil {
 				return fmt.Errorf("writing document: %w", err)
@@ -57,9 +58,10 @@ func ExportCollection(w io.Writer, database *db.DB, collectionName string, skipE
 	} else {
 		err = database.StreamDocumentsWithVectors(collection.ID, func(rec db.ExportRecord) error {
 			doc := DocRecord{
-				Content:  rec.Content,
-				Metadata: rec.Metadata,
-				Vector:   rec.Vector,
+				Content:            rec.Content,
+				Metadata:           rec.Metadata,
+				Vector:             rec.Vector,
+				OriginalDocumentID: rec.ID,
 			}
 			if err := enc.Encode(doc); err != nil {
 				return fmt.Errorf("writing document: %w", err)

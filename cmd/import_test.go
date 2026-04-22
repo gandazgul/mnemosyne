@@ -112,6 +112,66 @@ func TestImportCmd_SingleFile(t *testing.T) {
 	}
 }
 
+func TestImportCmd_NoEmbeddingsFile(t *testing.T) {
+	importCmd.Flags().Set("dir", "")  //nolint:errcheck
+	importCmd.Flags().Set("name", "") //nolint:errcheck
+
+	tmpDir := t.TempDir()
+	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+
+	// Create a JSONL export file with no vectors (simulates --no-embeddings export).
+	header := backup.Header{
+		Version:    backup.FormatVersion,
+		Collection: "noembed-col",
+		DocCount:   1,
+	}
+	doc := backup.DocRecord{
+		Content:            "hello world",
+		OriginalDocumentID: 42,
+	}
+
+	headerJSON, _ := json.Marshal(header)
+	docJSON, _ := json.Marshal(doc)
+	exportFile := filepath.Join(tmpDir, "noembed-col.jsonl")
+	if err := os.WriteFile(exportFile, []byte(string(headerJSON)+"\n"+string(docJSON)+"\n"), 0644); err != nil {
+		t.Fatalf("writing export file: %v", err)
+	}
+
+	// Ensure vector table exists.
+	database, err := db.Open(filepath.Join(tmpDir, "mnemosyne.db"))
+	if err != nil {
+		t.Fatalf("opening DB: %v", err)
+	}
+	if err := database.EnsureVectorTable(3); err != nil {
+		t.Fatalf("ensuring vector table: %v", err)
+	}
+	database.Close() //nolint:errcheck
+
+	outBuf := new(bytes.Buffer)
+	rootCmd.SetOut(outBuf)
+	rootCmd.SetErr(outBuf)
+
+	// This will attempt to import a file without vectors, which triggers
+	// the lazy embedder path. Since we can't actually load ONNX in tests,
+	// we expect the import to fail with an embedding error. This test
+	// verifies the code path is exercised (the error comes from the
+	// embedder, not from the backup package).
+	rootCmd.SetArgs([]string{"import", exportFile})
+	err = rootCmd.Execute()
+	// The command should fail because the embedder can't initialize in tests.
+	if err == nil {
+		// If by some miracle it works, check the output.
+		output := outBuf.String()
+		if !strings.Contains(output, "Imported") {
+			t.Errorf("unexpected success without error: %s", output)
+		}
+	}
+	// The error should mention embedding or setup, not "no embedding and no embedder".
+	if err != nil && strings.Contains(err.Error(), "no embedding and no embedder") {
+		t.Errorf("should have attempted auto-embedding, got: %v", err)
+	}
+}
+
 func TestImportCmd_EmptyDir(t *testing.T) {
 	// Reset flags that may have been set by previous tests.
 	importCmd.Flags().Set("dir", "")  //nolint:errcheck

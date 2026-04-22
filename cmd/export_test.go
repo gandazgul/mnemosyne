@@ -97,6 +97,18 @@ func TestExportCmd_SingleCollection(t *testing.T) {
 	if header.Collection != "myproject" {
 		t.Errorf("header collection = %q", header.Collection)
 	}
+
+	// Verify document includes original_document_id.
+	var doc backup.DocRecord
+	if err := json.Unmarshal([]byte(lines[1]), &doc); err != nil {
+		t.Fatalf("parsing doc: %v", err)
+	}
+	if doc.OriginalDocumentID == 0 {
+		t.Error("doc should have non-zero original_document_id")
+	}
+	if len(doc.Vector) != 3 {
+		t.Errorf("doc vector length = %d, want 3", len(doc.Vector))
+	}
 }
 
 // Tests using --all come last because Cobra bool flags persist across test

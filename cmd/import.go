@@ -1,14 +1,17 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/gandazgul/mnemosyne/internal/backup"
 	"github.com/gandazgul/mnemosyne/internal/config"
 	"github.com/gandazgul/mnemosyne/internal/db"
+	"github.com/gandazgul/mnemosyne/internal/embedding"
 	"github.com/spf13/cobra"
 )
 
@@ -18,8 +21,12 @@ var importCmd = &cobra.Command{
 	Short: "Import collections from JSONL files",
 	Long: `Import one or more collections from JSONL files exported by 'mnemosyne export'.
 
-The import is fast because raw vector embeddings are included in the file,
-so no re-embedding is required.
+When the file includes vector embeddings, the import is fast and model-independent
+(no re-embedding required).
+
+When importing a file exported with --no-embeddings, the import command will
+automatically generate embeddings using the configured embedder. This requires
+the embedding model to be available (it is auto-downloaded on first use).
 
 If the collection already exists, documents are appended to it.
 
@@ -55,23 +62,46 @@ Examples:
 			return fmt.Errorf("ensuring vector table: %w", err)
 		}
 
+		// Create a lazy embedder that initializes ONNX Runtime and loads the
+		// model only when a document without a vector is encountered.
+		var (
+			embedOnce   sync.Once
+			embedder    embedding.Embedder
+			embedderErr error
+		)
+		lazyEmbedFn := func(content string) ([]float32, error) {
+			embedOnce.Do(func() {
+				embedder, _, embedderErr = openEmbedder(context.Background())
+			})
+			if embedderErr != nil {
+				return nil, embedderErr
+			}
+			return embedder.EmbedDocument(content)
+		}
+		// Schedule cleanup of embedder if it was initialized.
+		defer func() {
+			if embedder != nil {
+				embedder.Close() //nolint:errcheck
+			}
+		}()
+
 		if dirFlag != "" {
-			return importDir(cmd, database, dirFlag)
+			return importDir(cmd, database, dirFlag, lazyEmbedFn)
 		}
 
-		return importFile(cmd, database, args[0], nameFlag)
+		return importFile(cmd, database, args[0], nameFlag, lazyEmbedFn)
 	},
 }
 
 // importFile imports a single JSONL file into the database.
-func importFile(cmd *cobra.Command, database *db.DB, filePath, overrideName string) error {
+func importFile(cmd *cobra.Command, database *db.DB, filePath, overrideName string, embedFn backup.EmbedFunc) error {
 	f, err := os.Open(filePath)
 	if err != nil {
 		return fmt.Errorf("opening file %s: %w", filePath, err)
 	}
 	defer f.Close() //nolint:errcheck
 
-	header, count, err := backup.ImportCollection(f, database, overrideName)
+	header, count, err := backup.ImportCollection(f, database, overrideName, embedFn)
 	if err != nil {
 		return err
 	}
@@ -86,7 +116,7 @@ func importFile(cmd *cobra.Command, database *db.DB, filePath, overrideName stri
 }
 
 // importDir imports all .jsonl files from a directory.
-func importDir(cmd *cobra.Command, database *db.DB, dirPath string) error {
+func importDir(cmd *cobra.Command, database *db.DB, dirPath string, embedFn backup.EmbedFunc) error {
 	entries, err := os.ReadDir(dirPath)
 	if err != nil {
 		return fmt.Errorf("reading directory %s: %w", dirPath, err)
@@ -111,7 +141,7 @@ func importDir(cmd *cobra.Command, database *db.DB, dirPath string) error {
 			return fmt.Errorf("opening file %s: %w", filePath, err)
 		}
 
-		header, count, err := backup.ImportCollection(f, database, "")
+		header, count, err := backup.ImportCollection(f, database, "", embedFn)
 		f.Close() //nolint:errcheck
 
 		if err != nil {

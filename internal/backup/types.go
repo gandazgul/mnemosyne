@@ -18,7 +18,8 @@ type Header struct {
 
 // DocRecord is one document line in a JSONL export file.
 type DocRecord struct {
-	Content  string    `json:"content"`
-	Metadata *string   `json:"metadata,omitempty"`
-	Vector   []float32 `json:"vector,omitempty"`
+	Content            string    `json:"content"`
+	Metadata           *string   `json:"metadata,omitempty"`
+	Vector             []float32 `json:"vector,omitempty"`
+	OriginalDocumentID int64     `json:"original_document_id,omitempty"`
 }
