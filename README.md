@@ -82,6 +82,23 @@ task build
 
 # Delete an entire collection
 ./mnemosyne forget myproject
+
+# Export a collection to JSONL (includes vectors for fast import)
+./mnemosyne export --name myproject
+
+# Export without vectors (smaller file; embeddings auto-generated on import)
+./mnemosyne export --name myproject --no-embeddings
+
+# Export all collections
+./mnemosyne export --all
+
+# Import a collection (auto-embeds if vectors are missing)
+./mnemosyne import myproject.jsonl
+./mnemosyne import myproject.jsonl --name other   # override collection name
+./mnemosyne import --dir ./backups/               # import all .jsonl files
+
+# Delete an entire collection
+./mnemosyne forget myproject
 ```
 
 ## Available Tasks
@@ -93,6 +110,36 @@ task clean            # Remove build artifacts
 task lint             # Run linter (requires golangci-lint)
 task download-models  # Download ONNX models from HuggingFace (dev workflow)
 task release -- v0.1.0 # Create and push a new release tag
+```
+
+## Export & Import
+
+Mnemosyne supports JSONL-based export and import for backup and transfer.
+
+**Export** writes one JSONL file per collection. Each document includes:
+- `content` and `metadata` — the original document data
+- `vector` — the raw embedding (omitted with `--no-embeddings`)
+- `original_document_id` — the source database ID for provenance/inspection
+  (useful for memory cleanup workflows where agents summarize and prune old
+  memories; ignored on import, which always assigns new IDs)
+
+**Import** reads a JSONL file and inserts documents into the database:
+- If vectors are present, import is fast and model-independent (no re-embedding).
+- If vectors are missing (from a `--no-embeddings` export), the embedder is
+  lazily initialized and vectors are auto-generated. This requires the
+  embedding model to be available (auto-downloaded on first use).
+- If vectors are missing and the embedder can't be initialized, a clear
+  error is returned.
+
+```bash
+# Full export (includes vectors)
+./mnemosyne export --name myproject
+
+# Lightweight export (no vectors, ~10x smaller)
+./mnemosyne export --name myproject --no-embeddings
+
+# Import (auto-embeds if vectors are missing)
+./mnemosyne import myproject.jsonl
 ```
 
 ## Creating a Release
@@ -143,6 +190,8 @@ mnemosyne/
 │   ├── forget.go             # Delete an entire collection
 │   ├── search.go             # Search (hybrid: FTS5 + vector + RRF)
 │   ├── setup.go              # Download ONNX Runtime + ML models
+│   ├── export.go             # Export collections to JSONL
+│   ├── import.go             # Import collections from JSONL (auto-embeds if needed)
 │   ├── helpers.go            # Shared helpers (resolve collection, open DB/embedder)
 │   └── format.go             # Output format validation + color helpers
 ├── internal/
@@ -162,6 +211,10 @@ mnemosyne/
 │   │   ├── platform.go       # Platform detection, URL construction
 │   │   ├── download.go       # HTTP download with resume + checksum
 │   │   └── setup.go          # Orchestration (Check, Run, EnsureReady)
+│   ├── backup/               # JSONL export/import of collections
+│   │   ├── types.go           # Header and DocRecord types
+│   │   ├── export.go          # ExportCollection (streams docs to JSONL)
+│   │   └── import.go          # ImportCollection (reads JSONL, auto-embeds if needed)
 │   ├── reranker/             # ONNX cross-encoder reranker (Phase 7)
 │   └── search/               # Hybrid search + RRF
 │       ├── hybrid.go         # Search engine (orchestrates FTS + vector + RRF)
