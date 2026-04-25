@@ -75,7 +75,7 @@ Use --limit to restrict the number of results.`,
 
 		for _, doc := range docs {
 			preview := doc.Content
-			if len(preview) > 80 {
+			if !plain(formatFlag) && len(preview) > 80 {
 				preview = preview[:80] + "..."
 			}
 
