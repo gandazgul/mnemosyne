@@ -231,7 +231,7 @@ func init() {
 	searchCmd.Flags().Int("rrf-k", 0, "RRF fusion constant (default from config, typically 60)")
 	searchCmd.Flags().Int("rerank-candidates", 0, "number of candidates to pass to the reranker")
 	searchCmd.Flags().Bool("no-rerank", false, "disable the cross-encoder reranking step")
-	searchCmd.Flags().Float64("threshold", 0.0, "minimum score for a result to be included (overrides both reranker and RRF defaults)")
+	searchCmd.Flags().Float64("threshold", 0.0, "minimum score for a result to be included (overrides config rank/RRF limits if set)")
 	searchCmd.Flags().Bool("no-threshold", false, "disable score-based filtering (return all results)")
 	searchCmd.Flags().Bool("debug", false, "show scores, ranks, and sources for each result")
 	searchCmd.Flags().String("format", "color", "output format: color (default) or plain")

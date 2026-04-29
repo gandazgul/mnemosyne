@@ -2,6 +2,7 @@ package reranker
 
 import (
 	"fmt"
+	"math"
 	"path/filepath"
 
 	"github.com/daulet/tokenizers"
@@ -209,7 +210,9 @@ func (e *ONNXCrossEncoder) Score(query string, documents []string) ([]float32, e
 	logitsDim := int(outputShape[1])
 
 	for i := int64(0); i < batchSize; i++ {
-		scores[i] = outputData[i*int64(logitsDim)]
+		logit := float64(outputData[i*int64(logitsDim)])
+		sigmoid := 1.0 / (1.0 + math.Exp(-logit))
+		scores[i] = float32(sigmoid)
 	}
 
 	return scores, nil

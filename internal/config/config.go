@@ -79,8 +79,10 @@ type SearchConfig struct {
 	ReRankCandidates int `yaml:"rerank_candidates"`
 
 	// RerankerThreshold is the minimum reranker score (logit) for a result
-	// to be included. Negative logits typically indicate irrelevant results.
-	// Default: 0.0
+	// to be included. With a sigmoid function applied, values are between 0.0 and 1.0.
+	// We previously used logits with a threshold of -6.0. The equivalent sigmoid threshold
+	// is around 0.001 to 0.002.
+	// Default: 0.001
 	RerankerThreshold float64 `yaml:"reranker_threshold"`
 
 	// RRFThreshold is the minimum RRF fusion score for a result to be included
@@ -124,7 +126,7 @@ func DefaultConfig() *Config {
 			RRFK:              60,
 			TopK:              10,
 			ReRankCandidates:  50,
-			RerankerThreshold: 0.0,
+			RerankerThreshold: 0.01, // Corresponds roughly to a logit of -6.9
 			RRFThreshold:      0.01,
 		},
 	}
