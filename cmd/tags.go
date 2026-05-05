@@ -76,6 +76,6 @@ If --name is not provided, the current directory name is used.`,
 func init() {
 	tagsCmd.Flags().StringP("name", "n", "", "collection name (defaults to current directory name)")
 	tagsCmd.Flags().BoolP("global", "g", false, "use the global collection")
-	tagsCmd.Flags().String("format", "color", "output format: color (default) or plain")
+	tagsCmd.Flags().StringP("format", "f", "color", "output format: color (default) or plain")
 	rootCmd.AddCommand(tagsCmd)
 }

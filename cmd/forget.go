@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -55,13 +53,18 @@ is used as the collection name.`,
 
 		if !yesFlag {
 			cmd.Printf("\nType the collection name to confirm: ")
-			reader := bufio.NewReader(os.Stdin)
-			input, err := reader.ReadString('\n')
-			if err != nil {
-				return fmt.Errorf("reading confirmation: %w", err)
+			input, err := readInput(cmd)
+			// EOF might be returned in non-tty if no trailing newline was sent.
+			// Proceed if we managed to read the input.
+			if err != nil && err.Error() != "EOF" {
+				return err
 			}
 
+			// Clean up carriage returns that can happen when pressing Enter,
+			// especially in some terminal environments or PTYs.
 			input = strings.TrimSpace(input)
+			input = strings.TrimRight(input, "\r")
+
 			if input != collectionName {
 				return fmt.Errorf("confirmation did not match; expected %q, got %q", collectionName, input)
 			}

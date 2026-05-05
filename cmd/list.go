@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -65,14 +64,6 @@ Use --limit to restrict the number of results.`,
 			return fmt.Errorf("counting documents: %w", err)
 		}
 
-		if plain(formatFlag) {
-			cmd.Printf("Collection %q (%d documents)\n", collectionName, count)
-		} else {
-			cmd.Printf("Collection %s (%d documents)\n",
-				boldCyan(collectionName), count)
-			cmd.Println(dimWhite(strings.Repeat("─", 60)))
-		}
-
 		for _, doc := range docs {
 			preview := doc.Content
 			if !plain(formatFlag) && len(preview) > 80 {
@@ -82,8 +73,7 @@ Use --limit to restrict the number of results.`,
 			ts := doc.CreatedAt.Format("2006-01-02 15:04:05")
 
 			if plain(formatFlag) {
-				cmd.Printf("  [%d]  %s\n", doc.ID, preview)
-				cmd.Printf("        %s\n", ts)
+				cmd.Printf("[%d] %s - %s\n", doc.ID, ts, preview)
 			} else {
 				cmd.Printf("  %s  %s\n",
 					boldYellow(fmt.Sprintf("[%d]", doc.ID)),
@@ -104,7 +94,7 @@ func init() {
 	listCmd.Flags().StringP("name", "n", "", "collection name (defaults to current directory name)")
 	listCmd.Flags().BoolP("global", "g", false, "use the global collection")
 	listCmd.Flags().Int("limit", 20, "maximum number of documents to show")
-	listCmd.Flags().String("format", "color", "output format: color (default) or plain")
+	listCmd.Flags().StringP("format", "f", "color", "output format: color (default) or plain")
 	listCmd.Flags().StringSliceP("tag", "t", nil, "filter results by one or more tags (must match all)")
 	rootCmd.AddCommand(listCmd)
 }

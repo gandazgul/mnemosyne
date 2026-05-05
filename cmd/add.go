@@ -203,6 +203,6 @@ func init() {
 	addCmd.Flags().BoolP("global", "g", false, "use the global collection")
 	addCmd.Flags().String("file", "", "read content from a file")
 	addCmd.Flags().Bool("stdin", false, "read content from stdin")
-	addCmd.Flags().StringSliceP("tag", "t", nil, "add one or more tags to the document (e.g. --tag core --tag ux)")
+	addCmd.Flags().StringSliceP("tag", "t", nil, "add one or more tags to the document (e.g. -t core -t ux)")
 	rootCmd.AddCommand(addCmd)
 }

@@ -9,7 +9,41 @@ import (
 
 	"github.com/gandazgul/mnemosyne/internal/config"
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
+
+// readInput handles reading a line of input while handling potential carriage return issues in PTYs
+func readInput(cmd *cobra.Command) (string, error) {
+	if term.IsTerminal(int(os.Stdin.Fd())) {
+		state, err := term.MakeRaw(int(os.Stdin.Fd()))
+		if err != nil {
+			return "", fmt.Errorf("setting raw mode: %w", err)
+		}
+		termObj := term.NewTerminal(os.Stdin, "")
+		line, err := termObj.ReadLine()
+		_ = term.Restore(int(os.Stdin.Fd()), state)
+
+		if err != nil {
+			// Return EOF explicitly so callers can handle it if needed
+			if err.Error() == "EOF" {
+				return line, err
+			}
+			return "", fmt.Errorf("reading confirmation: %w", err)
+		}
+		cmd.Println() // Add newline since term.ReadLine() swallows the enter
+		return line, nil
+	}
+
+	reader := bufio.NewReader(os.Stdin)
+	line, err := reader.ReadString('\n')
+	if err != nil {
+		if err.Error() == "EOF" {
+			return line, err
+		}
+		return "", fmt.Errorf("reading confirmation: %w", err)
+	}
+	return line, nil
+}
 
 // cleanupCmd removes downloaded assets (models and ONNX Runtime).
 var cleanupCmd = &cobra.Command{
@@ -59,12 +93,13 @@ You will be asked to confirm unless --yes is provided.`,
 		if !yesFlag {
 			cmd.Printf("This will remove ONNX Runtime and ML models. They can be re-downloaded with 'mnemosyne setup'.\n")
 			cmd.Printf("Type 'yes' to confirm: ")
-			reader := bufio.NewReader(os.Stdin)
-			input, err := reader.ReadString('\n')
-			if err != nil {
-				return fmt.Errorf("reading confirmation: %w", err)
+			input, err := readInput(cmd)
+			if err != nil && err.Error() != "EOF" {
+				return err
 			}
-			if strings.TrimSpace(input) != "yes" {
+			input = strings.TrimSpace(input)
+			input = strings.TrimRight(input, "\r")
+			if input != "yes" {
 				cmd.Println("Aborted.")
 				return nil
 			}
@@ -76,12 +111,13 @@ You will be asked to confirm unless --yes is provided.`,
 			cmd.Println("WARNING: --db will delete your database. All memories will be lost.")
 			cmd.Println("This action cannot be undone.")
 			cmd.Printf("Type 'yes' to confirm database deletion: ")
-			reader := bufio.NewReader(os.Stdin)
-			input, err := reader.ReadString('\n')
-			if err != nil {
-				return fmt.Errorf("reading confirmation: %w", err)
+			input, err := readInput(cmd)
+			if err != nil && err.Error() != "EOF" {
+				return err
 			}
-			if strings.TrimSpace(input) != "yes" {
+			input = strings.TrimSpace(input)
+			input = strings.TrimRight(input, "\r")
+			if input != "yes" {
 				cmd.Println("Skipping database deletion.")
 				dbFlag = false
 			}

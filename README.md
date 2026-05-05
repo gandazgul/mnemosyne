@@ -12,20 +12,24 @@ All ML inference runs locally via ONNX Runtime. No cloud APIs required.
 ## Features
 
 - **Document storage** in SQLite with metadata support
-- **Semantic Markdown Chunking** using `yuin/goldmark` AST to intelligently split and preserve heading context when adding `.md` files
+- **Semantic Markdown Chunking** using `yuin/goldmark` AST to intelligently
+  split and preserve heading context when adding `.md` files
 - **Full-text search** via SQLite FTS5 with BM25 ranking
 - **Vector search** via sqlite-vec with cosine similarity
 - **Hybrid search** combining both via Reciprocal Rank Fusion (RRF)
-- **Local reranking** with a cross-encoder model (ONNX Runtime) *(coming soon)*
-- **Automatic setup** -- downloads ONNX Runtime and ML models on first use (~500 MB one-time)
+- **Local reranking** with a cross-encoder model (ONNX Runtime) _(coming soon)_
+- **Automatic setup** -- downloads ONNX Runtime and ML models on first use (~500
+  MB one-time)
 - **Configurable models** -- swap embedding or reranker models via config
 - **No cloud dependencies** -- everything runs on your machine
 
 ## Prerequisites
 
 - **Go 1.21+** -- [Install Go](https://go.dev/dl/)
-- **GCC** -- required by `mattn/go-sqlite3` (CGO). On macOS: `xcode-select --install`
-- **Task** -- task runner. Install: `brew install go-task` or see [taskfile.dev](https://taskfile.dev/installation/)
+- **GCC** -- required by `mattn/go-sqlite3` (CGO). On macOS:
+  `xcode-select --install`
+- **Task** -- task runner. Install: `brew install go-task` or see
+  [taskfile.dev](https://taskfile.dev/installation/)
 
 ## Quick Start
 
@@ -67,6 +71,9 @@ task build
 
 # List documents
 ./mnemosyne list
+
+# List documents without colors
+./mnemosyne list -f plain
 
 # Delete a document by ID
 ./mnemosyne delete 1
@@ -117,6 +124,7 @@ task release -- v0.1.0 # Create and push a new release tag
 Mnemosyne supports JSONL-based export and import for backup and transfer.
 
 **Export** writes one JSONL file per collection. Each document includes:
+
 - `content` and `metadata` — the original document data
 - `vector` — the raw embedding (omitted with `--no-embeddings`)
 - `original_document_id` — the source database ID for provenance/inspection
@@ -124,12 +132,14 @@ Mnemosyne supports JSONL-based export and import for backup and transfer.
   memories; ignored on import, which always assigns new IDs)
 
 **Import** reads a JSONL file and inserts documents into the database:
-- If vectors are present, import is fast and model-independent (no re-embedding).
+
+- If vectors are present, import is fast and model-independent (no
+  re-embedding).
 - If vectors are missing (from a `--no-embeddings` export), the embedder is
-  lazily initialized and vectors are auto-generated. This requires the
-  embedding model to be available (auto-downloaded on first use).
-- If vectors are missing and the embedder can't be initialized, a clear
-  error is returned.
+  lazily initialized and vectors are auto-generated. This requires the embedding
+  model to be available (auto-downloaded on first use).
+- If vectors are missing and the embedder can't be initialized, a clear error is
+  returned.
 
 ```bash
 # Full export (includes vectors)
@@ -144,25 +154,28 @@ Mnemosyne supports JSONL-based export and import for backup and transfer.
 
 ## Creating a Release
 
-To create a new versioned release with cross-compiled binaries and an automated changelog:
+To create a new versioned release with cross-compiled binaries and an automated
+changelog:
 
 1. Use the `release` task and pass the new semantic version tag:
    ```bash
    task release -- v0.1.0
    ```
 2. The `Release` GitHub Action workflow will automatically trigger.
-3. It uses GoReleaser and `zig cc` to build `linux/amd64`, `linux/arm64`, `darwin/amd64`, and `darwin/arm64` binaries.
-4. The workflow will publish a new GitHub Release with the attached binaries and an auto-generated changelog based on conventional commits.
+3. It uses GoReleaser and `zig cc` to build `linux/amd64`, `linux/arm64`,
+   `darwin/amd64`, and `darwin/arm64` binaries.
+4. The workflow will publish a new GitHub Release with the attached binaries and
+   an auto-generated changelog based on conventional commits.
 
 ## Setup
 
 Mnemosyne requires ONNX Runtime and two ML models to generate embeddings:
 
-| Component | Size | Source |
-|-----------|------|--------|
-| ONNX Runtime | ~38 MB | GitHub Releases |
-| snowflake-arctic-embed-m-v1.5 (embedding) | ~420 MB | HuggingFace |
-| ms-marco-MiniLM-L-6-v2 (reranker) | ~80 MB | HuggingFace |
+| Component                                 | Size    | Source          |
+| ----------------------------------------- | ------- | --------------- |
+| ONNX Runtime                              | ~38 MB  | GitHub Releases |
+| snowflake-arctic-embed-m-v1.5 (embedding) | ~420 MB | HuggingFace     |
+| ms-marco-MiniLM-L-6-v2 (reranker)         | ~80 MB  | HuggingFace     |
 
 **Automatic**: On first use of `add` or `search`, Mnemosyne detects missing
 components and downloads them automatically to `~/.local/share/mnemosyne/`.
@@ -229,45 +242,106 @@ mnemosyne/
 
 ## Technology Stack
 
-| Component        | Library                          |
-| ---------------- | -------------------------------- |
-| CLI              | [Cobra](https://github.com/spf13/cobra) |
-| SQLite driver    | [go-sqlite3](https://github.com/mattn/go-sqlite3) (CGO) |
-| Vector search    | [sqlite-vec](https://github.com/asg017/sqlite-vec) |
-| Full-text search | SQLite FTS5 (built-in)           |
-| ML inference     | [ONNX Runtime](https://github.com/yalue/onnxruntime_go) |
+| Component        | Library                                                                 |
+| ---------------- | ----------------------------------------------------------------------- |
+| CLI              | [Cobra](https://github.com/spf13/cobra)                                 |
+| SQLite driver    | [go-sqlite3](https://github.com/mattn/go-sqlite3) (CGO)                 |
+| Vector search    | [sqlite-vec](https://github.com/asg017/sqlite-vec)                      |
+| Full-text search | SQLite FTS5 (built-in)                                                  |
+| ML inference     | [ONNX Runtime](https://github.com/yalue/onnxruntime_go)                 |
 | Tokenizer        | [daulet/tokenizers](https://github.com/daulet/tokenizers) (HuggingFace) |
-| Embedding model  | snowflake-arctic-embed-m-v1.5 (256-dim, Apache 2.0) |
-| Reranker model   | ms-marco-MiniLM-L-6-v2 (cross-encoder) |
-| Task runner      | [Task](https://taskfile.dev/)    |
+| Embedding model  | snowflake-arctic-embed-m-v1.5 (256-dim, Apache 2.0)                     |
+| Reranker model   | ms-marco-MiniLM-L-6-v2 (cross-encoder)                                  |
+| Task runner      | [Task](https://taskfile.dev/)                                           |
 
 ## Integrations
 
-### OpenCode
+### Pi & OpenCode extensions
 
-Mnemosyne integrates with [OpenCode](https://opencode.ai/) via the
+Mnemosyne also integrates with [Pi](https://pi.dev) via the
+[pi-mnemosyne](https://github.com/gandazgul/pi-mnemosyne) extension. And with
+[OpenCode](https://opencode.ai/) via the
 [opencode-mnemosyne](https://github.com/gandazgul/opencode-mnemosyne) plugin.
 
-The plugin provides `memory_recall`, `memory_store`, `memory_delete` (plus global
-variants) and automatically injects memory instructions during context compaction.
+These extensions provide `memory_recall`, `memory_store`, `memory_delete` (plus
+global variants) and automatically inject core memories into the system prompt.
+They also re-inject core memories and tool descriptions during compactions.
 
-See the [plugin README](https://github.com/gandazgul/opencode-mnemosyne) for
-full details.
+See the particular extension's README files for installation and usage details.
 
-### Pi
+### Generic
 
-Mnemosyne also integrates with [Pi](https://github.com/mariozechner/pi-coding-agent)
-via the [pi-mnemosyne](https://github.com/gandazgul/pi-mnemosyne) extension.
+For other agents or IDEs that support AGENTS.md or similar add this:
 
-The plugin provides `memory_recall`, `memory_store`, `memory_delete` (plus global
-variants) and automatically injects memory with `before_agent_start`.
+```markdown
+## Memory (mnemosyne)
 
-See the [extension README](https://github.com/gandazgul/pi-mnemosyne) for
-installation and usage details.
+mnemosyne is a cli memory storage and semantic retrieval tool. the memories are
+kept in a project namespace named after the root folder you can access other
+namespaces by using -n [namespace name].
+
+- At the start of a session, use `mnemosyne list -t core -f plain` to get all
+  core memories, these will be user preferences and project specific things you
+  should know.
+
+Then also use `mnemosyne search -f plain [query relevant to the user's prompt]`
+and `mnemosyne search -g -f plain [query relevant to the user's prompt]` to
+search relevant memories. `-g` searches on a global namespace for broad user
+preferences.
+
+- After significant decisions, use `mnemosyne add "new memory"` to save a
+  concise fact you want to remember. Also do this if the user explicitly asks
+  you to remember something.
+- Delete contradicted memories with `mnemosyne delete [memory id]` before
+  storing updated ones. The memory id is shown in the output in brackets e.g.
+  `[123]`.
+- Mark critical, always-relevant context as core (-t core) — but use sparingly.
+  You can also use other tags as you see fit:
+  `mnemosyne add "database is sqlite" -t tech-stack -t database`
+- When you are done with a session, store any memories that you think are
+  relevant to the user and the project. This will help you recall important
+  information in future sessions.
+```
+
+### Sleeping
+
+Use this prompt template to ask the model to optimize memories:
+
+```markdown
+---
+description: Optimize long-term memory quality
+---
+
+You are running sleep mode to optimize long-term memory quality.
+
+Goal:
+
+- Improve memory signal quality for future sessions.
+- Preserve high-value, durable context.
+- Reduce noise, redundancy, and stale information.
+
+Process:
+
+1. Use \`mnemosyne export --no-embeddings\` to export all memories and core
+   memories to a file ([project name].jsonl in the root directory).
+2. Analyze the memories for relevance, redundancy, and importance. Optimize the
+   memories by deleting irrelevant or redundant ones, and consolidating
+   important but similar memories. Focus on keeping the most relevant and
+   important information while minimizing noise and redundancy in the memory
+   system.
+3. Move memories from the core memories (tags: ['core']) to regular or vice
+   versa as needed. Core memories should be reserved for the most critical and
+   frequently accessed information, while regular memories can be used for less
+   critical or less frequently accessed information.
+
+Delete with \`mnemosyne delete [memory id]\` and add with \`mnemosyne add
+"memory content" -t tag1 -t tag2\`.
+```
 
 ## Acknowledgements
 
-Built with the help of [OpenCode](https://opencode.ai/) using Claude Opus and Gemini.
+Built with the help of [OpenCode](https://opencode.ai/) & [Pi](https://pi.dev)
+using Claude Opus and Gemini.
 
 ## License
 

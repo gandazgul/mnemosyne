@@ -128,12 +128,14 @@ func exportAll(cmd *cobra.Command, database *db.DB, outputFlag string, skipConfi
 		cmd.Printf("Export all? %d collections, %d documents. Continue? [y/N] ",
 			len(collections), totalDocs)
 
-		reader := bufio.NewReader(os.Stdin)
-		input, err := reader.ReadString('\n')
-		if err != nil {
-			return fmt.Errorf("reading confirmation: %w", err)
+		input, err := readInput(cmd)
+		if err != nil && err.Error() != "EOF" {
+			return err
 		}
-		input = strings.TrimSpace(strings.ToLower(input))
+
+		input = strings.TrimSpace(input)
+		input = strings.TrimRight(input, "\r")
+		input = strings.ToLower(input)
 		if input != "y" && input != "yes" {
 			cmd.Println("Aborted.")
 			return nil

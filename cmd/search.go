@@ -163,11 +163,13 @@ func printSearchResults(results []search.Result, query, collectionName, formatFl
 	}
 
 	for i, r := range results {
+		// Timestamp — always shown.
+		ts := r.CreatedAt.Format("2006-01-02 15:04:05")
 		if debugFlag {
 			// Debug: show scores, sources, and component details.
 			if plain(formatFlag) {
-				fmt.Printf("  %d. [%d] score: %.6f sources: %s\n",
-					i+1, r.DocumentID, r.RRFScore, strings.Join(r.Sources, "+"))
+				fmt.Printf("%d. [%d] ts: %s score: %.6f sources: %s\n",
+					i+1, r.DocumentID, ts, r.RRFScore, strings.Join(r.Sources, "+"))
 			} else {
 				fmt.Printf("  %s %s score: %s sources: %s\n",
 					boldWhite(fmt.Sprintf("%d.", i+1)),
@@ -199,24 +201,16 @@ func printSearchResults(results []search.Result, query, collectionName, formatFl
 		} else {
 			// Normal: show rank and document ID.
 			if plain(formatFlag) {
-				fmt.Printf("  %d. [%d]", i+1, r.DocumentID)
+				fmt.Printf("%d. [%d] %s - ", i+1, r.DocumentID, ts)
 			} else {
-				fmt.Printf("  %s %s",
+				fmt.Printf("%s %s - ",
 					boldWhite(fmt.Sprintf("%d.", i+1)),
 					boldYellow(fmt.Sprintf("[%d]", r.DocumentID)))
 			}
 		}
 
 		// Content — always shown.
-		fmt.Printf("  %s\n", r.Content)
-
-		// Timestamp — always shown.
-		ts := r.CreatedAt.Format("2006-01-02 15:04:05")
-		if plain(formatFlag) {
-			fmt.Printf("     %s\n", ts)
-		} else {
-			fmt.Printf("     %s\n", dimWhite(ts))
-		}
+		fmt.Printf("%s\n", r.Content)
 
 		if i < len(results)-1 {
 			fmt.Println()
@@ -234,7 +228,7 @@ func init() {
 	searchCmd.Flags().Float64("threshold", 0.0, "minimum score for a result to be included (overrides config rank/RRF limits if set)")
 	searchCmd.Flags().Bool("no-threshold", false, "disable score-based filtering (return all results)")
 	searchCmd.Flags().Bool("debug", false, "show scores, ranks, and sources for each result")
-	searchCmd.Flags().String("format", "color", "output format: color (default) or plain")
+	searchCmd.Flags().StringP("format", "f", "color", "output format: color (default) or plain")
 	searchCmd.Flags().StringSliceP("tag", "t", nil, "filter results by one or more tags (must match all)")
 	rootCmd.AddCommand(searchCmd)
 }
