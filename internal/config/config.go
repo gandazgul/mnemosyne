@@ -126,7 +126,7 @@ func DefaultConfig() *Config {
 			RRFK:              60,
 			TopK:              10,
 			ReRankCandidates:  50,
-			RerankerThreshold: 0.01, // Corresponds roughly to a logit of -6.9
+			RerankerThreshold: 0.001, // Corresponds roughly to a logit of -6.9 (sigmoid(-6.9) ≈ 0.001)
 			RRFThreshold:      0.01,
 		},
 	}
