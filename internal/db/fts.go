@@ -106,7 +106,7 @@ func sanitizeFTSQuery(query string) string {
 		case r >= 'a' && r <= 'z',
 			r >= 'A' && r <= 'Z',
 			r >= '0' && r <= '9',
-			r == ' ', r == '"', r == '-', r == '_':
+			r == ' ', r == '"', r == '_':
 			b.WriteRune(r)
 		default:
 			// Replace other characters with a space to avoid breaking tokenization.
