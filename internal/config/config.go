@@ -138,10 +138,14 @@ func DefaultConfig() *Config {
 //
 // Search order:
 //  1. ONNXRUNTIME_SHARED_LIBRARY_PATH environment variable
-//  2. Data directory lib/ (e.g. ~/.local/share/mnemosyne/lib/)
+//  2. Data directory lib/ (e.g. ~/.local/share/mnemosyne/lib/ or %LOCALAPPDATA%\mnemosyne\lib\)
 //  3. Next to the running executable
 //  4. ../lib/ relative to the running executable (development layout)
 func findONNXRuntimeLib(dataDir string) string {
+	return findONNXRuntimeLibForOS(dataDir, runtime.GOOS)
+}
+
+func findONNXRuntimeLibForOS(dataDir, goos string) string {
 	// Honour explicit env var (matches the convention used by tests).
 	if p := os.Getenv("ONNXRUNTIME_SHARED_LIBRARY_PATH"); p != "" {
 		return p
@@ -149,9 +153,11 @@ func findONNXRuntimeLib(dataDir string) string {
 
 	// Platform-specific library names.
 	var names []string
-	switch runtime.GOOS {
+	switch goos {
 	case "darwin":
 		names = []string{"libonnxruntime.dylib"}
+	case "windows":
+		names = []string{"onnxruntime.dll"}
 	default: // linux, etc.
 		names = []string{"libonnxruntime.so"}
 	}
@@ -209,21 +215,41 @@ func isDir(path string) bool {
 }
 
 // defaultDataDir returns the default data directory for mnemosyne.
-// On macOS/Linux: ~/.local/share/mnemosyne
-// Falls back to ~/.mnemosyne if XDG_DATA_HOME is not set and home can't be resolved.
+// On Windows: %LOCALAPPDATA%\mnemosyne
+// On macOS/Linux: ~/.local/share/mnemosyne (or $XDG_DATA_HOME/mnemosyne)
+// Falls back to .mnemosyne if home can't be resolved.
 func defaultDataDir() string {
-	// Check XDG_DATA_HOME first (standard on Linux).
-	if xdg := os.Getenv("XDG_DATA_HOME"); xdg != "" {
-		return filepath.Join(xdg, "mnemosyne")
+	return defaultDataDirForOS(runtime.GOOS)
+}
+
+func defaultDataDirForOS(goos string) string {
+	if goos == "windows" {
+		if localAppData := os.Getenv("LOCALAPPDATA"); localAppData != "" {
+			return filepath.Join(localAppData, "mnemosyne")
+		}
+		if appData := os.Getenv("APPDATA"); appData != "" {
+			return filepath.Join(appData, "mnemosyne")
+		}
 	}
 
-	// Fall back to ~/.local/share/mnemosyne.
+	// Check XDG_DATA_HOME first (standard on Linux).
+	if goos != "windows" {
+		if xdg := os.Getenv("XDG_DATA_HOME"); xdg != "" {
+			return filepath.Join(xdg, "mnemosyne")
+		}
+	}
+
 	home, err := os.UserHomeDir()
 	if err != nil {
 		// Last resort: use current directory.
 		return ".mnemosyne"
 	}
 
+	if goos == "windows" {
+		return filepath.Join(home, "AppData", "Local", "mnemosyne")
+	}
+
+	// Fall back to ~/.local/share/mnemosyne.
 	return filepath.Join(home, ".local", "share", "mnemosyne")
 }
 

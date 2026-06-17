@@ -1,6 +1,7 @@
 package setup
 
 import (
+	"archive/zip"
 	"context"
 	"os"
 	"path/filepath"
@@ -116,6 +117,48 @@ func TestExtractONNXRuntimeLib_NotATar(t *testing.T) {
 	err := extractONNXRuntimeLib(fakeArchive, tmpDir)
 	if err == nil {
 		t.Error("Expected error extracting invalid archive")
+	}
+}
+
+func TestExtractONNXRuntimeLib_WindowsZip(t *testing.T) {
+	tmpDir := t.TempDir()
+	archivePath := filepath.Join(tmpDir, "onnxruntime.zip")
+
+	f, err := os.Create(archivePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	zw := zip.NewWriter(f)
+	w, err := zw.Create("onnxruntime-win-x64-" + ONNXRuntimeVersion + "/lib/onnxruntime.dll")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := w.Write([]byte("fake dll")); err != nil {
+		t.Fatal(err)
+	}
+	if err := zw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	destDir := filepath.Join(tmpDir, "lib")
+	if err := os.MkdirAll(destDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := extractONNXRuntimeLib(archivePath, destDir); err != nil {
+		t.Fatalf("extractONNXRuntimeLib: %v", err)
+	}
+
+	extractedPath := filepath.Join(destDir, "onnxruntime.dll")
+	content, err := os.ReadFile(extractedPath)
+	if err != nil {
+		t.Fatalf("read extracted dll: %v", err)
+	}
+	if string(content) != "fake dll" {
+		t.Fatalf("extracted content = %q, want fake dll", string(content))
 	}
 }
 

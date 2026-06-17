@@ -125,6 +125,24 @@ func TestFindONNXRuntimeLib(t *testing.T) {
 	}
 }
 
+func TestFindONNXRuntimeLib_Windows(t *testing.T) {
+	tmpDir := t.TempDir()
+	libDir := filepath.Join(tmpDir, "lib")
+	if err := os.MkdirAll(libDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	expectedLibPath := filepath.Join(libDir, "onnxruntime.dll")
+	if err := os.WriteFile(expectedLibPath, []byte("dummy dll"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	path := findONNXRuntimeLibForOS(tmpDir, "windows")
+	if path != expectedLibPath {
+		t.Errorf("expected path %q, got %q", expectedLibPath, path)
+	}
+}
+
 func TestFindModelsDir(t *testing.T) {
 	tmpDir := t.TempDir()
 	modelsDir := filepath.Join(tmpDir, "models")
@@ -162,5 +180,27 @@ func TestDefaultDataDir(t *testing.T) {
 	path = defaultDataDir()
 	if path == "" {
 		t.Error("expected non-empty path from defaultDataDir")
+	}
+}
+
+func TestDefaultDataDir_Windows(t *testing.T) {
+	localAppData := filepath.Join(t.TempDir(), "LocalAppData")
+	appData := filepath.Join(t.TempDir(), "AppData")
+
+	t.Setenv("XDG_DATA_HOME", filepath.Join(t.TempDir(), "xdg"))
+	t.Setenv("LOCALAPPDATA", localAppData)
+	t.Setenv("APPDATA", appData)
+
+	path := defaultDataDirForOS("windows")
+	expectedPath := filepath.Join(localAppData, "mnemosyne")
+	if path != expectedPath {
+		t.Errorf("expected LOCALAPPDATA path %q, got %q", expectedPath, path)
+	}
+
+	t.Setenv("LOCALAPPDATA", "")
+	path = defaultDataDirForOS("windows")
+	expectedPath = filepath.Join(appData, "mnemosyne")
+	if path != expectedPath {
+		t.Errorf("expected APPDATA fallback path %q, got %q", expectedPath, path)
 	}
 }

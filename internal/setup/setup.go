@@ -2,12 +2,14 @@ package setup
 
 import (
 	"archive/tar"
+	"archive/zip"
 	"compress/gzip"
 	"context"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -142,27 +144,36 @@ func installONNXRuntime(ctx context.Context, dataDir string, progress ProgressFu
 		return fmt.Errorf("create lib dir: %w", err)
 	}
 
-	// Download tarball to a temp file, then extract the library.
-	tgzPath := filepath.Join(libDir, "onnxruntime.tgz")
-	if err := downloadFile(ctx, url, tgzPath, "", func(written, total int64) {
+	// Download archive to a temp file, then extract the library.
+	archiveName := "onnxruntime" + onnxRuntimeArchiveExt(runtime.GOOS)
+	archivePath := filepath.Join(libDir, archiveName)
+	if err := downloadFile(ctx, url, archivePath, "", func(written, total int64) {
 		if progress != nil {
-			progress("onnxruntime.tgz", written, total)
+			progress(archiveName, written, total)
 		}
 	}); err != nil {
 		return err
 	}
-	defer os.Remove(tgzPath) //nolint:errcheck
+	defer os.Remove(archivePath) //nolint:errcheck
 
-	// Extract library files from the tarball.
-	if err := extractONNXRuntimeLib(tgzPath, libDir); err != nil {
+	// Extract runtime library files from the archive.
+	if err := extractONNXRuntimeLib(archivePath, libDir); err != nil {
 		return fmt.Errorf("extract: %w", err)
 	}
 
 	return nil
 }
 
-// extractONNXRuntimeLib extracts libonnxruntime* files from the ONNX Runtime tarball.
-func extractONNXRuntimeLib(tgzPath, destDir string) error {
+// extractONNXRuntimeLib extracts runtime library files from the ONNX Runtime archive.
+func extractONNXRuntimeLib(archivePath, destDir string) error {
+	if strings.HasSuffix(archivePath, ".zip") {
+		return extractONNXRuntimeZipLib(archivePath, destDir)
+	}
+	return extractONNXRuntimeTarLib(archivePath, destDir)
+}
+
+// extractONNXRuntimeTarLib extracts libonnxruntime* files from an ONNX Runtime tarball.
+func extractONNXRuntimeTarLib(tgzPath, destDir string) error {
 	f, err := os.Open(tgzPath)
 	if err != nil {
 		return err
@@ -210,6 +221,52 @@ func extractONNXRuntimeLib(tgzPath, destDir string) error {
 			return err
 		}
 		if _, err := io.Copy(out, tr); err != nil {
+			_ = out.Close()
+			return err
+		}
+		if err := out.Close(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// extractONNXRuntimeZipLib extracts onnxruntime.dll from a Windows ONNX Runtime zip archive.
+func extractONNXRuntimeZipLib(zipPath, destDir string) error {
+	zr, err := zip.OpenReader(zipPath)
+	if err != nil {
+		return err
+	}
+	defer zr.Close() //nolint:errcheck
+
+	for _, file := range zr.File {
+		if file.FileInfo().IsDir() {
+			continue
+		}
+
+		base := filepath.Base(file.Name)
+		if base != onnxRuntimeLibNameForOS("windows") {
+			continue
+		}
+
+		in, err := file.Open()
+		if err != nil {
+			return err
+		}
+
+		destPath := filepath.Join(destDir, base)
+		out, err := os.OpenFile(destPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
+		if err != nil {
+			_ = in.Close()
+			return err
+		}
+		if _, err := io.Copy(out, in); err != nil {
+			_ = in.Close()
+			_ = out.Close()
+			return err
+		}
+		if err := in.Close(); err != nil {
 			_ = out.Close()
 			return err
 		}

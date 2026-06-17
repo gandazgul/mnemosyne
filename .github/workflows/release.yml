@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   goreleaser:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,7 +20,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version-file: 'go.mod'
 
       - name: Install Task
         uses: arduino/setup-task@v2
@@ -28,15 +28,9 @@ jobs:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Zig
-        uses: goto-bus-stop/setup-zig@v2
-        with:
-          version: 0.11.0
-          
-      - name: Install macOS SDK
+      - name: Export macOS SDK path
         run: |
-          git clone https://github.com/joseluisq/macosx-sdks.git
-          echo "SDK_PATH=$(pwd)/macosx-sdks/MacOSX13.3.sdk" >> $GITHUB_ENV
+          echo "SDK_PATH=$(xcrun --show-sdk-path)" >> "$GITHUB_ENV"
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
