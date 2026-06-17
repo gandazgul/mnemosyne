@@ -34,12 +34,12 @@ var (
 func printVersion(w io.Writer) {
 	platform := runtime.GOOS + "/" + runtime.GOARCH
 	if Release == "true" {
-		fmt.Fprintf(w, "mnemosyne %s (%s)\n", Version, platform)
+		_, _ = fmt.Fprintf(w, "mnemosyne %s (%s)\n", Version, platform)
 		return
 	}
-	fmt.Fprintf(w, "mnemosyne %s (%s)\n", Version, platform)
-	fmt.Fprintf(w, "  commit: %s\n", Commit)
-	fmt.Fprintf(w, "  built:  %s\n", Date)
+	_, _ = fmt.Fprintf(w, "mnemosyne %s (%s)\n", Version, platform)
+	_, _ = fmt.Fprintf(w, "  commit: %s\n", Commit)
+	_, _ = fmt.Fprintf(w, "  built:  %s\n", Date)
 }
 
 // versionCmd prints the version information for mnemosyne.
