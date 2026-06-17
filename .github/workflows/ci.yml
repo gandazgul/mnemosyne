@@ -39,7 +39,7 @@ jobs:
           msystem: MINGW64
           update: true
           path-type: inherit
-          install: mingw-w64-x86_64-gcc
+          install: mingw-w64-x86_64-gcc mingw-w64-x86_64-sqlite3
 
       - name: Set up Python
         if: runner.os != 'Windows'
@@ -99,6 +99,8 @@ jobs:
         env:
           CGO_ENABLED: "1"
           CC: gcc
+          CGO_CFLAGS: "-IC:/msys64/mingw64/include"
+          CGO_LDFLAGS: "-LC:/msys64/mingw64/lib"
 
       - name: Build Dev Binary
         if: runner.os != 'Windows'
@@ -112,6 +114,8 @@ jobs:
         env:
           CGO_ENABLED: "1"
           CC: gcc
+          CGO_CFLAGS: "-IC:/msys64/mingw64/include"
+          CGO_LDFLAGS: "-LC:/msys64/mingw64/lib"
 
       - name: Rename Binary
         if: runner.os != 'Windows'
