@@ -25,6 +25,11 @@ All ML inference runs locally via ONNX Runtime. No cloud APIs required.
 
 ## Prerequisites
 
+For the one-command install below, you only need `sh`, `curl` or `wget`, and
+`tar`.
+
+For building from source:
+
 - **Go 1.21+** -- [Install Go](https://go.dev/dl/)
 - **GCC** -- required by `mattn/go-sqlite3` (CGO). On macOS:
   `xcode-select --install`
@@ -32,6 +37,21 @@ All ML inference runs locally via ONNX Runtime. No cloud APIs required.
   [taskfile.dev](https://taskfile.dev/installation/)
 
 ## Quick Start
+
+Install the latest release to `~/.local/bin`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gandazgul/mnemosyne/main/install.sh | sh
+```
+
+Then run:
+
+```bash
+mnemosyne --help
+mnemosyne setup
+```
+
+To build from source instead:
 
 ```bash
 # Clone the repo

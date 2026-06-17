@@ -1,6 +1,6 @@
 // Package embedding provides text-to-vector embedding using ONNX Runtime.
 //
-// It wraps a HuggingFace tokenizer (via daulet/tokenizers) and an ONNX model
+// It wraps a HuggingFace tokenizer (via sugarme/tokenizer) and an ONNX model
 // session (via yalue/onnxruntime_go) to generate dense vector embeddings
 // from text. The primary use case is encoding documents and queries for
 // semantic vector search.
@@ -10,14 +10,15 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/daulet/tokenizers"
+	stokenizer "github.com/sugarme/tokenizer"
+	"github.com/sugarme/tokenizer/pretrained"
 )
 
 // Tokenizer wraps a HuggingFace tokenizer loaded from a tokenizer.json file.
 // It handles text encoding (tokenization) and provides input tensors suitable
 // for ONNX model inference: input_ids and attention_mask.
 type Tokenizer struct {
-	inner     *tokenizers.Tokenizer
+	inner     *stokenizer.Tokenizer
 	maxSeqLen int
 }
 
@@ -27,7 +28,7 @@ type Tokenizer struct {
 func NewTokenizer(modelDir string, maxSeqLen int) (*Tokenizer, error) {
 	tokenizerPath := filepath.Join(modelDir, "tokenizer.json")
 
-	tk, err := tokenizers.FromFile(tokenizerPath)
+	tk, err := pretrained.FromFile(tokenizerPath)
 	if err != nil {
 		return nil, fmt.Errorf("load tokenizer from %s: %w", tokenizerPath, err)
 	}
@@ -51,33 +52,48 @@ type EncodedInput struct {
 // attention_mask as int64 slices. Special tokens (BOS/EOS) are added.
 // Sequences longer than maxSeqLen are truncated.
 func (t *Tokenizer) Encode(text string) (*EncodedInput, error) {
-	opts := []tokenizers.EncodeOption{
-		tokenizers.WithReturnAttentionMask(),
+	if t.inner == nil {
+		return nil, fmt.Errorf("tokenizer is not initialized")
 	}
 
-	result := t.inner.EncodeWithOptions(text, true, opts...)
-	if result.IDs == nil {
+	result, err := t.inner.EncodeSingle(text, true)
+	if err != nil {
+		return nil, fmt.Errorf("tokenize: %w", err)
+	}
+	if result == nil || result.GetIds() == nil {
 		return nil, fmt.Errorf("tokenization returned nil IDs for text: %.50s", text)
 	}
 
-	ids := result.IDs
-	mask := result.AttentionMask
+	ids := result.GetIds()
+	mask := result.GetAttentionMask()
+	typeIDs := result.GetTypeIds()
+	if len(mask) == 0 {
+		mask = make([]int, len(ids))
+		for i := range mask {
+			mask[i] = 1
+		}
+	}
+	if len(typeIDs) == 0 {
+		typeIDs = make([]int, len(ids))
+	}
 
 	// Truncate to maxSeqLen if needed.
 	if len(ids) > t.maxSeqLen {
 		ids = ids[:t.maxSeqLen]
 		mask = mask[:t.maxSeqLen]
+		typeIDs = typeIDs[:t.maxSeqLen]
 	}
 
 	tokenLen := len(ids)
 
-	// Convert uint32 -> int64 for ONNX Runtime.
+	// Convert int -> int64 for ONNX Runtime.
 	inputIDs := make([]int64, tokenLen)
 	attentionMask := make([]int64, tokenLen)
-	tokenTypeIDs := make([]int64, tokenLen) // all zeros for single-sentence
+	tokenTypeIDs := make([]int64, tokenLen)
 	for i := 0; i < tokenLen; i++ {
 		inputIDs[i] = int64(ids[i])
 		attentionMask[i] = int64(mask[i])
+		tokenTypeIDs[i] = int64(typeIDs[i])
 	}
 
 	return &EncodedInput{
@@ -125,7 +141,5 @@ func (t *Tokenizer) EncodeBatch(texts []string) ([]*EncodedInput, int, error) {
 
 // Close releases the tokenizer's native resources.
 func (t *Tokenizer) Close() {
-	if t.inner != nil {
-		t.inner.Close() //nolint:errcheck
-	}
+	// sugarme/tokenizer is pure Go and does not hold native resources.
 }

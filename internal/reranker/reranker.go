@@ -5,10 +5,10 @@ import (
 	"math"
 	"path/filepath"
 
-	"github.com/daulet/tokenizers"
 	ort "github.com/yalue/onnxruntime_go"
 
 	"github.com/gandazgul/mnemosyne/internal/config"
+	"github.com/gandazgul/mnemosyne/internal/embedding"
 )
 
 // Reranker scores query-document relevance.
@@ -24,7 +24,7 @@ type Reranker interface {
 // ONNXCrossEncoder implements Reranker using an ONNX cross-encoder model.
 type ONNXCrossEncoder struct {
 	session      *ort.DynamicAdvancedSession
-	tokenizer    *tokenizers.Tokenizer
+	tokenizer    *embedding.Tokenizer
 	maxSeqLength int
 }
 
@@ -36,9 +36,9 @@ func NewONNXCrossEncoder(cfg config.RerankerConfig) (*ONNXCrossEncoder, error) {
 		return nil, fmt.Errorf("reranker is disabled in config")
 	}
 
-	tokenizerPath := filepath.Join(cfg.ModelPath, "tokenizer.json")
-	tk, err := tokenizers.FromFile(tokenizerPath)
+	tk, err := embedding.NewTokenizer(cfg.ModelPath, cfg.MaxSeqLength)
 	if err != nil {
+		tokenizerPath := filepath.Join(cfg.ModelPath, "tokenizer.json")
 		return nil, fmt.Errorf("load tokenizer from %s: %w", tokenizerPath, err)
 	}
 
@@ -56,7 +56,7 @@ func NewONNXCrossEncoder(cfg config.RerankerConfig) (*ONNXCrossEncoder, error) {
 		nil,
 	)
 	if err != nil {
-		tk.Close() //nolint:errcheck
+		tk.Close()
 		return nil, fmt.Errorf("create ONNX session for %s: %w", modelFile, err)
 	}
 
@@ -73,39 +73,40 @@ func (e *ONNXCrossEncoder) Score(query string, documents []string) ([]float32, e
 		return nil, nil
 	}
 
-	opts := []tokenizers.EncodeOption{
-		tokenizers.WithReturnAttentionMask(),
-		tokenizers.WithReturnTypeIDs(),
-	}
-
 	// 1. Encode query once
-	encQ := e.tokenizer.EncodeWithOptions(query, true, opts...)
-	if encQ.IDs == nil {
-		return nil, fmt.Errorf("failed to tokenize query")
+	encQ, err := e.tokenizer.Encode(query)
+	if err != nil {
+		return nil, fmt.Errorf("tokenize query: %w", err)
+	}
+	if encQ.InputIDs == nil {
+		return nil, fmt.Errorf("tokenization returned nil IDs for query")
 	}
 
 	batchSize := int64(len(documents))
 
 	// Pre-encode all documents to find the max length
-	docIDs := make([][]uint32, len(documents))
+	docIDs := make([][]int64, len(documents))
 	maxLen := 0
 
 	for i, doc := range documents {
-		encD := e.tokenizer.EncodeWithOptions(doc, true, opts...)
-		if encD.IDs == nil {
-			return nil, fmt.Errorf("failed to tokenize document %d", i)
+		encD, err := e.tokenizer.Encode(doc)
+		if err != nil {
+			return nil, fmt.Errorf("tokenize document %d: %w", i, err)
+		}
+		if encD.InputIDs == nil {
+			return nil, fmt.Errorf("tokenization returned nil IDs for document %d", i)
 		}
 
 		// The encoded document includes [CLS] ... [SEP].
 		// For a pair, we append B's tokens excluding the [CLS] token (index 0).
-		var bIDs []uint32
-		if len(encD.IDs) > 1 {
-			bIDs = encD.IDs[1:]
+		var bIDs []int64
+		if len(encD.InputIDs) > 1 {
+			bIDs = encD.InputIDs[1:]
 		}
 
 		docIDs[i] = bIDs
 
-		pairLen := len(encQ.IDs) + len(bIDs)
+		pairLen := len(encQ.InputIDs) + len(bIDs)
 		if pairLen > maxLen {
 			maxLen = pairLen
 		}
@@ -127,8 +128,8 @@ func (e *ONNXCrossEncoder) Score(query string, documents []string) ([]float32, e
 		bIDs := docIDs[i]
 
 		// Concatenate: A_IDs + B_IDs
-		pairIDs := make([]uint32, 0, len(encQ.IDs)+len(bIDs))
-		pairIDs = append(pairIDs, encQ.IDs...)
+		pairIDs := make([]int64, 0, len(encQ.InputIDs)+len(bIDs))
+		pairIDs = append(pairIDs, encQ.InputIDs...)
 		pairIDs = append(pairIDs, bIDs...)
 
 		// Truncate pair if needed
@@ -138,11 +139,11 @@ func (e *ONNXCrossEncoder) Score(query string, documents []string) ([]float32, e
 
 		// Calculate lengths
 		actualLen := len(pairIDs)
-		lenA := len(encQ.IDs)
+		lenA := len(encQ.InputIDs)
 
 		baseOffset := int64(i) * seqLen
 		for j := 0; j < actualLen; j++ {
-			flatIDs[baseOffset+int64(j)] = int64(pairIDs[j])
+			flatIDs[baseOffset+int64(j)] = pairIDs[j]
 			flatMask[baseOffset+int64(j)] = 1
 
 			// token_type_ids: 0 for A (query), 1 for B (document)
@@ -227,7 +228,7 @@ func (e *ONNXCrossEncoder) Close() error {
 		}
 	}
 	if e.tokenizer != nil {
-		e.tokenizer.Close() //nolint:errcheck
+		e.tokenizer.Close()
 	}
 	if len(errs) > 0 {
 		return errs[0]
