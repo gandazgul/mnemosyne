@@ -33,11 +33,20 @@ All ML inference runs locally via ONNX Runtime. No cloud APIs needed.`,
 	// Run is called when the command is executed with no subcommands.
 	// This is a good place for a welcome message or default behavior.
 	Run: func(cmd *cobra.Command, args []string) {
+		// Check if --version or -v flag was passed
+		if version, _ := cmd.Flags().GetBool("version"); version {
+			printVersion(cmd.OutOrStdout())
+			return
+		}
 		fmt.Println("Welcome to Mnemosyne!")
 		fmt.Println()
 		fmt.Println(description)
 		fmt.Println("Run 'mnemosyne --help' to see available commands.")
 	},
+}
+
+func init() {
+	rootCmd.Flags().BoolP("version", "v", false, "Print the version of mnemosyne")
 }
 
 // Execute runs the root command. This is called from main.go.

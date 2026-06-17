@@ -1,6 +1,10 @@
 package cmd
 
 import (
+	"fmt"
+	"io"
+	"runtime"
+
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +22,25 @@ var (
 
 	// Date is the build date.
 	Date = "unknown"
+
+	// Release is set to "true" for goreleaser CI builds, "false" otherwise.
+	Release = "false"
 )
+
+// printVersion writes the version information to w.
+// For CI/release builds (Release="true") it prints a single-line
+// "mnemosyne vVERSION (platform)". For local builds it prints the
+// full multi-line output with commit, build date, and platform.
+func printVersion(w io.Writer) {
+	platform := runtime.GOOS + "/" + runtime.GOARCH
+	if Release == "true" {
+		fmt.Fprintf(w, "mnemosyne %s (%s)\n", Version, platform)
+		return
+	}
+	fmt.Fprintf(w, "mnemosyne %s (%s)\n", Version, platform)
+	fmt.Fprintf(w, "  commit: %s\n", Commit)
+	fmt.Fprintf(w, "  built:  %s\n", Date)
+}
 
 // versionCmd prints the version information for mnemosyne.
 var versionCmd = &cobra.Command{
@@ -26,9 +48,7 @@ var versionCmd = &cobra.Command{
 	Short: "Print the version of mnemosyne",
 	Long:  "Display the version, git commit, and build date of this mnemosyne binary.",
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Printf("mnemosyne %s\n", Version)
-		cmd.Printf("  commit: %s\n", Commit)
-		cmd.Printf("  built:  %s\n", Date)
+		printVersion(cmd.OutOrStdout())
 	},
 }
 

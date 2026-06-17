@@ -40,3 +40,58 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  windows-release:
+    needs: goreleaser
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Set up MSYS2/MinGW
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          path-type: inherit
+          install: mingw-w64-x86_64-gcc mingw-w64-x86_64-sqlite3 zip
+
+      - name: Verify Windows CGO Dependencies
+        shell: msys2 {0}
+        run: |
+          command -v gcc
+          test -f /mingw64/include/sqlite3.h
+          test -f /mingw64/lib/libsqlite3.dll.a
+
+      - name: Build Windows Release Binary
+        shell: msys2 {0}
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          COMMIT="$(git rev-parse --short HEAD)"
+          DATE="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+          ASSET="mnemosyne_${GITHUB_REF_NAME}_windows_amd64.zip"
+
+          go build -tags sqlite_fts5 \
+            -ldflags "-w -X github.com/gandazgul/mnemosyne/cmd.Version=${VERSION} -X github.com/gandazgul/mnemosyne/cmd.Commit=${COMMIT} -X github.com/gandazgul/mnemosyne/cmd.Date=${DATE}" \
+            -o mnemosyne.exe .
+
+          ./mnemosyne.exe version
+          zip "${ASSET}" mnemosyne.exe
+        env:
+          CGO_ENABLED: "1"
+          CC: gcc
+          CGO_CFLAGS: "-I/mingw64/include"
+          CGO_LDFLAGS: "-L/mingw64/lib"
+
+      - name: Upload Windows Release Asset
+        shell: pwsh
+        run: gh release upload "${env:GITHUB_REF_NAME}" "mnemosyne_${env:GITHUB_REF_NAME}_windows_amd64.zip" --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
