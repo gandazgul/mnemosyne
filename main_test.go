@@ -23,7 +23,7 @@ func buildCLI(t *testing.T) string {
 
 	cmd := exec.Command("go", "build", "-tags", "sqlite_fts5", "-o", exePath, "main.go")
 
-	// Add required CGO_LDFLAGS to find libtokenizers
+	// Add CGO_LDFLAGS so tests can find native libraries in the local lib dir.
 	cmd.Env = append(os.Environ(), fmt.Sprintf("CGO_LDFLAGS=-L%s", filepath.Join(cwd, "lib")))
 
 	if out, err := cmd.CombinedOutput(); err != nil {

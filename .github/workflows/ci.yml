@@ -13,8 +13,13 @@ jobs:
         include:
           - os: ubuntu-latest
             target: linux-amd64
+            artifact: mnemosyne-linux-amd64
           - os: macos-latest
             target: darwin-arm64
+            artifact: mnemosyne-darwin-arm64
+          - os: windows-latest
+            target: windows-amd64
+            artifact: mnemosyne-windows-amd64.exe
 
     runs-on: ${{ matrix.os }}
 
@@ -27,26 +32,38 @@ jobs:
           go-version-file: 'go.mod'
           cache: true
 
+      - name: Set up MSYS2/MinGW
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          path-type: inherit
+          install: mingw-w64-x86_64-gcc
+
       - name: Set up Python
+        if: runner.os != 'Windows'
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
       - name: Install Hugging Face CLI (hf)
+        if: runner.os != 'Windows'
         run: |
           pip install -U "huggingface_hub" "hf_transfer"
 
       - name: Install Task
+        if: runner.os != 'Windows'
         uses: arduino/setup-task@v2
         with:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Native Libraries
+        if: runner.os != 'Windows'
         run: |
           go mod tidy
           task download-onnxruntime
-          task download-tokenizers
 
       - name: Run Linter
         if: matrix.os == 'ubuntu-latest'
@@ -58,6 +75,7 @@ jobs:
           CGO_LDFLAGS: "-L${{ github.workspace }}/lib"
 
       - name: Cache Models
+        if: runner.os != 'Windows'
         uses: actions/cache@v4
         with:
           path: models
@@ -66,23 +84,43 @@ jobs:
             ${{ runner.os }}-models-
 
       - name: Download Models
+        if: runner.os != 'Windows'
         run: task download-models
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
 
       - name: Test
+        if: runner.os != 'Windows'
         run: task test
 
+      - name: Test Windows
+        if: runner.os == 'Windows'
+        run: go test -short -tags sqlite_fts5 ./...
+        env:
+          CGO_ENABLED: "1"
+          CC: gcc
+
       - name: Build Dev Binary
+        if: runner.os != 'Windows'
         run: task build
 
-      - name: Rename Binary
+      - name: Build Windows Binary
+        if: runner.os == 'Windows'
         run: |
-          mv mnemosyne mnemosyne-${{ matrix.target }}
+          go build -tags sqlite_fts5 -o ${{ matrix.artifact }} .
+          .\${{ matrix.artifact }} version
+        env:
+          CGO_ENABLED: "1"
+          CC: gcc
+
+      - name: Rename Binary
+        if: runner.os != 'Windows'
+        run: |
+          mv mnemosyne ${{ matrix.artifact }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: mnemosyne-${{ matrix.target }}
-          path: mnemosyne-${{ matrix.target }}
+          path: ${{ matrix.artifact }}
           retention-days: 7

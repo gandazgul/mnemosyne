@@ -16,8 +16,6 @@ vars:
   LIB_DIR: lib
   # ONNX Runtime version - version 1.24.1+ will support arm64 only
   ONNXRUNTIME_VERSION: "1.23.1"
-  # daulet/tokenizers release version (check go.mod)
-  TOKENIZERS_VERSION: "1.26.0"
 
 tasks:
   default:
@@ -108,22 +106,18 @@ tasks:
       - curl -fsSL "https://github.com/microsoft/onnxruntime/releases/download/v{{.ONNXRUNTIME_VERSION}}/onnxruntime-linux-x64-{{.ONNXRUNTIME_VERSION}}.tgz" | tar xz -C tmp_libs
       - cp -rP tmp_libs/*/lib/libonnxruntime* {{.LIB_DIR}}/linux_amd64/
       - rm -rf tmp_libs/*
-      - curl -fsSL "https://github.com/daulet/tokenizers/releases/download/v{{.TOKENIZERS_VERSION}}/libtokenizers.linux-x86_64.tar.gz" | tar xz -C {{.LIB_DIR}}/linux_amd64
       # Linux arm64
       - curl -fsSL "https://github.com/microsoft/onnxruntime/releases/download/v{{.ONNXRUNTIME_VERSION}}/onnxruntime-linux-aarch64-{{.ONNXRUNTIME_VERSION}}.tgz" | tar xz -C tmp_libs
       - cp -rP tmp_libs/*/lib/libonnxruntime* {{.LIB_DIR}}/linux_arm64/
       - rm -rf tmp_libs/*
-      - curl -fsSL "https://github.com/daulet/tokenizers/releases/download/v{{.TOKENIZERS_VERSION}}/libtokenizers.linux-aarch64.tar.gz" | tar xz -C {{.LIB_DIR}}/linux_arm64
       # macOS arm64
       - curl -fsSL "https://github.com/microsoft/onnxruntime/releases/download/v{{.ONNXRUNTIME_VERSION}}/onnxruntime-osx-arm64-{{.ONNXRUNTIME_VERSION}}.tgz" | tar xz -C tmp_libs
       - cp -rP tmp_libs/*/lib/libonnxruntime* {{.LIB_DIR}}/darwin_arm64/
       - rm -rf tmp_libs/*
-      - curl -fsSL "https://github.com/daulet/tokenizers/releases/download/v{{.TOKENIZERS_VERSION}}/libtokenizers.darwin-aarch64.tar.gz" | tar xz -C {{.LIB_DIR}}/darwin_arm64
       # macOS amd64
       - curl -fsSL "https://github.com/microsoft/onnxruntime/releases/download/v{{.ONNXRUNTIME_VERSION}}/onnxruntime-osx-x86_64-{{.ONNXRUNTIME_VERSION}}.tgz" | tar xz -C tmp_libs
       - cp -rP tmp_libs/*/lib/libonnxruntime* {{.LIB_DIR}}/darwin_amd64/
       - rm -rf tmp_libs/*
-      - curl -fsSL "https://github.com/daulet/tokenizers/releases/download/v{{.TOKENIZERS_VERSION}}/libtokenizers.darwin-x86_64.tar.gz" | tar xz -C {{.LIB_DIR}}/darwin_amd64
       # Clean up
       - rm -rf tmp_libs
 
@@ -189,39 +183,11 @@ tasks:
       - rm -rf tmp_ort
       - echo "ONNX Runtime library installed to {{.LIB_DIR}}/"
 
-  download-tokenizers:
-    desc: Download pre-built libtokenizers for the current platform
-    status:
-      - test -f {{.LIB_DIR}}/libtokenizers.a
-    vars:
-      ARCH:
-        sh: uname -m
-      OS:
-        sh: uname -s | tr '[:upper:]' '[:lower:]'
-      # Build the platform suffix for the release asset
-      PLATFORM:
-        sh: |
-          os=$(uname -s | tr '[:upper:]' '[:lower:]')
-          arch=$(uname -m)
-          if [ "$arch" = "arm64" ]; then
-            arch="aarch64"
-          fi
-          echo "${os}-${arch}"
-    cmds:
-      - mkdir -p {{.LIB_DIR}}
-      - echo "Downloading libtokenizers v{{.TOKENIZERS_VERSION}} for {{.PLATFORM}}..."
-      - >-
-        curl -fsSL
-        "https://github.com/daulet/tokenizers/releases/download/v{{.TOKENIZERS_VERSION}}/libtokenizers.{{.PLATFORM}}.tar.gz"
-        | tar xz -C {{.LIB_DIR}}
-      - echo "libtokenizers installed to {{.LIB_DIR}}/"
-
   setup:
     desc: Install dependencies, download models and native libraries
     cmds:
       - go mod tidy
       - task: download-onnxruntime
-      - task: download-tokenizers
       - task: download-models
 
   tag:

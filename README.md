@@ -269,7 +269,7 @@ mnemosyne/
 | Vector search    | [sqlite-vec](https://github.com/asg017/sqlite-vec)                      |
 | Full-text search | SQLite FTS5 (built-in)                                                  |
 | ML inference     | [ONNX Runtime](https://github.com/yalue/onnxruntime_go)                 |
-| Tokenizer        | [daulet/tokenizers](https://github.com/daulet/tokenizers) (HuggingFace) |
+| Tokenizer        | [sugarme/tokenizer](https://github.com/sugarme/tokenizer) (HuggingFace) |
 | Embedding model  | snowflake-arctic-embed-m-v1.5 (256-dim, Apache 2.0)                     |
 | Reranker model   | ms-marco-MiniLM-L-6-v2 (cross-encoder)                                  |
 | Task runner      | [Task](https://taskfile.dev/)                                           |
