@@ -1,6 +1,8 @@
 # [Mnemosyne](https://en.wikipedia.org/wiki/Mnemosyne)
 
-[![CI](https://github.com/gandazgul/mnemosyne/actions/workflows/ci.yml/badge.svg)](https://github.com/gandazgul/mnemosyne/actions/workflows/ci.yml)
+<p align="center">
+  <img src="logo.png" alt="Mnemosyne logo" width="200"/>
+</p>
 
 A local document storage and retrieval CLI tool built in Go. Store small
 documents (sentences to paragraphs) and retrieve them using hybrid search:

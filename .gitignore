@@ -1,6 +1,7 @@
 # Build artifacts
 mnemosyne
 dist/
+.history/
 
 # Go
 *.exe
