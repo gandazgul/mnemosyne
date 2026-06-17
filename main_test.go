@@ -51,6 +51,32 @@ func runCLI(t *testing.T, binPath string, env []string, args ...string) (string,
 	return stdout.String(), stderr.String()
 }
 
+func prepareIntegrationDataDir(t *testing.T, tempDir string) {
+	t.Helper()
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("Failed to get cwd: %v", err)
+	}
+
+	dataDir := filepath.Join(tempDir, "mnemosyne")
+	if err := os.MkdirAll(dataDir, 0755); err != nil {
+		t.Fatalf("Failed to create test data dir: %v", err)
+	}
+
+	for _, name := range []string{"lib", "models"} {
+		src := filepath.Join(cwd, name)
+		if info, err := os.Stat(src); err != nil || !info.IsDir() {
+			t.Fatalf("Expected %s directory to exist; run task setup or the CI setup steps before integration tests", src)
+		}
+
+		dst := filepath.Join(dataDir, name)
+		if err := os.Symlink(src, dst); err != nil {
+			t.Fatalf("Failed to link %s into test data dir: %v", name, err)
+		}
+	}
+}
+
 func TestIntegrationPipeline(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping integration test in short mode")
@@ -62,10 +88,10 @@ func TestIntegrationPipeline(t *testing.T) {
 	// Prepare a temporary directory for the isolated database and models
 	tempDir := t.TempDir()
 	dbPath := filepath.Join(tempDir, "test.db")
+	prepareIntegrationDataDir(t, tempDir)
 
-	// We use the default data dir so we don't have to download models again in CI!
-	// Just isolate the DB path.
 	env := []string{
+		fmt.Sprintf("XDG_DATA_HOME=%s", tempDir),
 		fmt.Sprintf("MNEMOSYNE_DB_PATH=%s", dbPath),
 	}
 
