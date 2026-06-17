@@ -95,21 +95,21 @@ jobs:
 
       - name: Verify Windows CGO Dependencies
         if: runner.os == 'Windows'
+        shell: msys2 {0}
         run: |
-          Get-Command C:/msys64/mingw64/bin/gcc.exe
-          if (!(Test-Path C:/msys64/mingw64/include/sqlite3.h)) { throw "sqlite3.h not found" }
-          if (!(Test-Path C:/msys64/mingw64/lib/libsqlite3.dll.a)) { throw "libsqlite3.dll.a not found" }
+          command -v gcc
+          test -f /mingw64/include/sqlite3.h
+          test -f /mingw64/lib/libsqlite3.dll.a
 
       - name: Compile Windows Tests
         if: runner.os == 'Windows'
+        shell: msys2 {0}
         run: go test -run '^$' -tags sqlite_fts5 ./...
         env:
           CGO_ENABLED: "1"
-          CC: C:/msys64/mingw64/bin/gcc.exe
+          CC: gcc
           CGO_CFLAGS: "-I/mingw64/include"
           CGO_LDFLAGS: "-L/mingw64/lib"
-          CPATH: C:/msys64/mingw64/include
-          LIBRARY_PATH: C:/msys64/mingw64/lib
 
       - name: Build Dev Binary
         if: runner.os != 'Windows'
@@ -117,16 +117,15 @@ jobs:
 
       - name: Build Windows Binary
         if: runner.os == 'Windows'
+        shell: msys2 {0}
         run: |
           go build -tags sqlite_fts5 -o ${{ matrix.artifact }} .
-          .\${{ matrix.artifact }} version
+          ./${{ matrix.artifact }} version
         env:
           CGO_ENABLED: "1"
-          CC: C:/msys64/mingw64/bin/gcc.exe
+          CC: gcc
           CGO_CFLAGS: "-I/mingw64/include"
           CGO_LDFLAGS: "-L/mingw64/lib"
-          CPATH: C:/msys64/mingw64/include
-          LIBRARY_PATH: C:/msys64/mingw64/lib
 
       - name: Rename Binary
         if: runner.os != 'Windows'
