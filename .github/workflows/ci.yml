@@ -93,9 +93,9 @@ jobs:
         if: runner.os != 'Windows'
         run: task test
 
-      - name: Test Windows
+      - name: Compile Windows Tests
         if: runner.os == 'Windows'
-        run: go test -short -tags sqlite_fts5 ./...
+        run: go test -run '^$' -tags sqlite_fts5 ./...
         env:
           CGO_ENABLED: "1"
           CC: gcc

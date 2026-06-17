@@ -35,8 +35,8 @@ builds:
       - arm64
     env:
       - CGO_ENABLED=1
-      - CGO_LDFLAGS=-L{{ .Env.GITHUB_WORKSPACE }}/lib/darwin_{{ .Arch }} -F{{ .Env.GITHUB_WORKSPACE }}/lib/darwin_{{ .Arch }} -L{{ .Env.SDK_PATH }}/usr/lib -F{{ .Env.SDK_PATH }}/System/Library/Frameworks
-      - CGO_CFLAGS=-I{{ .Env.GITHUB_WORKSPACE }}/include -isysroot {{ .Env.SDK_PATH }}
+      - CGO_LDFLAGS=-Llib/darwin_{{ .Arch }} -Flib/darwin_{{ .Arch }} -L{{ .Env.SDK_PATH }}/usr/lib -F{{ .Env.SDK_PATH }}/System/Library/Frameworks
+      - CGO_CFLAGS=-Iinclude -isysroot {{ .Env.SDK_PATH }}
     flags:
       - -tags=sqlite_fts5
     ldflags:
