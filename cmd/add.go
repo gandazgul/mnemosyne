@@ -141,7 +141,10 @@ If --name is not provided, the current directory name is used.`,
 		}
 
 		// Load config (needed for embedder and vector table dimensions).
-		cfg := config.Load()
+		cfg, err := config.Load()
+		if err != nil {
+			return fmt.Errorf("loading config: %w", err)
+		}
 
 		database, err := openDB()
 		if err != nil {

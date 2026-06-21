@@ -1,0 +1,98 @@
+{
+  "generated_at": "2026-06-19T18:02:53Z",
+  "dataset": "scifact",
+  "source_url": "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/scifact.zip",
+  "collection": "bench_beir_scifact",
+  "corpus_doc_count": 500,
+  "source_corpus_doc_count": 5183,
+  "query_count": 10,
+  "elapsed_seconds": 2.849,
+  "config": {
+    "binary": "/Users/gandazgul/Documents/web/mnemosyne/cli/mnemosyne",
+    "db_path": "/Users/gandazgul/Documents/web/mnemosyne/cli/benchmarks/work/beir/scifact/mnemosyne.db",
+    "limit": 100,
+    "rerank_candidates": 100,
+    "no_rerank": true,
+    "max_queries": 10,
+    "max_docs": 500
+  },
+  "metrics": {
+    "ndcg@10": 0.8130929753571458,
+    "mrr@10": 0.7833333333333333,
+    "recall@10": 0.9,
+    "recall@100": 1.0,
+    "map@100": 0.7850282485875706
+  },
+  "per_query": {
+    "1": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.01694915254237288
+    },
+    "3": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333
+    },
+    "5": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0
+    },
+    "13": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5
+    },
+    "36": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0
+    },
+    "42": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0
+    },
+    "48": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0
+    },
+    "49": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0
+    },
+    "50": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0
+    },
+    "51": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0
+    }
+  }
+}

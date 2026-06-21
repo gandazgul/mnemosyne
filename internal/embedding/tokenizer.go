@@ -8,7 +8,9 @@ package embedding
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
+	"strings"
 
 	stokenizer "github.com/sugarme/tokenizer"
 	"github.com/sugarme/tokenizer/pretrained"
@@ -28,7 +30,7 @@ type Tokenizer struct {
 func NewTokenizer(modelDir string, maxSeqLen int) (*Tokenizer, error) {
 	tokenizerPath := filepath.Join(modelDir, "tokenizer.json")
 
-	tk, err := pretrained.FromFile(tokenizerPath)
+	tk, err := loadPretrainedTokenizer(tokenizerPath)
 	if err != nil {
 		return nil, fmt.Errorf("load tokenizer from %s: %w", tokenizerPath, err)
 	}
@@ -37,6 +39,47 @@ func NewTokenizer(modelDir string, maxSeqLen int) (*Tokenizer, error) {
 		inner:     tk,
 		maxSeqLen: maxSeqLen,
 	}, nil
+}
+
+func loadPretrainedTokenizer(path string) (*stokenizer.Tokenizer, error) {
+	tk, err := loadPretrainedTokenizerFile(path)
+	if err == nil {
+		return tk, nil
+	}
+
+	data, readErr := os.ReadFile(path)
+	if readErr != nil {
+		return nil, err
+	}
+
+	compatJSON := strings.ReplaceAll(string(data), `|\\s+(?!\\S)`, "")
+	if compatJSON == string(data) {
+		return nil, err
+	}
+
+	tk, compatErr := loadPretrainedTokenizerReader(strings.NewReader(compatJSON))
+	if compatErr != nil {
+		return nil, fmt.Errorf("%w; tokenizer compatibility retry also failed: %v", err, compatErr)
+	}
+	return tk, nil
+}
+
+func loadPretrainedTokenizerFile(path string) (tk *stokenizer.Tokenizer, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("tokenizer loader panic: %v", r)
+		}
+	}()
+	return pretrained.FromFile(path)
+}
+
+func loadPretrainedTokenizerReader(reader *strings.Reader) (tk *stokenizer.Tokenizer, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("tokenizer loader panic: %v", r)
+		}
+	}()
+	return pretrained.FromReader(reader)
 }
 
 // EncodedInput holds the tokenized output for a single text, ready for

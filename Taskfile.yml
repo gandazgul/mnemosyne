@@ -55,6 +55,35 @@ tasks:
     cmds:
       - go test -tags '{{.BUILD_TAGS}}' -race -v ./...
 
+  bench:scifact:
+    desc: Run the BEIR SciFact retrieval benchmark
+    deps: [build]
+    cmds:
+      - python3 benchmarks/beir/run.py --dataset scifact {{.CLI_ARGS}}
+
+  bench:scifact-bg:
+    desc: Run the BEIR SciFact benchmark in a detached screen session
+    deps: [build]
+    cmds:
+      - mkdir -p benchmarks/work/beir/scifact
+      - command -v screen >/dev/null 2>&1 || { echo >&2 "screen is required for bench:scifact-bg"; exit 1; }
+      - >-
+        screen -dmS mnemosyne-scifact-benchmark
+        /bin/bash -lc
+        'cd "{{.ROOT_DIR}}" &&
+        python3 -u benchmarks/beir/run.py --dataset scifact {{.CLI_ARGS}}
+        > benchmarks/work/beir/scifact/full-benchmark.log 2>&1'
+      - 'echo "Started screen session: mnemosyne-scifact-benchmark"'
+      - 'echo "Log: tail -f benchmarks/work/beir/scifact/full-benchmark.log"'
+      - 'echo "Attach: screen -r mnemosyne-scifact-benchmark"'
+      - 'echo "Stop: screen -S mnemosyne-scifact-benchmark -X quit"'
+
+  bench:scifact-smoke:
+    desc: Run a short BEIR SciFact benchmark smoke test
+    deps: [build]
+    cmds:
+      - python3 benchmarks/beir/run.py --dataset scifact --max-queries 10 --max-docs 500 --no-rerank {{.CLI_ARGS}}
+
   cover:
     desc: Run tests and open HTML coverage report
     env:

@@ -47,9 +47,121 @@ func TestGetEnvOrDefault(t *testing.T) {
 }
 
 func TestLoad(t *testing.T) {
-	cfg := Load()
+	t.Setenv(envConfigPath, "")
+	t.Setenv(envConfigPathAlt, "")
+	t.Setenv("HOME", t.TempDir())
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() returned error: %v", err)
+	}
 	if cfg == nil {
 		t.Fatal("Load() returned nil")
+	}
+}
+
+func TestLoad_ConfigFile(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	modelPath := filepath.Join(tmpDir, "models", "custom-embed")
+	rerankerPath := filepath.Join(tmpDir, "models", "custom-reranker")
+	dbPath := filepath.Join(tmpDir, "custom.db")
+
+	yaml := `
+db_path: "$MNEMOSYNE_TEST_DB_DIR/custom.db"
+embedding:
+  model_path: "$MNEMOSYNE_TEST_MODEL_DIR/models/custom-embed"
+  dimensions: 768
+  max_seq_length: 8192
+  pooling: mean
+  query_prefix: "query: "
+  document_prefix: "passage: "
+  onnx_input_names: ["input_ids", "attention_mask"]
+  onnx_output_names: ["last_hidden_state"]
+reranker:
+  model_path: "$MNEMOSYNE_TEST_MODEL_DIR/models/custom-reranker"
+  enabled: false
+search:
+  rerank_candidates: 25
+`
+	if err := os.WriteFile(configPath, []byte(yaml), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Setenv(envConfigPath, configPath)
+	t.Setenv(envConfigPathAlt, "")
+	t.Setenv("MNEMOSYNE_TEST_DB_DIR", tmpDir)
+	t.Setenv("MNEMOSYNE_TEST_MODEL_DIR", tmpDir)
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() returned error: %v", err)
+	}
+
+	if cfg.DBPath != dbPath {
+		t.Errorf("expected DBPath %q, got %q", dbPath, cfg.DBPath)
+	}
+	if cfg.Embedding.ModelPath != modelPath {
+		t.Errorf("expected embedding model path %q, got %q", modelPath, cfg.Embedding.ModelPath)
+	}
+	if cfg.Embedding.Dimensions != 768 {
+		t.Errorf("expected dimensions 768, got %d", cfg.Embedding.Dimensions)
+	}
+	if cfg.Embedding.MaxSeqLength != 8192 {
+		t.Errorf("expected max_seq_length 8192, got %d", cfg.Embedding.MaxSeqLength)
+	}
+	if cfg.Embedding.Pooling != PoolingMean {
+		t.Errorf("expected pooling mean, got %q", cfg.Embedding.Pooling)
+	}
+	if cfg.Embedding.QueryPrefix != "query: " {
+		t.Errorf("expected query prefix override, got %q", cfg.Embedding.QueryPrefix)
+	}
+	if cfg.Embedding.DocumentPrefix != "passage: " {
+		t.Errorf("expected document prefix override, got %q", cfg.Embedding.DocumentPrefix)
+	}
+	if cfg.Reranker.ModelPath != rerankerPath {
+		t.Errorf("expected reranker model path %q, got %q", rerankerPath, cfg.Reranker.ModelPath)
+	}
+	if cfg.Reranker.Enabled {
+		t.Error("expected reranker to be disabled")
+	}
+	if cfg.Search.ReRankCandidates != 25 {
+		t.Errorf("expected rerank candidates 25, got %d", cfg.Search.ReRankCandidates)
+	}
+	if cfg.Search.TopK != 10 {
+		t.Errorf("expected omitted top_k to keep default 10, got %d", cfg.Search.TopK)
+	}
+}
+
+func TestLoad_ExplicitMissingConfigReturnsError(t *testing.T) {
+	t.Setenv(envConfigPath, filepath.Join(t.TempDir(), "missing.yaml"))
+	t.Setenv(envConfigPathAlt, "")
+
+	if _, err := Load(); err == nil {
+		t.Fatal("expected explicit missing config to return an error")
+	}
+}
+
+func TestLoad_DBEnvOverridesConfigFile(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	configDBPath := filepath.Join(tmpDir, "config.db")
+	envDBPath := filepath.Join(tmpDir, "env.db")
+
+	if err := os.WriteFile(configPath, []byte("db_path: "+configDBPath+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Setenv(envConfigPath, configPath)
+	t.Setenv(envConfigPathAlt, "")
+	t.Setenv("MNEMOSYNE_DB_PATH", envDBPath)
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() returned error: %v", err)
+	}
+	if cfg.DBPath != envDBPath {
+		t.Errorf("expected MNEMOSYNE_DB_PATH to override config file, got %q", cfg.DBPath)
 	}
 }
 

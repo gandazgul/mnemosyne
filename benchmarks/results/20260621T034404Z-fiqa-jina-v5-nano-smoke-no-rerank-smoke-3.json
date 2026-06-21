@@ -1,0 +1,214 @@
+{
+  "generated_at": "2026-06-21T03:44:04Z",
+  "dataset": "fiqa",
+  "source_url": "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/fiqa.zip",
+  "collection": "bench_beir_fiqa",
+  "corpus_doc_count": 300,
+  "source_corpus_doc_count": 57638,
+  "query_count": 3,
+  "elapsed_seconds": 2.264,
+  "config": {
+    "binary": "/Users/gandazgul/Documents/web/mnemosyne/cli/mnemosyne",
+    "db_path": "/Users/gandazgul/Documents/web/mnemosyne/cli/benchmarks/work/beir/fiqa/jina-v5-nano-smoke/mnemosyne.db",
+    "mnemosyne_config": "/Users/gandazgul/Documents/web/mnemosyne/cli/configs/jina-v5-text-nano-retrieval.yaml",
+    "run_label": "jina-v5-nano-smoke",
+    "limit": 100,
+    "rerank_candidates": 100,
+    "no_rerank": true,
+    "max_queries": 3,
+    "max_docs": 300
+  },
+  "metrics": {
+    "ndcg@10": 1.0,
+    "mrr@10": 1.0,
+    "recall@10": 1.0,
+    "recall@100": 1.0,
+    "map@100": 1.0
+  },
+  "breakdown": {
+    "summary": {
+      "queries": 3,
+      "queries_with_rank_1_hit": 3,
+      "queries_with_top_10_hit": 3,
+      "queries_with_top_100_hit": 3,
+      "queries_missing_at_100": 0
+    },
+    "first_relevant_rank_buckets": {
+      "rank_1": 3,
+      "rank_2_3": 0,
+      "rank_4_10": 0,
+      "rank_11_100": 0,
+      "missing@100": 0
+    },
+    "missing_at_100": [],
+    "lowest_mrr@10": [
+      {
+        "query_id": "4641",
+        "query": "Where should I park my rainy-day / emergency fund?",
+        "mrr@10": 1.0,
+        "recall@100": 1.0,
+        "first_relevant_rank": 1,
+        "relevant_doc_ids": [
+          "44594",
+          "406219",
+          "319954",
+          "397358",
+          "88327"
+        ],
+        "top_10_doc_ids": [
+          "406219",
+          "44594",
+          "88327",
+          "397358",
+          "319954",
+          "2393",
+          "2034",
+          "1315",
+          "1802",
+          "2040"
+        ]
+      },
+      {
+        "query_id": "5503",
+        "query": "Tax considerations for selling a property below appraised value to family?",
+        "mrr@10": 1.0,
+        "recall@100": 1.0,
+        "first_relevant_rank": 1,
+        "relevant_doc_ids": [
+          "146277",
+          "64279"
+        ],
+        "top_10_doc_ids": [
+          "146277",
+          "64279",
+          "1666",
+          "2465",
+          "2413",
+          "962",
+          "2996",
+          "687",
+          "1656",
+          "2205"
+        ]
+      },
+      {
+        "query_id": "7803",
+        "query": "Can the Delta be used to calculate the option premium given a certain target?",
+        "mrr@10": 1.0,
+        "recall@100": 1.0,
+        "first_relevant_rank": 1,
+        "relevant_doc_ids": [
+          "565926",
+          "157504"
+        ],
+        "top_10_doc_ids": [
+          "157504",
+          "565926",
+          "108",
+          "2810",
+          "593",
+          "915",
+          "2547",
+          "1565",
+          "1001",
+          "2174"
+        ]
+      }
+    ]
+  },
+  "per_query": {
+    "4641": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "44594",
+        "406219",
+        "319954",
+        "397358",
+        "88327"
+      ],
+      "found_relevant_ranks": {
+        "406219": 1,
+        "44594": 2,
+        "88327": 3,
+        "397358": 4,
+        "319954": 5
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "406219",
+        "44594",
+        "88327",
+        "397358",
+        "319954",
+        "2393",
+        "2034",
+        "1315",
+        "1802",
+        "2040"
+      ]
+    },
+    "5503": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "146277",
+        "64279"
+      ],
+      "found_relevant_ranks": {
+        "146277": 1,
+        "64279": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "146277",
+        "64279",
+        "1666",
+        "2465",
+        "2413",
+        "962",
+        "2996",
+        "687",
+        "1656",
+        "2205"
+      ]
+    },
+    "7803": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "565926",
+        "157504"
+      ],
+      "found_relevant_ranks": {
+        "157504": 1,
+        "565926": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "157504",
+        "565926",
+        "108",
+        "2810",
+        "593",
+        "915",
+        "2547",
+        "1565",
+        "1001",
+        "2174"
+      ]
+    }
+  }
+}

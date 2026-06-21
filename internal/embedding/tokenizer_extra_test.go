@@ -14,7 +14,7 @@ func TestTokenizer_EncodeBatch_Empty(t *testing.T) {
 
 func TestEmbedder_EmptyTexts(t *testing.T) {
 	e := &ONNXEmbedder{}
-	_, err := e.embedTexts([]string{})
+	_, err := e.embedTexts([]string{}, nil)
 	if err == nil {
 		t.Error("expected error for empty texts")
 	}

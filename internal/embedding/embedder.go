@@ -62,7 +62,7 @@ func DestroyONNXRuntime() error {
 // --- ONNXEmbedder implementation ---
 
 // ONNXEmbedder implements Embedder using an ONNX model via ONNX Runtime.
-// It performs tokenization, inference, pooling (mean or CLS), and L2 normalization.
+// It performs tokenization, inference, pooling, and L2 normalization.
 type ONNXEmbedder struct {
 	session        *ort.DynamicAdvancedSession
 	tokenizer      *Tokenizer
@@ -70,7 +70,10 @@ type ONNXEmbedder struct {
 	queryPrefix    string
 	documentPrefix string
 	pooling        config.PoolingMethod
-	hasTokenTypes  bool // true if session was created with token_type_ids input
+	inputNames     []string
+	taskID         *int64
+	queryTaskID    *int64
+	documentTaskID *int64
 }
 
 // NewONNXEmbedder creates a new ONNX-based embedder from the given config.
@@ -91,15 +94,6 @@ func NewONNXEmbedder(cfg config.EmbeddingConfig) (*ONNXEmbedder, error) {
 		inputNames = []string{"input_ids", "attention_mask"}
 		if cfg.Pooling == config.PoolingCLS {
 			inputNames = append(inputNames, "token_type_ids")
-		}
-	}
-
-	// Check if token_type_ids is among the inputs.
-	hasTokenTypes := false
-	for _, name := range inputNames {
-		if name == "token_type_ids" {
-			hasTokenTypes = true
-			break
 		}
 	}
 
@@ -137,13 +131,16 @@ func NewONNXEmbedder(cfg config.EmbeddingConfig) (*ONNXEmbedder, error) {
 		queryPrefix:    cfg.QueryPrefix,
 		documentPrefix: cfg.DocumentPrefix,
 		pooling:        pooling,
-		hasTokenTypes:  hasTokenTypes,
+		inputNames:     inputNames,
+		taskID:         cfg.TaskID,
+		queryTaskID:    cfg.QueryTaskID,
+		documentTaskID: cfg.DocumentTaskID,
 	}, nil
 }
 
 // Embed generates an embedding for a single text without any prefix.
 func (e *ONNXEmbedder) Embed(text string) ([]float32, error) {
-	results, err := e.embedTexts([]string{text})
+	results, err := e.embedTexts([]string{text}, e.taskID)
 	if err != nil {
 		return nil, err
 	}
@@ -152,17 +149,25 @@ func (e *ONNXEmbedder) Embed(text string) ([]float32, error) {
 
 // EmbedBatch generates embeddings for multiple texts without any prefix.
 func (e *ONNXEmbedder) EmbedBatch(texts []string) ([][]float32, error) {
-	return e.embedTexts(texts)
+	return e.embedTexts(texts, e.taskID)
 }
 
 // EmbedQuery generates an embedding with the configured query prefix.
 func (e *ONNXEmbedder) EmbedQuery(query string) ([]float32, error) {
-	return e.Embed(e.queryPrefix + query)
+	results, err := e.embedTexts([]string{e.queryPrefix + query}, firstTaskID(e.queryTaskID, e.taskID))
+	if err != nil {
+		return nil, err
+	}
+	return results[0], nil
 }
 
 // EmbedDocument generates an embedding with the configured document prefix.
 func (e *ONNXEmbedder) EmbedDocument(doc string) ([]float32, error) {
-	return e.Embed(e.documentPrefix + doc)
+	results, err := e.embedTexts([]string{e.documentPrefix + doc}, firstTaskID(e.documentTaskID, e.taskID))
+	if err != nil {
+		return nil, err
+	}
+	return results[0], nil
 }
 
 // Dimensions returns the configured embedding dimensions.
@@ -188,8 +193,8 @@ func (e *ONNXEmbedder) Close() error {
 }
 
 // embedTexts is the core implementation that handles tokenization, inference,
-// pooling (mean or CLS), L2 normalization, and optional MRL dimension truncation.
-func (e *ONNXEmbedder) embedTexts(texts []string) ([][]float32, error) {
+// pooling, L2 normalization, and optional MRL dimension truncation.
+func (e *ONNXEmbedder) embedTexts(texts []string, taskID *int64) ([][]float32, error) {
 	if len(texts) == 0 {
 		return nil, fmt.Errorf("empty text batch")
 	}
@@ -228,15 +233,38 @@ func (e *ONNXEmbedder) embedTexts(texts []string) ([][]float32, error) {
 	}
 	defer func() { _ = maskTensor.Destroy() }()
 
-	// Build input list: always input_ids + attention_mask, optionally token_type_ids.
-	inputs := []ort.Value{idsTensor, maskTensor}
-	if e.hasTokenTypes {
-		tokenTypeTensor, err := ort.NewTensor(inputShape, flatTokenTypes)
-		if err != nil {
-			return nil, fmt.Errorf("create token_type_ids tensor: %w", err)
+	tokenTypeTensor, err := ort.NewTensor(inputShape, flatTokenTypes)
+	if err != nil {
+		return nil, fmt.Errorf("create token_type_ids tensor: %w", err)
+	}
+	defer func() { _ = tokenTypeTensor.Destroy() }()
+
+	var taskTensor *ort.Tensor[int64]
+	if hasInputName(e.inputNames, "task_id") {
+		if taskID == nil {
+			return nil, fmt.Errorf("model requires task_id input but no task ID was configured")
 		}
-		defer func() { _ = tokenTypeTensor.Destroy() }()
-		inputs = append(inputs, tokenTypeTensor)
+		taskTensor, err = ort.NewTensor(ort.NewShape(1), []int64{*taskID})
+		if err != nil {
+			return nil, fmt.Errorf("create task_id tensor: %w", err)
+		}
+		defer func() { _ = taskTensor.Destroy() }()
+	}
+
+	inputs := make([]ort.Value, 0, len(e.inputNames))
+	for _, name := range e.inputNames {
+		switch name {
+		case "input_ids":
+			inputs = append(inputs, idsTensor)
+		case "attention_mask":
+			inputs = append(inputs, maskTensor)
+		case "token_type_ids":
+			inputs = append(inputs, tokenTypeTensor)
+		case "task_id":
+			inputs = append(inputs, taskTensor)
+		default:
+			return nil, fmt.Errorf("unsupported ONNX input name %q", name)
+		}
 	}
 
 	// Run inference. Output is auto-allocated by ONNX Runtime.
@@ -288,6 +316,8 @@ func (e *ONNXEmbedder) embedTexts(texts []string) ([][]float32, error) {
 			switch e.pooling {
 			case config.PoolingCLS:
 				embedding = clsPool(outputData, i, seqLen, hiddenDim)
+			case config.PoolingLast:
+				embedding = lastPool(outputData, flatMask, i, seqLen, hiddenDim)
 			default: // PoolingMean
 				embedding = meanPool(outputData, flatMask, i, seqLen, hiddenDim)
 			}
@@ -309,11 +339,47 @@ func (e *ONNXEmbedder) embedTexts(texts []string) ([][]float32, error) {
 	return results, nil
 }
 
+func firstTaskID(primary, fallback *int64) *int64 {
+	if primary != nil {
+		return primary
+	}
+	return fallback
+}
+
+func hasInputName(names []string, needle string) bool {
+	for _, name := range names {
+		if name == needle {
+			return true
+		}
+	}
+	return false
+}
+
 // clsPool extracts the [CLS] token's hidden state (first token, index 0)
 // as the sentence embedding. Used by BERT-family models like Snowflake Arctic.
 func clsPool(hiddenStates []float32, batchIdx, seqLen int64, hiddenDim int) []float32 {
 	pooled := make([]float32, hiddenDim)
 	baseOffset := batchIdx * seqLen * int64(hiddenDim)
+	copy(pooled, hiddenStates[baseOffset:baseOffset+int64(hiddenDim)])
+	return pooled
+}
+
+// lastPool extracts the last non-padding token's hidden state. This is used by
+// decoder-style embedding models such as Jina v5 retrieval models.
+func lastPool(hiddenStates []float32, mask []int64, batchIdx, seqLen int64, hiddenDim int) []float32 {
+	pooled := make([]float32, hiddenDim)
+
+	lastToken := int64(-1)
+	for t := int64(0); t < seqLen; t++ {
+		if mask[batchIdx*seqLen+t] != 0 {
+			lastToken = t
+		}
+	}
+	if lastToken < 0 {
+		return pooled
+	}
+
+	baseOffset := batchIdx*seqLen*int64(hiddenDim) + lastToken*int64(hiddenDim)
 	copy(pooled, hiddenStates[baseOffset:baseOffset+int64(hiddenDim)])
 	return pooled
 }

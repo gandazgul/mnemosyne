@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/gandazgul/mnemosyne/internal/config"
 )
 
 // EmbedModel describes a HuggingFace model to download.
@@ -56,19 +58,28 @@ type Status struct {
 	OnnxRuntimeInstalled bool
 	EmbeddingModelReady  bool
 	RerankerModelReady   bool
+	EmbeddingAutoInstall bool
+	RerankerAutoInstall  bool
+	RerankerEnabled      bool
 }
 
 // Check returns the current setup status for the given data directory.
-func Check(dataDir string) Status {
+func Check(dataDir string, cfg *config.Config) Status {
 	var s Status
+	if cfg == nil {
+		cfg = config.DefaultConfig()
+	}
 
 	libPath := filepath.Join(dataDir, "lib", onnxRuntimeLibName())
 	if _, err := os.Stat(libPath); err == nil {
 		s.OnnxRuntimeInstalled = true
 	}
 
-	s.EmbeddingModelReady = modelReady(dataDir, EmbeddingModel)
-	s.RerankerModelReady = modelReady(dataDir, RerankerModel)
+	s.EmbeddingAutoInstall = configuredModelIsDefault(dataDir, cfg.Embedding.ModelPath, EmbeddingModel)
+	s.RerankerAutoInstall = configuredModelIsDefault(dataDir, cfg.Reranker.ModelPath, RerankerModel)
+	s.RerankerEnabled = cfg.Reranker.Enabled
+	s.EmbeddingModelReady = configuredEmbeddingReady(cfg)
+	s.RerankerModelReady = !cfg.Reranker.Enabled || configuredRerankerReady(cfg)
 	return s
 }
 
@@ -88,10 +99,55 @@ func modelReady(dataDir string, model EmbedModel) bool {
 	return true
 }
 
+func configuredEmbeddingReady(cfg *config.Config) bool {
+	if cfg == nil {
+		return false
+	}
+	files := []string{
+		cfg.Embedding.OnnxFile,
+		"tokenizer.json",
+		"config.json",
+	}
+	return filesReady(cfg.Embedding.ModelPath, files)
+}
+
+func configuredRerankerReady(cfg *config.Config) bool {
+	if cfg == nil {
+		return false
+	}
+	return filesReady(cfg.Reranker.ModelPath, []string{
+		cfg.Reranker.OnnxFile,
+		"tokenizer.json",
+		"config.json",
+	})
+}
+
+func filesReady(baseDir string, files []string) bool {
+	if baseDir == "" {
+		return false
+	}
+	for _, file := range files {
+		if file == "" {
+			return false
+		}
+		if _, err := os.Stat(filepath.Join(baseDir, file)); err != nil {
+			return false
+		}
+	}
+	return true
+}
+
+func configuredModelIsDefault(dataDir, configuredPath string, model EmbedModel) bool {
+	return filepath.Clean(configuredPath) == filepath.Clean(filepath.Join(dataDir, "models", model.LocalDir))
+}
+
 // Run downloads all required components to dataDir.
 // progress is called for each file being downloaded.
-func Run(ctx context.Context, dataDir string, progress ProgressFunc) error {
-	status := Check(dataDir)
+func Run(ctx context.Context, dataDir string, cfg *config.Config, progress ProgressFunc) error {
+	if cfg == nil {
+		cfg = config.DefaultConfig()
+	}
+	status := Check(dataDir, cfg)
 
 	if !status.OnnxRuntimeInstalled {
 		if err := installONNXRuntime(ctx, dataDir, progress); err != nil {
@@ -99,16 +155,24 @@ func Run(ctx context.Context, dataDir string, progress ProgressFunc) error {
 		}
 	}
 
-	if !status.EmbeddingModelReady {
+	if !status.EmbeddingModelReady && status.EmbeddingAutoInstall {
 		if err := downloadModel(ctx, dataDir, EmbeddingModel, progress); err != nil {
 			return fmt.Errorf("download embedding model: %w", err)
 		}
 	}
 
-	if !status.RerankerModelReady {
+	if !status.RerankerModelReady && status.RerankerAutoInstall {
 		if err := downloadModel(ctx, dataDir, RerankerModel, progress); err != nil {
 			return fmt.Errorf("download reranker model: %w", err)
 		}
+	}
+
+	status = Check(dataDir, cfg)
+	if !status.EmbeddingModelReady {
+		return fmt.Errorf("configured embedding model is missing required files under %s", cfg.Embedding.ModelPath)
+	}
+	if !status.RerankerModelReady {
+		return fmt.Errorf("configured reranker model is missing required files under %s", cfg.Reranker.ModelPath)
 	}
 
 	return nil
@@ -116,18 +180,20 @@ func Run(ctx context.Context, dataDir string, progress ProgressFunc) error {
 
 // EnsureReady checks if setup is complete and runs it if not.
 // This is the auto-download entry point called by add/search commands.
-func EnsureReady(ctx context.Context, dataDir string, progress ProgressFunc) error {
-	status := Check(dataDir)
+func EnsureReady(ctx context.Context, dataDir string, cfg *config.Config, progress ProgressFunc) error {
+	if cfg == nil {
+		cfg = config.DefaultConfig()
+	}
+	status := Check(dataDir, cfg)
 	if status.Ready() {
 		return nil
 	}
 
-	fmt.Println("First-time setup: downloading ONNX Runtime and ML models...")
-	fmt.Println("This is a one-time download (~500 MB total).")
+	fmt.Println("First-time setup: downloading missing ONNX Runtime or default ML models...")
 	fmt.Println()
 
 	bar := NewProgressBar(os.Stdout)
-	err := Run(ctx, dataDir, bar.Update)
+	err := Run(ctx, dataDir, cfg, bar.Update)
 	bar.Finish()
 	return err
 }

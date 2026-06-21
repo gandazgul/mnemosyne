@@ -1,0 +1,8996 @@
+{
+  "generated_at": "2026-06-20T14:08:05Z",
+  "dataset": "scifact",
+  "source_url": "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/scifact.zip",
+  "collection": "bench_beir_scifact",
+  "corpus_doc_count": 5183,
+  "source_corpus_doc_count": 5183,
+  "query_count": 300,
+  "elapsed_seconds": 295.705,
+  "config": {
+    "binary": "/Users/gandazgul/Documents/web/mnemosyne/cli/mnemosyne",
+    "db_path": "/Users/gandazgul/Documents/web/mnemosyne/cli/benchmarks/work/beir/scifact/mnemosyne.db",
+    "limit": 100,
+    "rerank_candidates": 100,
+    "no_rerank": true,
+    "max_queries": null,
+    "max_docs": null
+  },
+  "metrics": {
+    "ndcg@10": 0.6990286905965543,
+    "mrr@10": 0.6687685185185185,
+    "recall@10": 0.8237777777777777,
+    "recall@100": 0.95,
+    "map@100": 0.6601020579417223
+  },
+  "breakdown": {
+    "summary": {
+      "queries": 300,
+      "queries_with_rank_1_hit": 177,
+      "queries_with_top_10_hit": 251,
+      "queries_with_top_100_hit": 285,
+      "queries_missing_at_100": 15
+    },
+    "first_relevant_rank_buckets": {
+      "rank_1": 177,
+      "rank_2_3": 42,
+      "rank_4_10": 32,
+      "rank_11_100": 34,
+      "missing@100": 15
+    },
+    "missing_at_100": [
+      {
+        "query_id": "1",
+        "query": "0-dimensional biomaterials show inductive properties.",
+        "relevant_doc_ids": [
+          "31715818"
+        ],
+        "missing_relevant_doc_ids": [
+          "31715818"
+        ],
+        "top_10_doc_ids": [
+          "25657127",
+          "7583104",
+          "10982689",
+          "20454006",
+          "14082855",
+          "40212412",
+          "4346436",
+          "58050905",
+          "13481880",
+          "825728"
+        ]
+      },
+      {
+        "query_id": "128",
+        "query": "Arterioles have a larger lumen diameter than venules.",
+        "relevant_doc_ids": [
+          "8290953"
+        ],
+        "missing_relevant_doc_ids": [
+          "8290953"
+        ],
+        "top_10_doc_ids": [
+          "12549585",
+          "34876410",
+          "79231308",
+          "3588621",
+          "79447",
+          "22972632",
+          "4890578",
+          "2056197",
+          "9310407",
+          "21380348"
+        ]
+      },
+      {
+        "query_id": "132",
+        "query": "Aspirin inhibits the production of PGE2.",
+        "relevant_doc_ids": [
+          "7975937"
+        ],
+        "missing_relevant_doc_ids": [
+          "7975937"
+        ],
+        "top_10_doc_ids": [
+          "6923961",
+          "20732789",
+          "3866315",
+          "4583180",
+          "15648443",
+          "2443495",
+          "9159125",
+          "58006489",
+          "39903312",
+          "27615329"
+        ]
+      },
+      {
+        "query_id": "312",
+        "query": "De novo assembly of sequence data has more specific contigs than unassembled sequence data.",
+        "relevant_doc_ids": [
+          "6173523"
+        ],
+        "missing_relevant_doc_ids": [
+          "6173523"
+        ],
+        "top_10_doc_ids": [
+          "14464451",
+          "1544804",
+          "32770503",
+          "14275671",
+          "20375264",
+          "15893330",
+          "7260461",
+          "40721190",
+          "36082224",
+          "13123189"
+        ]
+      },
+      {
+        "query_id": "421",
+        "query": "Flexible molecules experience greater steric hindrance in the tumor microenviroment than rigid molecules.",
+        "relevant_doc_ids": [
+          "11172205"
+        ],
+        "missing_relevant_doc_ids": [
+          "11172205"
+        ],
+        "top_10_doc_ids": [
+          "1065627",
+          "17388232",
+          "12866641",
+          "6944800",
+          "10812605",
+          "8702697",
+          "4429118",
+          "40667577",
+          "30919024",
+          "8774475"
+        ]
+      },
+      {
+        "query_id": "437",
+        "query": "Functional consequences of genomic alterations due to Myelodysplastic syndrome (MDS) are poorly understood due to the lack of an animal model.",
+        "relevant_doc_ids": [
+          "18399038"
+        ],
+        "missing_relevant_doc_ids": [
+          "18399038"
+        ],
+        "top_10_doc_ids": [
+          "2359152",
+          "3391547",
+          "5765455",
+          "39851630",
+          "8083310",
+          "1617327",
+          "12240507",
+          "8385277",
+          "5836",
+          "7239105"
+        ]
+      },
+      {
+        "query_id": "502",
+        "query": "Healthcare delivery efficiency in crowded delivery centers is impaired by improving structural, logistical, and interpersonal elements.",
+        "relevant_doc_ids": [
+          "13071728"
+        ],
+        "missing_relevant_doc_ids": [
+          "13071728"
+        ],
+        "top_10_doc_ids": [
+          "70516463",
+          "10577574",
+          "17626822",
+          "39059143",
+          "4345757",
+          "31019903",
+          "79231308",
+          "10854174",
+          "11748341",
+          "153755807"
+        ]
+      },
+      {
+        "query_id": "560",
+        "query": "Immune responses result in the development of inflammatory Th17 cells and anti-inflammatory iTregs.",
+        "relevant_doc_ids": [
+          "40096222"
+        ],
+        "missing_relevant_doc_ids": [
+          "40096222"
+        ],
+        "top_10_doc_ids": [
+          "11233339",
+          "29347970",
+          "14644164",
+          "19005293",
+          "25726838",
+          "1855679",
+          "45096063",
+          "39084565",
+          "16119973",
+          "45449835"
+        ]
+      },
+      {
+        "query_id": "834",
+        "query": "NOX2-independent pathways can generate peroxynitrite by reacting with nitrogen intermediates.",
+        "relevant_doc_ids": [
+          "5483793"
+        ],
+        "missing_relevant_doc_ids": [
+          "5483793"
+        ],
+        "top_10_doc_ids": [
+          "23100962",
+          "23122306",
+          "22059387",
+          "35828148",
+          "6259170",
+          "13823200",
+          "8536018",
+          "14848619",
+          "1354567",
+          "21297708"
+        ]
+      },
+      {
+        "query_id": "1110",
+        "query": "Suboptimal nutrition is not predictive of chronic disease",
+        "relevant_doc_ids": [
+          "13770184"
+        ],
+        "missing_relevant_doc_ids": [
+          "13770184"
+        ],
+        "top_10_doc_ids": [
+          "8529693",
+          "23245050",
+          "9244474",
+          "28894097",
+          "25837950",
+          "24273592",
+          "23377475",
+          "43483151",
+          "23013317",
+          "24396137"
+        ]
+      },
+      {
+        "query_id": "1199",
+        "query": "The benefits of colchicine were achieved with effective widespread use of secondary prevention strategies such as high-dose statins.",
+        "relevant_doc_ids": [
+          "16760369"
+        ],
+        "missing_relevant_doc_ids": [
+          "16760369"
+        ],
+        "top_10_doc_ids": [
+          "7454794",
+          "21557614",
+          "4687948",
+          "5698494",
+          "8780599",
+          "14260013",
+          "1287809",
+          "2391552",
+          "11614737",
+          "34268160"
+        ]
+      },
+      {
+        "query_id": "1213",
+        "query": "The deregulated and prolonged activation of monocytes has deleterious effects in inflammatory diseases.",
+        "relevant_doc_ids": [
+          "14407673"
+        ],
+        "missing_relevant_doc_ids": [
+          "14407673"
+        ],
+        "top_10_doc_ids": [
+          "14386505",
+          "21395936",
+          "9334631",
+          "36444198",
+          "5035827",
+          "39084565",
+          "22621251",
+          "44562221",
+          "5107861",
+          "21498497"
+        ]
+      },
+      {
+        "query_id": "1245",
+        "query": "The one-child policy has been successful in lowering population growth.",
+        "relevant_doc_ids": [
+          "7662395"
+        ],
+        "missing_relevant_doc_ids": [
+          "7662395"
+        ],
+        "top_10_doc_ids": [
+          "23531592",
+          "167944455",
+          "85693958",
+          "40500723",
+          "3623127",
+          "1624106",
+          "12428497",
+          "30292811",
+          "3001685",
+          "11748341"
+        ]
+      },
+      {
+        "query_id": "1332",
+        "query": "Tumor necrosis factor alpha (TNF-α) and interleukin-1 (IL-1) are pro-inflammatory cytokines that inhibit IL-6 and IL-10.",
+        "relevant_doc_ids": [
+          "5304891"
+        ],
+        "missing_relevant_doc_ids": [
+          "5304891"
+        ],
+        "top_10_doc_ids": [
+          "2844490",
+          "20722510",
+          "12705056",
+          "44935041",
+          "11233339",
+          "39264456",
+          "36386637",
+          "9334631",
+          "6397191",
+          "22889972"
+        ]
+      },
+      {
+        "query_id": "1362",
+        "query": "Venules have a larger lumen diameter than arterioles.",
+        "relevant_doc_ids": [
+          "8290953"
+        ],
+        "missing_relevant_doc_ids": [
+          "8290953"
+        ],
+        "top_10_doc_ids": [
+          "34876410",
+          "3588621",
+          "79231308",
+          "7764903",
+          "2056197",
+          "9310407",
+          "22972632",
+          "17741440",
+          "12549585",
+          "496873"
+        ]
+      }
+    ],
+    "lowest_mrr@10": [
+      {
+        "query_id": "1",
+        "query": "0-dimensional biomaterials show inductive properties.",
+        "mrr@10": 0.0,
+        "recall@100": 0.0,
+        "first_relevant_rank": null,
+        "relevant_doc_ids": [
+          "31715818"
+        ],
+        "top_10_doc_ids": [
+          "25657127",
+          "7583104",
+          "10982689",
+          "20454006",
+          "14082855",
+          "40212412",
+          "4346436",
+          "58050905",
+          "13481880",
+          "825728"
+        ]
+      },
+      {
+        "query_id": "1110",
+        "query": "Suboptimal nutrition is not predictive of chronic disease",
+        "mrr@10": 0.0,
+        "recall@100": 0.0,
+        "first_relevant_rank": null,
+        "relevant_doc_ids": [
+          "13770184"
+        ],
+        "top_10_doc_ids": [
+          "8529693",
+          "23245050",
+          "9244474",
+          "28894097",
+          "25837950",
+          "24273592",
+          "23377475",
+          "43483151",
+          "23013317",
+          "24396137"
+        ]
+      },
+      {
+        "query_id": "1199",
+        "query": "The benefits of colchicine were achieved with effective widespread use of secondary prevention strategies such as high-dose statins.",
+        "mrr@10": 0.0,
+        "recall@100": 0.0,
+        "first_relevant_rank": null,
+        "relevant_doc_ids": [
+          "16760369"
+        ],
+        "top_10_doc_ids": [
+          "7454794",
+          "21557614",
+          "4687948",
+          "5698494",
+          "8780599",
+          "14260013",
+          "1287809",
+          "2391552",
+          "11614737",
+          "34268160"
+        ]
+      },
+      {
+        "query_id": "1213",
+        "query": "The deregulated and prolonged activation of monocytes has deleterious effects in inflammatory diseases.",
+        "mrr@10": 0.0,
+        "recall@100": 0.0,
+        "first_relevant_rank": null,
+        "relevant_doc_ids": [
+          "14407673"
+        ],
+        "top_10_doc_ids": [
+          "14386505",
+          "21395936",
+          "9334631",
+          "36444198",
+          "5035827",
+          "39084565",
+          "22621251",
+          "44562221",
+          "5107861",
+          "21498497"
+        ]
+      },
+      {
+        "query_id": "1245",
+        "query": "The one-child policy has been successful in lowering population growth.",
+        "mrr@10": 0.0,
+        "recall@100": 0.0,
+        "first_relevant_rank": null,
+        "relevant_doc_ids": [
+          "7662395"
+        ],
+        "top_10_doc_ids": [
+          "23531592",
+          "167944455",
+          "85693958",
+          "40500723",
+          "3623127",
+          "1624106",
+          "12428497",
+          "30292811",
+          "3001685",
+          "11748341"
+        ]
+      },
+      {
+        "query_id": "128",
+        "query": "Arterioles have a larger lumen diameter than venules.",
+        "mrr@10": 0.0,
+        "recall@100": 0.0,
+        "first_relevant_rank": null,
+        "relevant_doc_ids": [
+          "8290953"
+        ],
+        "top_10_doc_ids": [
+          "12549585",
+          "34876410",
+          "79231308",
+          "3588621",
+          "79447",
+          "22972632",
+          "4890578",
+          "2056197",
+          "9310407",
+          "21380348"
+        ]
+      },
+      {
+        "query_id": "132",
+        "query": "Aspirin inhibits the production of PGE2.",
+        "mrr@10": 0.0,
+        "recall@100": 0.0,
+        "first_relevant_rank": null,
+        "relevant_doc_ids": [
+          "7975937"
+        ],
+        "top_10_doc_ids": [
+          "6923961",
+          "20732789",
+          "3866315",
+          "4583180",
+          "15648443",
+          "2443495",
+          "9159125",
+          "58006489",
+          "39903312",
+          "27615329"
+        ]
+      },
+      {
+        "query_id": "1332",
+        "query": "Tumor necrosis factor alpha (TNF-α) and interleukin-1 (IL-1) are pro-inflammatory cytokines that inhibit IL-6 and IL-10.",
+        "mrr@10": 0.0,
+        "recall@100": 0.0,
+        "first_relevant_rank": null,
+        "relevant_doc_ids": [
+          "5304891"
+        ],
+        "top_10_doc_ids": [
+          "2844490",
+          "20722510",
+          "12705056",
+          "44935041",
+          "11233339",
+          "39264456",
+          "36386637",
+          "9334631",
+          "6397191",
+          "22889972"
+        ]
+      },
+      {
+        "query_id": "1362",
+        "query": "Venules have a larger lumen diameter than arterioles.",
+        "mrr@10": 0.0,
+        "recall@100": 0.0,
+        "first_relevant_rank": null,
+        "relevant_doc_ids": [
+          "8290953"
+        ],
+        "top_10_doc_ids": [
+          "34876410",
+          "3588621",
+          "79231308",
+          "7764903",
+          "2056197",
+          "9310407",
+          "22972632",
+          "17741440",
+          "12549585",
+          "496873"
+        ]
+      },
+      {
+        "query_id": "312",
+        "query": "De novo assembly of sequence data has more specific contigs than unassembled sequence data.",
+        "mrr@10": 0.0,
+        "recall@100": 0.0,
+        "first_relevant_rank": null,
+        "relevant_doc_ids": [
+          "6173523"
+        ],
+        "top_10_doc_ids": [
+          "14464451",
+          "1544804",
+          "32770503",
+          "14275671",
+          "20375264",
+          "15893330",
+          "7260461",
+          "40721190",
+          "36082224",
+          "13123189"
+        ]
+      },
+      {
+        "query_id": "421",
+        "query": "Flexible molecules experience greater steric hindrance in the tumor microenviroment than rigid molecules.",
+        "mrr@10": 0.0,
+        "recall@100": 0.0,
+        "first_relevant_rank": null,
+        "relevant_doc_ids": [
+          "11172205"
+        ],
+        "top_10_doc_ids": [
+          "1065627",
+          "17388232",
+          "12866641",
+          "6944800",
+          "10812605",
+          "8702697",
+          "4429118",
+          "40667577",
+          "30919024",
+          "8774475"
+        ]
+      },
+      {
+        "query_id": "437",
+        "query": "Functional consequences of genomic alterations due to Myelodysplastic syndrome (MDS) are poorly understood due to the lack of an animal model.",
+        "mrr@10": 0.0,
+        "recall@100": 0.0,
+        "first_relevant_rank": null,
+        "relevant_doc_ids": [
+          "18399038"
+        ],
+        "top_10_doc_ids": [
+          "2359152",
+          "3391547",
+          "5765455",
+          "39851630",
+          "8083310",
+          "1617327",
+          "12240507",
+          "8385277",
+          "5836",
+          "7239105"
+        ]
+      },
+      {
+        "query_id": "502",
+        "query": "Healthcare delivery efficiency in crowded delivery centers is impaired by improving structural, logistical, and interpersonal elements.",
+        "mrr@10": 0.0,
+        "recall@100": 0.0,
+        "first_relevant_rank": null,
+        "relevant_doc_ids": [
+          "13071728"
+        ],
+        "top_10_doc_ids": [
+          "70516463",
+          "10577574",
+          "17626822",
+          "39059143",
+          "4345757",
+          "31019903",
+          "79231308",
+          "10854174",
+          "11748341",
+          "153755807"
+        ]
+      },
+      {
+        "query_id": "560",
+        "query": "Immune responses result in the development of inflammatory Th17 cells and anti-inflammatory iTregs.",
+        "mrr@10": 0.0,
+        "recall@100": 0.0,
+        "first_relevant_rank": null,
+        "relevant_doc_ids": [
+          "40096222"
+        ],
+        "top_10_doc_ids": [
+          "11233339",
+          "29347970",
+          "14644164",
+          "19005293",
+          "25726838",
+          "1855679",
+          "45096063",
+          "39084565",
+          "16119973",
+          "45449835"
+        ]
+      },
+      {
+        "query_id": "834",
+        "query": "NOX2-independent pathways can generate peroxynitrite by reacting with nitrogen intermediates.",
+        "mrr@10": 0.0,
+        "recall@100": 0.0,
+        "first_relevant_rank": null,
+        "relevant_doc_ids": [
+          "5483793"
+        ],
+        "top_10_doc_ids": [
+          "23100962",
+          "23122306",
+          "22059387",
+          "35828148",
+          "6259170",
+          "13823200",
+          "8536018",
+          "14848619",
+          "1354567",
+          "21297708"
+        ]
+      },
+      {
+        "query_id": "1024",
+        "query": "Recurrent mutations occur frequently within CTCF anchor sites adjacent to oncogenes.",
+        "mrr@10": 0.0,
+        "recall@100": 1.0,
+        "first_relevant_rank": 45,
+        "relevant_doc_ids": [
+          "5373138"
+        ],
+        "top_10_doc_ids": [
+          "26672703",
+          "641786",
+          "14530534",
+          "6078882",
+          "24995939",
+          "8494570",
+          "6421792",
+          "11117679",
+          "33387953",
+          "39462488"
+        ]
+      },
+      {
+        "query_id": "1191",
+        "query": "The amount of publicly available DNA data doubles every 10 years.",
+        "mrr@10": 0.0,
+        "recall@100": 1.0,
+        "first_relevant_rank": 20,
+        "relevant_doc_ids": [
+          "30655442"
+        ],
+        "top_10_doc_ids": [
+          "19058822",
+          "25121903",
+          "53302393",
+          "8721150",
+          "29807737",
+          "18670",
+          "10944947",
+          "10548391",
+          "12030680",
+          "17911973"
+        ]
+      },
+      {
+        "query_id": "1200",
+        "query": "The binding orientation of the ML-SA1 activator at hTRPML2 is different from the binding orientation of the ML-SA1 activator at hTRPML1.",
+        "mrr@10": 0.0,
+        "recall@100": 1.0,
+        "first_relevant_rank": 15,
+        "relevant_doc_ids": [
+          "3441524"
+        ],
+        "top_10_doc_ids": [
+          "1744752",
+          "885056",
+          "9021186",
+          "41620295",
+          "15472716",
+          "39929509",
+          "16270577",
+          "14367469",
+          "24311787",
+          "26488879"
+        ]
+      },
+      {
+        "query_id": "1221",
+        "query": "The genomic aberrations found in matasteses are very similar to those found in the primary tumor.",
+        "mrr@10": 0.0,
+        "recall@100": 1.0,
+        "first_relevant_rank": 23,
+        "relevant_doc_ids": [
+          "19736671"
+        ],
+        "top_10_doc_ids": [
+          "4325398",
+          "1836154",
+          "9038803",
+          "2402323",
+          "4457160",
+          "39758684",
+          "11271123",
+          "9737083",
+          "42836872",
+          "36713289"
+        ]
+      },
+      {
+        "query_id": "1281",
+        "query": "The ureABIEFGH gene cluster is induced by nickel (II) ion.",
+        "mrr@10": 0.0,
+        "recall@100": 1.0,
+        "first_relevant_rank": 80,
+        "relevant_doc_ids": [
+          "4387784"
+        ],
+        "top_10_doc_ids": [
+          "29214508",
+          "37768883",
+          "36233757",
+          "25994317",
+          "18447487",
+          "38805486",
+          "21108759",
+          "10485142",
+          "2890952",
+          "22312627"
+        ]
+      }
+    ]
+  },
+  "per_query": {
+    "1": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 0.0,
+      "map@100": 0.0,
+      "relevant_doc_ids": [
+        "31715818"
+      ],
+      "found_relevant_ranks": {},
+      "missing_relevant_doc_ids": [
+        "31715818"
+      ],
+      "first_relevant_rank": null,
+      "top_10_doc_ids": [
+        "25657127",
+        "7583104",
+        "10982689",
+        "20454006",
+        "14082855",
+        "40212412",
+        "4346436",
+        "58050905",
+        "13481880",
+        "825728"
+      ]
+    },
+    "3": {
+      "ndcg@10": 0.3562071871080222,
+      "mrr@10": 0.16666666666666666,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.16666666666666666,
+      "relevant_doc_ids": [
+        "14717500"
+      ],
+      "found_relevant_ranks": {
+        "14717500": 6
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 6,
+      "top_10_doc_ids": [
+        "19058822",
+        "2359152",
+        "1388704",
+        "2739854",
+        "4632921",
+        "14717500",
+        "23389795",
+        "4378885",
+        "13916484",
+        "2402323"
+      ]
+    },
+    "5": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "13734012"
+      ],
+      "found_relevant_ranks": {
+        "13734012": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "13734012",
+        "7751726",
+        "27063470",
+        "24512064",
+        "5558754",
+        "3413083",
+        "841371",
+        "18344910",
+        "3801693",
+        "23267371"
+      ]
+    },
+    "13": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.09090909090909091,
+      "relevant_doc_ids": [
+        "1606628"
+      ],
+      "found_relevant_ranks": {
+        "1606628": 11
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 11,
+      "top_10_doc_ids": [
+        "33740844",
+        "8529693",
+        "11360768",
+        "4791384",
+        "26611834",
+        "11748341",
+        "1263446",
+        "7662395",
+        "25182647",
+        "4345757"
+      ]
+    },
+    "36": {
+      "ndcg@10": 0.21840743681816419,
+      "mrr@10": 0.16666666666666666,
+      "recall@10": 0.5,
+      "recall@100": 1.0,
+      "map@100": 0.13333333333333333,
+      "relevant_doc_ids": [
+        "5152028",
+        "11705328"
+      ],
+      "found_relevant_ranks": {
+        "11705328": 6,
+        "5152028": 20
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 6,
+      "top_10_doc_ids": [
+        "16252863",
+        "18557974",
+        "3215494",
+        "33409100",
+        "21636085",
+        "11705328",
+        "37424881",
+        "42441846",
+        "9813098",
+        "10557471"
+      ]
+    },
+    "42": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "18174210"
+      ],
+      "found_relevant_ranks": {
+        "18174210": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "18174210",
+        "40913091",
+        "27889071",
+        "45218443",
+        "1145473",
+        "6315132",
+        "8083310",
+        "3215494",
+        "2460304",
+        "32481310"
+      ]
+    },
+    "48": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "13734012"
+      ],
+      "found_relevant_ranks": {
+        "13734012": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "11349166",
+        "27063470",
+        "13734012",
+        "24512064",
+        "18617259",
+        "23267371",
+        "5850219",
+        "29955650",
+        "23531592",
+        "3716075"
+      ]
+    },
+    "49": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "5953485"
+      ],
+      "found_relevant_ranks": {
+        "5953485": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "5953485",
+        "5702790",
+        "23913146",
+        "7029990",
+        "12652963",
+        "14362780",
+        "22362025",
+        "17544977",
+        "8453819",
+        "8247469"
+      ]
+    },
+    "50": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "12580014"
+      ],
+      "found_relevant_ranks": {
+        "12580014": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "12580014",
+        "25738896",
+        "39559521",
+        "18488986",
+        "13989491",
+        "29785642",
+        "1583134",
+        "9095394",
+        "19736671",
+        "36950726"
+      ]
+    },
+    "51": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "45638119"
+      ],
+      "found_relevant_ranks": {
+        "45638119": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "45638119",
+        "8963413",
+        "20454006",
+        "5649538",
+        "25523969",
+        "29366489",
+        "1554348",
+        "52180874",
+        "23304931",
+        "24341590"
+      ]
+    },
+    "53": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "45638119"
+      ],
+      "found_relevant_ranks": {
+        "45638119": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "45638119",
+        "8963413",
+        "23304931",
+        "5649538",
+        "1171121",
+        "52180874",
+        "29366489",
+        "20454006",
+        "20886584",
+        "1554348"
+      ]
+    },
+    "54": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "49556906"
+      ],
+      "found_relevant_ranks": {
+        "49556906": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "49556906",
+        "3973445",
+        "1590744",
+        "26025820",
+        "15381976",
+        "19313533",
+        "23509113",
+        "3419709",
+        "9899292",
+        "12358173"
+      ]
+    },
+    "56": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "4709641"
+      ],
+      "found_relevant_ranks": {
+        "4709641": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "4709641",
+        "13293033",
+        "13814480",
+        "19970015",
+        "18852643",
+        "10641715",
+        "22185730",
+        "20937018",
+        "24725136",
+        "9748934"
+      ]
+    },
+    "57": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "4709641"
+      ],
+      "found_relevant_ranks": {
+        "4709641": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "4709641",
+        "13814480",
+        "13293033",
+        "36637129",
+        "11659421",
+        "19970015",
+        "20937018",
+        "9748934",
+        "18852643",
+        "22185730"
+      ]
+    },
+    "70": {
+      "ndcg@10": 0.8315546295836225,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.6666666666666666,
+      "relevant_doc_ids": [
+        "5956380",
+        "4414547"
+      ],
+      "found_relevant_ranks": {
+        "5956380": 1,
+        "4414547": 6
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "5956380",
+        "43880096",
+        "23985464",
+        "42489926",
+        "9483851",
+        "4414547",
+        "27949347",
+        "35684881",
+        "11903247",
+        "39637840"
+      ]
+    },
+    "72": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "6076903"
+      ],
+      "found_relevant_ranks": {
+        "6076903": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "9021186",
+        "6076903",
+        "8997410",
+        "1031534",
+        "1070920",
+        "39291138",
+        "25007443",
+        "19313533",
+        "5702790",
+        "18895793"
+      ]
+    },
+    "75": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "4387784"
+      ],
+      "found_relevant_ranks": {
+        "4387784": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "4387784",
+        "25657127",
+        "36233757",
+        "29214508",
+        "37768883",
+        "38805486",
+        "13965483",
+        "2617858",
+        "1744752",
+        "13903052"
+      ]
+    },
+    "94": {
+      "ndcg@10": 0.3333333333333333,
+      "mrr@10": 0.14285714285714285,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.14285714285714285,
+      "relevant_doc_ids": [
+        "1215116"
+      ],
+      "found_relevant_ranks": {
+        "1215116": 7
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 7,
+      "top_10_doc_ids": [
+        "6503185",
+        "9614443",
+        "3930020",
+        "40754510",
+        "3308636",
+        "18662787",
+        "1215116",
+        "79231308",
+        "21700295",
+        "10314816"
+      ]
+    },
+    "99": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "18810195"
+      ],
+      "found_relevant_ranks": {
+        "18810195": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "6788835",
+        "18810195",
+        "46765242",
+        "1744752",
+        "25942757",
+        "30208015",
+        "13578199",
+        "13763195",
+        "31154082",
+        "13583521"
+      ]
+    },
+    "100": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "4381486"
+      ],
+      "found_relevant_ranks": {
+        "4381486": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "4381486",
+        "14550841",
+        "13116880",
+        "92499",
+        "1944452",
+        "16732790",
+        "11020675",
+        "8148122",
+        "25516011",
+        "2701077"
+      ]
+    },
+    "113": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "6157837"
+      ],
+      "found_relevant_ranks": {
+        "6157837": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "6157837",
+        "25816994",
+        "14584755",
+        "1759213",
+        "26199970",
+        "31890716",
+        "27428509",
+        "6250701",
+        "27665523",
+        "13619127"
+      ]
+    },
+    "115": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "33872649"
+      ],
+      "found_relevant_ranks": {
+        "33872649": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "33872649",
+        "7447120",
+        "16787954",
+        "12641252",
+        "36180468",
+        "10670430",
+        "29657303",
+        "36233757",
+        "1583041",
+        "22190276"
+      ]
+    },
+    "118": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "6372244"
+      ],
+      "found_relevant_ranks": {
+        "6372244": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "6372244",
+        "4465735",
+        "32454714",
+        "20148808",
+        "52805891",
+        "13714201",
+        "21956124",
+        "42800527",
+        "15578265",
+        "7735859"
+      ]
+    },
+    "124": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "4883040"
+      ],
+      "found_relevant_ranks": {
+        "4883040": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "4883040",
+        "7111021",
+        "31363207",
+        "22414304",
+        "21479231",
+        "13899137",
+        "1986482",
+        "13901073",
+        "39984099",
+        "14319754"
+      ]
+    },
+    "127": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "21598000"
+      ],
+      "found_relevant_ranks": {
+        "21598000": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "11048759",
+        "22937651",
+        "21598000",
+        "3765739",
+        "18467982",
+        "293661",
+        "26495128",
+        "38623601",
+        "26071782",
+        "22003328"
+      ]
+    },
+    "128": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 0.0,
+      "map@100": 0.0,
+      "relevant_doc_ids": [
+        "8290953"
+      ],
+      "found_relevant_ranks": {},
+      "missing_relevant_doc_ids": [
+        "8290953"
+      ],
+      "first_relevant_rank": null,
+      "top_10_doc_ids": [
+        "12549585",
+        "34876410",
+        "79231308",
+        "3588621",
+        "79447",
+        "22972632",
+        "4890578",
+        "2056197",
+        "9310407",
+        "21380348"
+      ]
+    },
+    "129": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "27768226"
+      ],
+      "found_relevant_ranks": {
+        "27768226": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "27768226",
+        "10577574",
+        "4688277",
+        "8042158",
+        "79231308",
+        "13899137",
+        "6477536",
+        "43417006",
+        "2787558",
+        "29495185"
+      ]
+    },
+    "130": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "27768226"
+      ],
+      "found_relevant_ranks": {
+        "27768226": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "27768226",
+        "10577574",
+        "4688277",
+        "79231308",
+        "8042158",
+        "13899137",
+        "29495185",
+        "7074001",
+        "1711571",
+        "43417006"
+      ]
+    },
+    "132": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 0.0,
+      "map@100": 0.0,
+      "relevant_doc_ids": [
+        "7975937"
+      ],
+      "found_relevant_ranks": {},
+      "missing_relevant_doc_ids": [
+        "7975937"
+      ],
+      "first_relevant_rank": null,
+      "top_10_doc_ids": [
+        "6923961",
+        "20732789",
+        "3866315",
+        "4583180",
+        "15648443",
+        "2443495",
+        "9159125",
+        "58006489",
+        "39903312",
+        "27615329"
+      ]
+    },
+    "133": {
+      "ndcg@10": 0.7618017901203944,
+      "mrr@10": 1.0,
+      "recall@10": 0.8,
+      "recall@100": 1.0,
+      "map@100": 0.6033333333333333,
+      "relevant_doc_ids": [
+        "38485364",
+        "6969753",
+        "17934082",
+        "16280642",
+        "12640810"
+      ],
+      "found_relevant_ranks": {
+        "16280642": 1,
+        "12640810": 3,
+        "17934082": 4,
+        "6969753": 8,
+        "38485364": 50
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "16280642",
+        "86694016",
+        "12640810",
+        "17934082",
+        "35660758",
+        "14328288",
+        "11335860",
+        "6969753",
+        "493346",
+        "7820043"
+      ]
+    },
+    "137": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "26016929"
+      ],
+      "found_relevant_ranks": {
+        "26016929": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "26016929",
+        "24735908",
+        "22942787",
+        "10893238",
+        "11880289",
+        "457630",
+        "39903312",
+        "19994006",
+        "46695481",
+        "21274919"
+      ]
+    },
+    "141": {
+      "ndcg@10": 0.8772153153380493,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.75,
+      "relevant_doc_ids": [
+        "6955746",
+        "14437255"
+      ],
+      "found_relevant_ranks": {
+        "14437255": 1,
+        "6955746": 4
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "14437255",
+        "38794814",
+        "10624000",
+        "6955746",
+        "23331269",
+        "313394",
+        "36860856",
+        "6985854",
+        "18379855",
+        "43283375"
+      ]
+    },
+    "142": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "10582939"
+      ],
+      "found_relevant_ranks": {
+        "10582939": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "10582939",
+        "24101431",
+        "40164383",
+        "19511011",
+        "4416964",
+        "11156883",
+        "27615329",
+        "301866",
+        "10162553",
+        "43587663"
+      ]
+    },
+    "143": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "10582939"
+      ],
+      "found_relevant_ranks": {
+        "10582939": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "10582939",
+        "40164383",
+        "24101431",
+        "19511011",
+        "27615329",
+        "301866",
+        "4416964",
+        "22852120",
+        "11156883",
+        "10162553"
+      ]
+    },
+    "146": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "10582939"
+      ],
+      "found_relevant_ranks": {
+        "10582939": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "10582939",
+        "40164383",
+        "4416964",
+        "24101431",
+        "9622258",
+        "22635278",
+        "19511011",
+        "27615329",
+        "18488986",
+        "6544701"
+      ]
+    },
+    "148": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "1084345"
+      ],
+      "found_relevant_ranks": {
+        "1084345": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "1084345",
+        "15728433",
+        "52887689",
+        "56528795",
+        "4452659",
+        "9159495",
+        "10012166",
+        "26952804",
+        "22264117",
+        "3230557"
+      ]
+    },
+    "163": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "18872233"
+      ],
+      "found_relevant_ranks": {
+        "18872233": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "18872233",
+        "43220289",
+        "29022271",
+        "19071857",
+        "40949706",
+        "5824985",
+        "7627167",
+        "20130904",
+        "4345757",
+        "26199970"
+      ]
+    },
+    "171": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "12670680"
+      ],
+      "found_relevant_ranks": {
+        "12670680": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "12670680",
+        "28149602",
+        "28015516",
+        "25677651",
+        "1049501",
+        "28712203",
+        "22852120",
+        "2042250",
+        "3930020",
+        "21258863"
+      ]
+    },
+    "179": {
+      "ndcg@10": 0.8838242945899706,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.7470238095238095,
+      "relevant_doc_ids": [
+        "16322674",
+        "27123743",
+        "23557241",
+        "17450673"
+      ],
+      "found_relevant_ranks": {
+        "16322674": 1,
+        "27123743": 3,
+        "17450673": 4,
+        "23557241": 7
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "16322674",
+        "37480103",
+        "27123743",
+        "17450673",
+        "5487448",
+        "13765757",
+        "23557241",
+        "25973484",
+        "13831842",
+        "22007333"
+      ]
+    },
+    "180": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "16966326"
+      ],
+      "found_relevant_ranks": {
+        "16966326": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "16966326",
+        "9217800",
+        "4889228",
+        "13380011",
+        "10698739",
+        "14460402",
+        "67045088",
+        "3981033",
+        "57574395",
+        "6636088"
+      ]
+    },
+    "183": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "12827098"
+      ],
+      "found_relevant_ranks": {
+        "12827098": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "22973574",
+        "12827098",
+        "188911",
+        "22406695",
+        "7521113",
+        "8137081",
+        "36444198",
+        "13509809",
+        "11020675",
+        "25068298"
+      ]
+    },
+    "185": {
+      "ndcg@10": 0.38685280723454163,
+      "mrr@10": 0.2,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.2,
+      "relevant_doc_ids": [
+        "18340282"
+      ],
+      "found_relevant_ranks": {
+        "18340282": 5
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 5,
+      "top_10_doc_ids": [
+        "21874312",
+        "22401720",
+        "2015126",
+        "23557241",
+        "18340282",
+        "22975806",
+        "5864770",
+        "27123743",
+        "17450673",
+        "13007205"
+      ]
+    },
+    "198": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.045454545454545456,
+      "relevant_doc_ids": [
+        "2177022"
+      ],
+      "found_relevant_ranks": {
+        "2177022": 22
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 22,
+      "top_10_doc_ids": [
+        "10189634",
+        "26873988",
+        "30861948",
+        "28724565",
+        "6123924",
+        "29366489",
+        "32101982",
+        "13108582",
+        "79231308",
+        "735130"
+      ]
+    },
+    "208": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "13519661"
+      ],
+      "found_relevant_ranks": {
+        "13519661": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "13519661",
+        "21439640",
+        "20738970",
+        "20886584",
+        "20280410",
+        "2015126",
+        "7821634",
+        "21874312",
+        "20454006",
+        "32534305"
+      ]
+    },
+    "212": {
+      "ndcg@10": 0.43067655807339306,
+      "mrr@10": 0.25,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.25,
+      "relevant_doc_ids": [
+        "22038539"
+      ],
+      "found_relevant_ranks": {
+        "22038539": 4
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 4,
+      "top_10_doc_ids": [
+        "9291668",
+        "7808055",
+        "11935250",
+        "22038539",
+        "14475235",
+        "2494748",
+        "42387637",
+        "26230669",
+        "4679264",
+        "4434951"
+      ]
+    },
+    "213": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.09090909090909091,
+      "relevant_doc_ids": [
+        "13625993"
+      ],
+      "found_relevant_ranks": {
+        "13625993": 11
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 11,
+      "top_10_doc_ids": [
+        "27054878",
+        "20887554",
+        "21048969",
+        "2391552",
+        "9846940",
+        "750781",
+        "8814634",
+        "36288526",
+        "9334631",
+        "5558754"
+      ]
+    },
+    "216": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "21366394"
+      ],
+      "found_relevant_ranks": {
+        "21366394": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "21366394",
+        "15946643",
+        "21363424",
+        "40608679",
+        "33912020",
+        "22198971",
+        "22210434",
+        "29347970",
+        "1550937",
+        "25479072"
+      ]
+    },
+    "217": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "21366394"
+      ],
+      "found_relevant_ranks": {
+        "21366394": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "21366394",
+        "15946643",
+        "40608679",
+        "22210434",
+        "33912020",
+        "21363424",
+        "29347970",
+        "7621534",
+        "3952288",
+        "1196631"
+      ]
+    },
+    "218": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "21366394"
+      ],
+      "found_relevant_ranks": {
+        "21366394": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "21366394",
+        "40365566",
+        "696006",
+        "56486733",
+        "20311968",
+        "26068103",
+        "29347970",
+        "1800734",
+        "888896",
+        "15946643"
+      ]
+    },
+    "219": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "21366394"
+      ],
+      "found_relevant_ranks": {
+        "21366394": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "21366394",
+        "20311968",
+        "40365566",
+        "888896",
+        "29347970",
+        "56486733",
+        "696006",
+        "26068103",
+        "1800734",
+        "6625693"
+      ]
+    },
+    "230": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "3067015"
+      ],
+      "found_relevant_ranks": {
+        "3067015": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "3067015",
+        "71625969",
+        "38028419",
+        "849771",
+        "52072815",
+        "26488879",
+        "23267371",
+        "11457219",
+        "4641348",
+        "834336"
+      ]
+    },
+    "232": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "10536636"
+      ],
+      "found_relevant_ranks": {
+        "10536636": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "7655029",
+        "10536636",
+        "29090823",
+        "1215116",
+        "457630",
+        "40754510",
+        "79231308",
+        "13966946",
+        "34760396",
+        "25938221"
+      ]
+    },
+    "233": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "4388470"
+      ],
+      "found_relevant_ranks": {
+        "4388470": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "4388470",
+        "23581096",
+        "12232678",
+        "17601006",
+        "4381486",
+        "20419913",
+        "41380943",
+        "16963081",
+        "28390999",
+        "36708463"
+      ]
+    },
+    "236": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "4388470"
+      ],
+      "found_relevant_ranks": {
+        "4388470": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "4388470",
+        "17601006",
+        "28390999",
+        "23581096",
+        "28928964",
+        "36708463",
+        "1381673",
+        "464511",
+        "5002665",
+        "32797183"
+      ]
+    },
+    "237": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "4942718"
+      ],
+      "found_relevant_ranks": {
+        "4942718": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "12881593",
+        "4942718",
+        "34386619",
+        "30861948",
+        "12824568",
+        "36345185",
+        "799586",
+        "37549932",
+        "26030079",
+        "3173489"
+      ]
+    },
+    "238": {
+      "ndcg@10": 0.3562071871080222,
+      "mrr@10": 0.16666666666666666,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.16666666666666666,
+      "relevant_doc_ids": [
+        "2251426"
+      ],
+      "found_relevant_ranks": {
+        "2251426": 6
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 6,
+      "top_10_doc_ids": [
+        "2000038",
+        "5838067",
+        "12652963",
+        "4418112",
+        "982650",
+        "2251426",
+        "8702697",
+        "6820680",
+        "2619579",
+        "153744"
+      ]
+    },
+    "239": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.04,
+      "relevant_doc_ids": [
+        "14079881"
+      ],
+      "found_relevant_ranks": {
+        "14079881": 25
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 25,
+      "top_10_doc_ids": [
+        "19343151",
+        "516867",
+        "9559146",
+        "3230557",
+        "15521377",
+        "4326318",
+        "25419778",
+        "34747208",
+        "22264117",
+        "16693950"
+      ]
+    },
+    "248": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "1568684"
+      ],
+      "found_relevant_ranks": {
+        "1568684": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "1568684",
+        "23369842",
+        "36889513",
+        "29691654",
+        "35962023",
+        "14865329",
+        "21547032",
+        "11615242",
+        "12197393",
+        "7198295"
+      ]
+    },
+    "249": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "1568684"
+      ],
+      "found_relevant_ranks": {
+        "1568684": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "1568684",
+        "23369842",
+        "36889513",
+        "29691654",
+        "35962023",
+        "21547032",
+        "12197393",
+        "7198295",
+        "167944455",
+        "18678095"
+      ]
+    },
+    "261": {
+      "ndcg@10": 0.48247555939075504,
+      "mrr@10": 0.25,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.29166666666666663,
+      "relevant_doc_ids": [
+        "1122279",
+        "10697096"
+      ],
+      "found_relevant_ranks": {
+        "1122279": 4,
+        "10697096": 6
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 4,
+      "top_10_doc_ids": [
+        "32322418",
+        "46743299",
+        "25822299",
+        "1122279",
+        "17097974",
+        "10697096",
+        "29148743",
+        "35271381",
+        "26658659",
+        "79447"
+      ]
+    },
+    "268": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "970012"
+      ],
+      "found_relevant_ranks": {
+        "970012": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "970012",
+        "34582256",
+        "29381091",
+        "13000926",
+        "4319174",
+        "275294",
+        "38043606",
+        "26067999",
+        "38882175",
+        "34121231"
+      ]
+    },
+    "269": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "970012"
+      ],
+      "found_relevant_ranks": {
+        "970012": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "970012",
+        "13000926",
+        "29381091",
+        "34582256",
+        "275294",
+        "4319174",
+        "26067999",
+        "38043606",
+        "17000834",
+        "38882175"
+      ]
+    },
+    "274": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "11614737"
+      ],
+      "found_relevant_ranks": {
+        "11614737": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "11614737",
+        "5114940",
+        "34369306",
+        "24019260",
+        "5551138",
+        "8570690",
+        "3613041",
+        "7552215",
+        "5912283",
+        "21700295"
+      ]
+    },
+    "275": {
+      "ndcg@10": 0.7653606369886217,
+      "mrr@10": 1.0,
+      "recall@10": 0.6666666666666666,
+      "recall@100": 1.0,
+      "map@100": 0.75,
+      "relevant_doc_ids": [
+        "4961038",
+        "14241418",
+        "14819804"
+      ],
+      "found_relevant_ranks": {
+        "4961038": 1,
+        "14819804": 2,
+        "14241418": 12
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "4961038",
+        "14819804",
+        "4920376",
+        "24190159",
+        "17462437",
+        "28651643",
+        "34016944",
+        "15322518",
+        "85665741",
+        "4320424"
+      ]
+    },
+    "279": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "14376683"
+      ],
+      "found_relevant_ranks": {
+        "14376683": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "14376683",
+        "37677954",
+        "83667891",
+        "8858602",
+        "34016987",
+        "3823862",
+        "7451018",
+        "9704467",
+        "6903077",
+        "544971"
+      ]
+    },
+    "294": {
+      "ndcg@10": 0.31546487678572877,
+      "mrr@10": 0.125,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.125,
+      "relevant_doc_ids": [
+        "10874408"
+      ],
+      "found_relevant_ranks": {
+        "10874408": 8
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 8,
+      "top_10_doc_ids": [
+        "17240457",
+        "10766688",
+        "10086360",
+        "1259280",
+        "25462689",
+        "18694784",
+        "3367829",
+        "10874408",
+        "778436",
+        "36623997"
+      ]
+    },
+    "295": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "20310709"
+      ],
+      "found_relevant_ranks": {
+        "20310709": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "20310709",
+        "29423324",
+        "24044977",
+        "26702468",
+        "46926352",
+        "1022115",
+        "11415809",
+        "883747",
+        "18956141",
+        "40096222"
+      ]
+    },
+    "298": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "39381118"
+      ],
+      "found_relevant_ranks": {
+        "39381118": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "39381118",
+        "23887844",
+        "10852047",
+        "23403754",
+        "25439264",
+        "8654183",
+        "238409",
+        "9878167",
+        "15836115",
+        "35962023"
+      ]
+    },
+    "300": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.022222222222222223,
+      "relevant_doc_ids": [
+        "3553087"
+      ],
+      "found_relevant_ranks": {
+        "3553087": 45
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 45,
+      "top_10_doc_ids": [
+        "16120395",
+        "935538",
+        "18358026",
+        "13931771",
+        "3829232",
+        "27822315",
+        "39929509",
+        "13777138",
+        "23269537",
+        "40721190"
+      ]
+    },
+    "303": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.03125,
+      "relevant_doc_ids": [
+        "4388470"
+      ],
+      "found_relevant_ranks": {
+        "4388470": 32
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 32,
+      "top_10_doc_ids": [
+        "4085204",
+        "41548287",
+        "21645205",
+        "15928989",
+        "22551259",
+        "17601006",
+        "4392608",
+        "8548635",
+        "28614776",
+        "1871499"
+      ]
+    },
+    "312": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 0.0,
+      "map@100": 0.0,
+      "relevant_doc_ids": [
+        "6173523"
+      ],
+      "found_relevant_ranks": {},
+      "missing_relevant_doc_ids": [
+        "6173523"
+      ],
+      "first_relevant_rank": null,
+      "top_10_doc_ids": [
+        "14464451",
+        "1544804",
+        "32770503",
+        "14275671",
+        "20375264",
+        "15893330",
+        "7260461",
+        "40721190",
+        "36082224",
+        "13123189"
+      ]
+    },
+    "314": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "4347374"
+      ],
+      "found_relevant_ranks": {
+        "4347374": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "2638387",
+        "544971",
+        "4347374",
+        "10494012",
+        "22703082",
+        "6788835",
+        "26873988",
+        "1970884",
+        "2319305",
+        "20996244"
+      ]
+    },
+    "324": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.038461538461538464,
+      "relevant_doc_ids": [
+        "2014909"
+      ],
+      "found_relevant_ranks": {
+        "2014909": 26
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 26,
+      "top_10_doc_ids": [
+        "2225918",
+        "11886686",
+        "24612804",
+        "9629682",
+        "6123521",
+        "1970884",
+        "3559136",
+        "13921783",
+        "188911",
+        "41380943"
+      ]
+    },
+    "327": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "17997584"
+      ],
+      "found_relevant_ranks": {
+        "17997584": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "17997584",
+        "23912923",
+        "40349336",
+        "13905670",
+        "4407385",
+        "20460020",
+        "5377059",
+        "23342845",
+        "1574014",
+        "6270720"
+      ]
+    },
+    "338": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "23349986"
+      ],
+      "found_relevant_ranks": {
+        "23349986": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "23349986",
+        "24211561",
+        "79231308",
+        "8814634",
+        "15948830",
+        "36288526",
+        "13514898",
+        "14973286",
+        "1428840",
+        "4687948"
+      ]
+    },
+    "343": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "7873737",
+        "5884524"
+      ],
+      "found_relevant_ranks": {
+        "7873737": 1,
+        "5884524": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "7873737",
+        "5884524",
+        "6158879",
+        "23783727",
+        "16760369",
+        "44387884",
+        "29253460",
+        "27449472",
+        "7640792",
+        "19308127"
+      ]
+    },
+    "350": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "16927286"
+      ],
+      "found_relevant_ranks": {
+        "16927286": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "16927286",
+        "30261663",
+        "23342686",
+        "72159",
+        "9505448",
+        "1006165",
+        "26731863",
+        "10443642",
+        "37727521",
+        "2479538"
+      ]
+    },
+    "354": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "8774475"
+      ],
+      "found_relevant_ranks": {
+        "8774475": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "8774475",
+        "1241113",
+        "12152977",
+        "13964633",
+        "20183360",
+        "3805841",
+        "5783785",
+        "5273056",
+        "17648235",
+        "11255504"
+      ]
+    },
+    "362": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "38587347"
+      ],
+      "found_relevant_ranks": {
+        "38587347": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "38587347",
+        "15488881",
+        "10354110",
+        "5003144",
+        "24989194",
+        "31761981",
+        "9977329",
+        "8137081",
+        "20743803",
+        "8629328"
+      ]
+    },
+    "380": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "19005293"
+      ],
+      "found_relevant_ranks": {
+        "19005293": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "26068103",
+        "19005293",
+        "23509113",
+        "21395936",
+        "40365566",
+        "2248870",
+        "30398773",
+        "219475",
+        "34016987",
+        "20732789"
+      ]
+    },
+    "384": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "13770184"
+      ],
+      "found_relevant_ranks": {
+        "13770184": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "51972698",
+        "3716075",
+        "13770184",
+        "581832",
+        "25451374",
+        "8582337",
+        "13934676",
+        "52072815",
+        "1215116",
+        "10071552"
+      ]
+    },
+    "385": {
+      "ndcg@10": 0.6934264036172708,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5833333333333333,
+      "relevant_doc_ids": [
+        "9955779",
+        "9767444"
+      ],
+      "found_relevant_ranks": {
+        "9955779": 2,
+        "9767444": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "1032372",
+        "9955779",
+        "9767444",
+        "32742683",
+        "9909405",
+        "9791313",
+        "6948886",
+        "12866641",
+        "6944800",
+        "25629722"
+      ]
+    },
+    "386": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "16495649"
+      ],
+      "found_relevant_ranks": {
+        "16495649": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "16495649",
+        "79231308",
+        "21260231",
+        "22371455",
+        "39300105",
+        "17422777",
+        "12258338",
+        "42404093",
+        "35186640",
+        "25098790"
+      ]
+    },
+    "388": {
+      "ndcg@10": 0.3333333333333333,
+      "mrr@10": 0.14285714285714285,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.14285714285714285,
+      "relevant_doc_ids": [
+        "1148122"
+      ],
+      "found_relevant_ranks": {
+        "1148122": 7
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 7,
+      "top_10_doc_ids": [
+        "21602220",
+        "26702468",
+        "25510546",
+        "42782688",
+        "12881593",
+        "9614443",
+        "1148122",
+        "6669242",
+        "1887056",
+        "20935673"
+      ]
+    },
+    "399": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "791050"
+      ],
+      "found_relevant_ranks": {
+        "791050": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "791050",
+        "471921",
+        "42387637",
+        "21003930",
+        "32357890",
+        "7285256",
+        "79231308",
+        "36211049",
+        "4345757",
+        "21884449"
+      ]
+    },
+    "410": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "14924526"
+      ],
+      "found_relevant_ranks": {
+        "14924526": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "14924526",
+        "116792",
+        "15889329",
+        "29723642",
+        "1410197",
+        "810480",
+        "23670644",
+        "25416944",
+        "21931005",
+        "1292369"
+      ]
+    },
+    "411": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "14924526"
+      ],
+      "found_relevant_ranks": {
+        "14924526": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "14924526",
+        "116792",
+        "15889329",
+        "29723642",
+        "23670644",
+        "1410197",
+        "25416944",
+        "810480",
+        "599582",
+        "79231308"
+      ]
+    },
+    "415": {
+      "ndcg@10": 0.3010299956639812,
+      "mrr@10": 0.1111111111111111,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.1111111111111111,
+      "relevant_doc_ids": [
+        "6309659"
+      ],
+      "found_relevant_ranks": {
+        "6309659": 9
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 9,
+      "top_10_doc_ids": [
+        "20937018",
+        "51386222",
+        "18852643",
+        "12443371",
+        "4709641",
+        "4505748",
+        "24530130",
+        "6947286",
+        "6309659",
+        "24906548"
+      ]
+    },
+    "421": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 0.0,
+      "map@100": 0.0,
+      "relevant_doc_ids": [
+        "11172205"
+      ],
+      "found_relevant_ranks": {},
+      "missing_relevant_doc_ids": [
+        "11172205"
+      ],
+      "first_relevant_rank": null,
+      "top_10_doc_ids": [
+        "1065627",
+        "17388232",
+        "12866641",
+        "6944800",
+        "10812605",
+        "8702697",
+        "4429118",
+        "40667577",
+        "30919024",
+        "8774475"
+      ]
+    },
+    "431": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.09090909090909091,
+      "relevant_doc_ids": [
+        "28937856"
+      ],
+      "found_relevant_ranks": {
+        "28937856": 11
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 11,
+      "top_10_doc_ids": [
+        "29429111",
+        "14496749",
+        "16728949",
+        "23100962",
+        "13380011",
+        "2543135",
+        "9393969",
+        "19922508",
+        "17231273",
+        "14092737"
+      ]
+    },
+    "436": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "14637235"
+      ],
+      "found_relevant_ranks": {
+        "14637235": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "14637235",
+        "406733",
+        "12588500",
+        "2613813",
+        "12086599",
+        "14332945",
+        "5824955",
+        "15926408",
+        "4993011",
+        "8411251"
+      ]
+    },
+    "437": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 0.0,
+      "map@100": 0.0,
+      "relevant_doc_ids": [
+        "18399038"
+      ],
+      "found_relevant_ranks": {},
+      "missing_relevant_doc_ids": [
+        "18399038"
+      ],
+      "first_relevant_rank": null,
+      "top_10_doc_ids": [
+        "2359152",
+        "3391547",
+        "5765455",
+        "39851630",
+        "8083310",
+        "1617327",
+        "12240507",
+        "8385277",
+        "5836",
+        "7239105"
+      ]
+    },
+    "439": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "4423559"
+      ],
+      "found_relevant_ranks": {
+        "4423559": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "4423559",
+        "23804187",
+        "4932668",
+        "17049436",
+        "22358449",
+        "25089501",
+        "9629682",
+        "5395426",
+        "10555591",
+        "14333540"
+      ]
+    },
+    "440": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "4423559"
+      ],
+      "found_relevant_ranks": {
+        "4423559": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "4423559",
+        "23804187",
+        "22358449",
+        "4932668",
+        "17049436",
+        "29422484",
+        "9629682",
+        "33063763",
+        "25089501",
+        "10660080"
+      ]
+    },
+    "443": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "10165258"
+      ],
+      "found_relevant_ranks": {
+        "10165258": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "10165258",
+        "12462961",
+        "13116880",
+        "23727313",
+        "92499",
+        "1145473",
+        "9911547",
+        "24612804",
+        "13048272",
+        "19583924"
+      ]
+    },
+    "452": {
+      "ndcg@10": 0.6131471927654584,
+      "mrr@10": 1.0,
+      "recall@10": 0.5,
+      "recall@100": 1.0,
+      "map@100": 0.5333333333333333,
+      "relevant_doc_ids": [
+        "12804937",
+        "464511"
+      ],
+      "found_relevant_ranks": {
+        "12804937": 1,
+        "464511": 30
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "12804937",
+        "9154703",
+        "54561709",
+        "28928964",
+        "9196472",
+        "16237005",
+        "4465608",
+        "4378885",
+        "21855837",
+        "12232678"
+      ]
+    },
+    "475": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.08333333333333333,
+      "relevant_doc_ids": [
+        "18678095"
+      ],
+      "found_relevant_ranks": {
+        "18678095": 12
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 12,
+      "top_10_doc_ids": [
+        "35543846",
+        "195689757",
+        "8724666",
+        "21626639",
+        "8477699",
+        "23576165",
+        "42873134",
+        "18810195",
+        "3468459",
+        "3831884"
+      ]
+    },
+    "478": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "14767844"
+      ],
+      "found_relevant_ranks": {
+        "14767844": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "14767844",
+        "20344442",
+        "34854444",
+        "13798951",
+        "25353658",
+        "4422734",
+        "39550665",
+        "25738896",
+        "10562341",
+        "18488986"
+      ]
+    },
+    "491": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "56893404"
+      ],
+      "found_relevant_ranks": {
+        "56893404": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "56893404",
+        "834336",
+        "10326242",
+        "31324978",
+        "857189",
+        "21114100",
+        "76463821",
+        "24725136",
+        "14178995",
+        "8925851"
+      ]
+    },
+    "501": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "17930286"
+      ],
+      "found_relevant_ranks": {
+        "17930286": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "17930286",
+        "42095718",
+        "14566771",
+        "41735503",
+        "27076725",
+        "21274919",
+        "37583120",
+        "24770122",
+        "28419824",
+        "44830890"
+      ]
+    },
+    "502": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 0.0,
+      "map@100": 0.0,
+      "relevant_doc_ids": [
+        "13071728"
+      ],
+      "found_relevant_ranks": {},
+      "missing_relevant_doc_ids": [
+        "13071728"
+      ],
+      "first_relevant_rank": null,
+      "top_10_doc_ids": [
+        "70516463",
+        "10577574",
+        "17626822",
+        "39059143",
+        "4345757",
+        "31019903",
+        "79231308",
+        "10854174",
+        "11748341",
+        "153755807"
+      ]
+    },
+    "507": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "30774694"
+      ],
+      "found_relevant_ranks": {
+        "30774694": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "7433668",
+        "30774694",
+        "38043606",
+        "7386360",
+        "21878751",
+        "35079452",
+        "23801039",
+        "2274272",
+        "26751583",
+        "11837657"
+      ]
+    },
+    "508": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.03333333333333333,
+      "relevant_doc_ids": [
+        "13980338"
+      ],
+      "found_relevant_ranks": {
+        "13980338": 30
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 30,
+      "top_10_doc_ids": [
+        "25516011",
+        "40234452",
+        "14550841",
+        "25985964",
+        "4325137",
+        "18374364",
+        "19511011",
+        "13116880",
+        "23727313",
+        "4381486"
+      ]
+    },
+    "513": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "13230773"
+      ],
+      "found_relevant_ranks": {
+        "13230773": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "12770738",
+        "13230773",
+        "6647414",
+        "2774906",
+        "2820454",
+        "4463588",
+        "6993046",
+        "26107000",
+        "13464392",
+        "24443043"
+      ]
+    },
+    "514": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "16256507"
+      ],
+      "found_relevant_ranks": {
+        "16256507": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "16256507",
+        "3034412",
+        "4462079",
+        "44572913",
+        "9555784",
+        "13312471",
+        "36960449",
+        "25259746",
+        "30720103",
+        "38551172"
+      ]
+    },
+    "516": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "29564505"
+      ],
+      "found_relevant_ranks": {
+        "29564505": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "29564505",
+        "18988265",
+        "40935722",
+        "9334631",
+        "20732789",
+        "7285256",
+        "5558754",
+        "20887554",
+        "21287352",
+        "25319221"
+      ]
+    },
+    "517": {
+      "ndcg@10": 0.2890648263178879,
+      "mrr@10": 0.1,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.1,
+      "relevant_doc_ids": [
+        "15663829"
+      ],
+      "found_relevant_ranks": {
+        "15663829": 10
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 10,
+      "top_10_doc_ids": [
+        "27449472",
+        "19658917",
+        "8708082",
+        "11481946",
+        "24396137",
+        "15041758",
+        "1711571",
+        "13619127",
+        "23577867",
+        "15663829"
+      ]
+    },
+    "521": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "34873974"
+      ],
+      "found_relevant_ranks": {
+        "34873974": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "34873974",
+        "3056682",
+        "22371455",
+        "46353045",
+        "27910499",
+        "25028913",
+        "32159283",
+        "24795767",
+        "20746604",
+        "7111021"
+      ]
+    },
+    "525": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "13639330"
+      ],
+      "found_relevant_ranks": {
+        "13639330": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "13639330",
+        "2151983",
+        "29788648",
+        "18841257",
+        "36547290",
+        "502591",
+        "8548635",
+        "40667066",
+        "20368353",
+        "7426741"
+      ]
+    },
+    "527": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.07692307692307693,
+      "relevant_doc_ids": [
+        "3863543"
+      ],
+      "found_relevant_ranks": {
+        "3863543": 13
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 13,
+      "top_10_doc_ids": [
+        "1617327",
+        "9412420",
+        "20977638",
+        "3464191",
+        "4380004",
+        "39851630",
+        "5765455",
+        "5836",
+        "16630060",
+        "8083310"
+      ]
+    },
+    "528": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "5476778"
+      ],
+      "found_relevant_ranks": {
+        "5476778": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "5476778",
+        "1196631",
+        "22937651",
+        "3545805",
+        "8325952",
+        "18261004",
+        "24221369",
+        "10450300",
+        "18938992",
+        "8639034"
+      ]
+    },
+    "532": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "12991445"
+      ],
+      "found_relevant_ranks": {
+        "12991445": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "12991445",
+        "79231308",
+        "18557974",
+        "11718220",
+        "21636085",
+        "21372171",
+        "25028913",
+        "33409100",
+        "5152028",
+        "29981186"
+      ]
+    },
+    "533": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "12991445"
+      ],
+      "found_relevant_ranks": {
+        "12991445": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "12991445",
+        "79231308",
+        "18557974",
+        "21372171",
+        "21636085",
+        "22371455",
+        "11718220",
+        "25028913",
+        "14973286",
+        "3215494"
+      ]
+    },
+    "535": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "39368721"
+      ],
+      "found_relevant_ranks": {
+        "39368721": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "39368721",
+        "43417006",
+        "3801693",
+        "2138843",
+        "27428509",
+        "14121786",
+        "27449472",
+        "4506414",
+        "9288638",
+        "13448422"
+      ]
+    },
+    "536": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "16056514"
+      ],
+      "found_relevant_ranks": {
+        "16056514": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "16056514",
+        "45154987",
+        "19843244",
+        "4469125",
+        "35149431",
+        "25440070",
+        "9021186",
+        "21521236",
+        "20544428",
+        "23929297"
+      ]
+    },
+    "539": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "13282296"
+      ],
+      "found_relevant_ranks": {
+        "13282296": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "13282296",
+        "24921368",
+        "1711571",
+        "11953232",
+        "13619127",
+        "21472388",
+        "25599283",
+        "76463821",
+        "8868863",
+        "41264017"
+      ]
+    },
+    "540": {
+      "ndcg@10": 0.6131471927654584,
+      "mrr@10": 1.0,
+      "recall@10": 0.5,
+      "recall@100": 1.0,
+      "map@100": 0.5588235294117647,
+      "relevant_doc_ids": [
+        "11886686",
+        "25007443"
+      ],
+      "found_relevant_ranks": {
+        "11886686": 1,
+        "25007443": 17
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "11886686",
+        "17150648",
+        "45154987",
+        "23869951",
+        "2225918",
+        "306311",
+        "4611267",
+        "11742219",
+        "22545779",
+        "46451940"
+      ]
+    },
+    "544": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.08333333333333333,
+      "relevant_doc_ids": [
+        "24221369"
+      ],
+      "found_relevant_ranks": {
+        "24221369": 12
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 12,
+      "top_10_doc_ids": [
+        "153744",
+        "11784947",
+        "5867846",
+        "10559501",
+        "3493623",
+        "23117928",
+        "6820680",
+        "16572581",
+        "3308636",
+        "4347374"
+      ]
+    },
+    "549": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "9433958"
+      ],
+      "found_relevant_ranks": {
+        "9433958": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "9433958",
+        "2274272",
+        "10559501",
+        "3308636",
+        "26731863",
+        "30208015",
+        "7820043",
+        "23901235",
+        "18938992",
+        "21651116"
+      ]
+    },
+    "551": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.03125,
+      "relevant_doc_ids": [
+        "33499189"
+      ],
+      "found_relevant_ranks": {
+        "33499189": 32
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 32,
+      "top_10_doc_ids": [
+        "8903143",
+        "35884026",
+        "34905328",
+        "14405193",
+        "9283422",
+        "18231807",
+        "5914739",
+        "718601",
+        "13868795",
+        "41982985"
+      ]
+    },
+    "552": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "1471041"
+      ],
+      "found_relevant_ranks": {
+        "1471041": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "1471041",
+        "27772649",
+        "13578199",
+        "14340571",
+        "21060008",
+        "26735018",
+        "17695748",
+        "5389095",
+        "26008462",
+        "10675756"
+      ]
+    },
+    "554": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.018867924528301886,
+      "relevant_doc_ids": [
+        "1049501"
+      ],
+      "found_relevant_ranks": {
+        "1049501": 53
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 53,
+      "top_10_doc_ids": [
+        "29399239",
+        "9225850",
+        "4911006",
+        "28015516",
+        "52925737",
+        "14853989",
+        "11837657",
+        "43054703",
+        "10450300",
+        "9878167"
+      ]
+    },
+    "560": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 0.0,
+      "map@100": 0.0,
+      "relevant_doc_ids": [
+        "40096222"
+      ],
+      "found_relevant_ranks": {},
+      "missing_relevant_doc_ids": [
+        "40096222"
+      ],
+      "first_relevant_rank": null,
+      "top_10_doc_ids": [
+        "11233339",
+        "29347970",
+        "14644164",
+        "19005293",
+        "25726838",
+        "1855679",
+        "45096063",
+        "39084565",
+        "16119973",
+        "45449835"
+      ]
+    },
+    "569": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "23460562"
+      ],
+      "found_relevant_ranks": {
+        "23460562": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "37311371",
+        "23460562",
+        "3155731",
+        "21320417",
+        "11666252",
+        "4380287",
+        "5508750",
+        "10765888",
+        "991137",
+        "13636631"
+      ]
+    },
+    "575": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "10300888"
+      ],
+      "found_relevant_ranks": {
+        "10300888": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "4421746",
+        "9548440",
+        "10300888",
+        "14717213",
+        "13734012",
+        "16686383",
+        "10874408",
+        "9704467",
+        "1631583",
+        "36606083"
+      ]
+    },
+    "577": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "5289038"
+      ],
+      "found_relevant_ranks": {
+        "5289038": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "8133050",
+        "5289038",
+        "26474812",
+        "40900567",
+        "7433668",
+        "8063697",
+        "6503185",
+        "84085333",
+        "21392703",
+        "3001685"
+      ]
+    },
+    "578": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "8764879"
+      ],
+      "found_relevant_ranks": {
+        "8764879": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "8764879",
+        "3559136",
+        "164985",
+        "43192375",
+        "39462488",
+        "14407673",
+        "2014909",
+        "7115651",
+        "10359591",
+        "712078"
+      ]
+    },
+    "587": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "16999023"
+      ],
+      "found_relevant_ranks": {
+        "16999023": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "7142113",
+        "16999023",
+        "40558887",
+        "42855554",
+        "22682497",
+        "18575183",
+        "14972169",
+        "1387654",
+        "4394817",
+        "30507607"
+      ]
+    },
+    "589": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "10984005"
+      ],
+      "found_relevant_ranks": {
+        "10984005": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "10984005",
+        "12206390",
+        "1068106",
+        "4647303",
+        "23785605",
+        "79231308",
+        "1831916",
+        "25451374",
+        "752423",
+        "21767325"
+      ]
+    },
+    "593": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "19675911"
+      ],
+      "found_relevant_ranks": {
+        "19675911": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "19675911",
+        "20945963",
+        "31889025",
+        "13481731",
+        "33533307",
+        "19205326",
+        "12810152",
+        "19878070",
+        "24408040",
+        "79231308"
+      ]
+    },
+    "597": {
+      "ndcg@10": 0.9060254355346823,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.8055555555555555,
+      "relevant_doc_ids": [
+        "12779444",
+        "36355784",
+        "25742130"
+      ],
+      "found_relevant_ranks": {
+        "36355784": 1,
+        "12779444": 3,
+        "25742130": 4
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "36355784",
+        "76415938",
+        "12779444",
+        "25742130",
+        "23136735",
+        "28617573",
+        "829646",
+        "27446873",
+        "46695481",
+        "7650066"
+      ]
+    },
+    "598": {
+      "ndcg@10": 0.43067655807339306,
+      "mrr@10": 0.25,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.25,
+      "relevant_doc_ids": [
+        "25742130"
+      ],
+      "found_relevant_ranks": {
+        "25742130": 4
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 4,
+      "top_10_doc_ids": [
+        "36355784",
+        "76415938",
+        "46695481",
+        "25742130",
+        "27446873",
+        "28617573",
+        "6561200",
+        "7650066",
+        "829646",
+        "27873158"
+      ]
+    },
+    "613": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "9638032"
+      ],
+      "found_relevant_ranks": {
+        "9638032": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "9638032",
+        "26025820",
+        "22800314",
+        "5765455",
+        "33911859",
+        "16056410",
+        "12909503",
+        "31884697",
+        "40349336",
+        "28614776"
+      ]
+    },
+    "619": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.08095238095238094,
+      "relevant_doc_ids": [
+        "20888849",
+        "2565138"
+      ],
+      "found_relevant_ranks": {
+        "20888849": 15,
+        "2565138": 21
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 15,
+      "top_10_doc_ids": [
+        "1171121",
+        "12358173",
+        "2931832",
+        "22123421",
+        "6796297",
+        "313403",
+        "25175997",
+        "12866641",
+        "34268160",
+        "20127522"
+      ]
+    },
+    "623": {
+      "ndcg@10": 0.31546487678572877,
+      "mrr@10": 0.125,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.125,
+      "relevant_doc_ids": [
+        "17000834"
+      ],
+      "found_relevant_ranks": {
+        "17000834": 8
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 8,
+      "top_10_doc_ids": [
+        "22843838",
+        "4462079",
+        "23267371",
+        "25599283",
+        "9555784",
+        "36960449",
+        "275294",
+        "17000834",
+        "38551172",
+        "520579"
+      ]
+    },
+    "628": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "24512064"
+      ],
+      "found_relevant_ranks": {
+        "24512064": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "24512064",
+        "28738741",
+        "13949015",
+        "39443128",
+        "5735492",
+        "10944947",
+        "20754359",
+        "601033",
+        "21274496",
+        "13368032"
+      ]
+    },
+    "636": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "24294572"
+      ],
+      "found_relevant_ranks": {
+        "24294572": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "24294572",
+        "22025252",
+        "11335860",
+        "42708716",
+        "14328288",
+        "1910120",
+        "15113221",
+        "34071621",
+        "19752008",
+        "6492658"
+      ]
+    },
+    "637": {
+      "ndcg@10": 0.43067655807339306,
+      "mrr@10": 0.25,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.25,
+      "relevant_doc_ids": [
+        "25649714"
+      ],
+      "found_relevant_ranks": {
+        "25649714": 4
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 4,
+      "top_10_doc_ids": [
+        "31019903",
+        "33135135",
+        "6129301",
+        "25649714",
+        "154243324",
+        "20334484",
+        "10893238",
+        "31612088",
+        "12672066",
+        "73473433"
+      ]
+    },
+    "641": {
+      "ndcg@10": 0.9197207891481876,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.8333333333333333,
+      "relevant_doc_ids": [
+        "5912283",
+        "31554917"
+      ],
+      "found_relevant_ranks": {
+        "5912283": 1,
+        "31554917": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "5912283",
+        "17973630",
+        "31554917",
+        "24346598",
+        "21373821",
+        "12672066",
+        "26150367",
+        "24865781",
+        "22467585",
+        "21700295"
+      ]
+    },
+    "644": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "13619127"
+      ],
+      "found_relevant_ranks": {
+        "13619127": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "13619127",
+        "31890716",
+        "27449472",
+        "11481946",
+        "23377475",
+        "26025820",
+        "24921368",
+        "356218",
+        "195352",
+        "120626"
+      ]
+    },
+    "649": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "12789595"
+      ],
+      "found_relevant_ranks": {
+        "12789595": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "79231308",
+        "22467585",
+        "12789595",
+        "45401535",
+        "4506702",
+        "33912020",
+        "15041758",
+        "20659283",
+        "96222213",
+        "31591262"
+      ]
+    },
+    "659": {
+      "ndcg@10": 0.31546487678572877,
+      "mrr@10": 0.125,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.125,
+      "relevant_doc_ids": [
+        "1215116"
+      ],
+      "found_relevant_ranks": {
+        "1215116": 8
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 8,
+      "top_10_doc_ids": [
+        "3308636",
+        "79231308",
+        "12885341",
+        "40754510",
+        "23423230",
+        "6503185",
+        "84085333",
+        "1215116",
+        "3929361",
+        "34481589"
+      ]
+    },
+    "660": {
+      "ndcg@10": 0.2890648263178879,
+      "mrr@10": 0.1,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.1,
+      "relevant_doc_ids": [
+        "1215116"
+      ],
+      "found_relevant_ranks": {
+        "1215116": 10
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 10,
+      "top_10_doc_ids": [
+        "6407356",
+        "3308636",
+        "40754510",
+        "3866315",
+        "11411060",
+        "26461066",
+        "21382907",
+        "23801039",
+        "20428155",
+        "1215116"
+      ]
+    },
+    "674": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "2095573"
+      ],
+      "found_relevant_ranks": {
+        "2095573": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "7662206",
+        "30981192",
+        "2095573",
+        "21571708",
+        "7757997",
+        "7454794",
+        "9814332",
+        "72933407",
+        "5698494",
+        "43629704"
+      ]
+    },
+    "684": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "4942718"
+      ],
+      "found_relevant_ranks": {
+        "4942718": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "12881593",
+        "4942718",
+        "34386619",
+        "42782688",
+        "26030079",
+        "12824568",
+        "30861948",
+        "8997410",
+        "36345185",
+        "799586"
+      ]
+    },
+    "690": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "18750453"
+      ],
+      "found_relevant_ranks": {
+        "18750453": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "18750453",
+        "9142761",
+        "31407112",
+        "25420421",
+        "13580614",
+        "10617916",
+        "13338820",
+        "2344892",
+        "14711483",
+        "56893404"
+      ]
+    },
+    "691": {
+      "ndcg@10": 0.3562071871080222,
+      "mrr@10": 0.16666666666666666,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.16666666666666666,
+      "relevant_doc_ids": [
+        "10991183"
+      ],
+      "found_relevant_ranks": {
+        "10991183": 6
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 6,
+      "top_10_doc_ids": [
+        "33076846",
+        "28195565",
+        "29073751",
+        "14461101",
+        "23700330",
+        "10991183",
+        "36345185",
+        "11887584",
+        "2686003",
+        "34439544"
+      ]
+    },
+    "692": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "24088502"
+      ],
+      "found_relevant_ranks": {
+        "24088502": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "24088502",
+        "11156883",
+        "8137081",
+        "23203102",
+        "3698758",
+        "40754510",
+        "27602752",
+        "25420421",
+        "40900567",
+        "22890091"
+      ]
+    },
+    "693": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "24088502"
+      ],
+      "found_relevant_ranks": {
+        "24088502": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "24088502",
+        "11156883",
+        "3698758",
+        "8137081",
+        "23203102",
+        "40754510",
+        "19511011",
+        "13959707",
+        "18174210",
+        "27910499"
+      ]
+    },
+    "700": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "4350400"
+      ],
+      "found_relevant_ranks": {
+        "4350400": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "16557565",
+        "4350400",
+        "435529",
+        "11335860",
+        "14797520",
+        "1669173",
+        "1354567",
+        "13910150",
+        "40900242",
+        "7416873"
+      ]
+    },
+    "702": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "4350400"
+      ],
+      "found_relevant_ranks": {
+        "4350400": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "4350400",
+        "16557565",
+        "435529",
+        "1354567",
+        "14797520",
+        "38675228",
+        "15419873",
+        "1669173",
+        "40900242",
+        "36623997"
+      ]
+    },
+    "715": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "18421962"
+      ],
+      "found_relevant_ranks": {
+        "18421962": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "13290521",
+        "2000038",
+        "18421962",
+        "19358586",
+        "86602746",
+        "12652963",
+        "9159495",
+        "2619579",
+        "17544977",
+        "6913227"
+      ]
+    },
+    "716": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.058823529411764705,
+      "relevant_doc_ids": [
+        "18421962"
+      ],
+      "found_relevant_ranks": {
+        "18421962": 17
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 17,
+      "top_10_doc_ids": [
+        "13290521",
+        "2000038",
+        "17544977",
+        "10024681",
+        "12652963",
+        "2619579",
+        "16882895",
+        "5409325",
+        "86602746",
+        "5612738"
+      ]
+    },
+    "718": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "17587795"
+      ],
+      "found_relevant_ranks": {
+        "17587795": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "17587795",
+        "175735",
+        "11935250",
+        "3174305",
+        "4392608",
+        "25254425",
+        "22038539",
+        "18694784",
+        "18895793",
+        "13790144"
+      ]
+    },
+    "721": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "1834762"
+      ],
+      "found_relevant_ranks": {
+        "1834762": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "1834762",
+        "12670680",
+        "5811042",
+        "9142761",
+        "4416964",
+        "13989491",
+        "1996292",
+        "5448119",
+        "13106686",
+        "14644164"
+      ]
+    },
+    "723": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "5531479"
+      ],
+      "found_relevant_ranks": {
+        "5531479": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "5531479",
+        "1871230",
+        "2405259",
+        "20608982",
+        "17208742",
+        "4447785",
+        "43224840",
+        "3866315",
+        "7820043",
+        "18909530"
+      ]
+    },
+    "727": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.09090909090909091,
+      "relevant_doc_ids": [
+        "7521113"
+      ],
+      "found_relevant_ranks": {
+        "7521113": 11
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 11,
+      "top_10_doc_ids": [
+        "36444198",
+        "14492339",
+        "22621251",
+        "2587396",
+        "8317408",
+        "5372773",
+        "1022115",
+        "22406695",
+        "4447785",
+        "2405259"
+      ]
+    },
+    "728": {
+      "ndcg@10": 0.6131471927654584,
+      "mrr@10": 1.0,
+      "recall@10": 0.5,
+      "recall@100": 1.0,
+      "map@100": 0.5909090909090909,
+      "relevant_doc_ids": [
+        "7521113",
+        "36444198"
+      ],
+      "found_relevant_ranks": {
+        "36444198": 1,
+        "7521113": 11
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "36444198",
+        "22621251",
+        "14492339",
+        "2587396",
+        "8317408",
+        "5372773",
+        "1022115",
+        "22406695",
+        "11233339",
+        "2405259"
+      ]
+    },
+    "729": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "26851674"
+      ],
+      "found_relevant_ranks": {
+        "26851674": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "26851674",
+        "33792330",
+        "14188138",
+        "18038250",
+        "17223891",
+        "24294572",
+        "40090058",
+        "26059876",
+        "12240507",
+        "43192375"
+      ]
+    },
+    "742": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "32159283"
+      ],
+      "found_relevant_ranks": {
+        "32159283": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "32159283",
+        "21239672",
+        "25028913",
+        "13514898",
+        "9334631",
+        "24150328",
+        "7662206",
+        "13923069",
+        "17897801",
+        "6158879"
+      ]
+    },
+    "743": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "32159283"
+      ],
+      "found_relevant_ranks": {
+        "32159283": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "21239672",
+        "32159283",
+        "25028913",
+        "7662206",
+        "9334631",
+        "13923069",
+        "13514898",
+        "16252863",
+        "25453683",
+        "24150328"
+      ]
+    },
+    "744": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "8460275"
+      ],
+      "found_relevant_ranks": {
+        "8460275": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "4138659",
+        "6454371",
+        "8460275",
+        "9304312",
+        "6722522",
+        "4350400",
+        "28195565",
+        "27438378",
+        "16319097",
+        "25946292"
+      ]
+    },
+    "756": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "2831620"
+      ],
+      "found_relevant_ranks": {
+        "2831620": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "27134527",
+        "17919731",
+        "2831620",
+        "8646760",
+        "12172346",
+        "1748921",
+        "6669242",
+        "32638085",
+        "22036571",
+        "12588500"
+      ]
+    },
+    "759": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "1805641"
+      ],
+      "found_relevant_ranks": {
+        "1805641": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "1805641",
+        "12409683",
+        "10617916",
+        "3929361",
+        "18074797",
+        "6503185",
+        "2526777",
+        "4999387",
+        "5289038",
+        "8133050"
+      ]
+    },
+    "768": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.05263157894736842,
+      "relevant_doc_ids": [
+        "6421792"
+      ],
+      "found_relevant_ranks": {
+        "6421792": 19
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 19,
+      "top_10_doc_ids": [
+        "1373287",
+        "19497526",
+        "30543439",
+        "27373088",
+        "2991954",
+        "25629722",
+        "2494748",
+        "24221369",
+        "12100854",
+        "22174015"
+      ]
+    },
+    "770": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "15476777"
+      ],
+      "found_relevant_ranks": {
+        "15476777": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "15476777",
+        "2492146",
+        "52180874",
+        "195680777",
+        "7165938",
+        "24634621",
+        "5492542",
+        "7613033",
+        "21382907",
+        "24278870"
+      ]
+    },
+    "775": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.02857142857142857,
+      "relevant_doc_ids": [
+        "32275758"
+      ],
+      "found_relevant_ranks": {
+        "32275758": 35
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 35,
+      "top_10_doc_ids": [
+        "11569583",
+        "43014661",
+        "31293581",
+        "13106686",
+        "27635177",
+        "3173489",
+        "4993011",
+        "5765455",
+        "12552297",
+        "13072112"
+      ]
+    },
+    "781": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "24338780"
+      ],
+      "found_relevant_ranks": {
+        "24338780": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "24338780",
+        "8246922",
+        "40632104",
+        "39084565",
+        "1386103",
+        "6270720",
+        "21878751",
+        "34378726",
+        "22908536",
+        "23124332"
+      ]
+    },
+    "783": {
+      "ndcg@10": 0.3562071871080222,
+      "mrr@10": 0.16666666666666666,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.16666666666666666,
+      "relevant_doc_ids": [
+        "40632104"
+      ],
+      "found_relevant_ranks": {
+        "40632104": 6
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 6,
+      "top_10_doc_ids": [
+        "24338780",
+        "39084565",
+        "21878751",
+        "8246922",
+        "34436231",
+        "40632104",
+        "7433668",
+        "1386103",
+        "949309",
+        "11255504"
+      ]
+    },
+    "784": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "2356950"
+      ],
+      "found_relevant_ranks": {
+        "2356950": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "2356950",
+        "23727313",
+        "86602746",
+        "13290521",
+        "6285534",
+        "28704738",
+        "2619579",
+        "16627684",
+        "22871664",
+        "22843616"
+      ]
+    },
+    "785": {
+      "ndcg@10": 0.3333333333333333,
+      "mrr@10": 0.14285714285714285,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.14285714285714285,
+      "relevant_doc_ids": [
+        "12471115"
+      ],
+      "found_relevant_ranks": {
+        "12471115": 7
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 7,
+      "top_10_doc_ids": [
+        "54440",
+        "31543713",
+        "21644993",
+        "24979644",
+        "39285547",
+        "24234341",
+        "12471115",
+        "21932050",
+        "13205096",
+        "54561709"
+      ]
+    },
+    "793": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "8551160"
+      ],
+      "found_relevant_ranks": {
+        "8551160": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "39381118",
+        "23403754",
+        "8551160",
+        "28249680",
+        "935034",
+        "8425533",
+        "29691654",
+        "9169645",
+        "8654183",
+        "5094468"
+      ]
+    },
+    "800": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "22543403"
+      ],
+      "found_relevant_ranks": {
+        "22543403": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "9291668",
+        "22543403",
+        "4679264",
+        "22264117",
+        "2722988",
+        "6040392",
+        "26230669",
+        "4434951",
+        "14475235",
+        "11935250"
+      ]
+    },
+    "805": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "22180793"
+      ],
+      "found_relevant_ranks": {
+        "22180793": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "22180793",
+        "17188921",
+        "13952658",
+        "3727986",
+        "14149065",
+        "1196631",
+        "3118719",
+        "12641252",
+        "3471191",
+        "3981033"
+      ]
+    },
+    "808": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "36606083"
+      ],
+      "found_relevant_ranks": {
+        "36606083": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "36606083",
+        "20821402",
+        "12207340",
+        "35448676",
+        "18188022",
+        "24498673",
+        "13384318",
+        "4313478",
+        "18346333",
+        "25787749"
+      ]
+    },
+    "811": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "19799455"
+      ],
+      "found_relevant_ranks": {
+        "19799455": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "19799455",
+        "23868856",
+        "11886686",
+        "44562221",
+        "8698208",
+        "6368017",
+        "60515890",
+        "2335873",
+        "13989491",
+        "13277039"
+      ]
+    },
+    "814": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "33387953"
+      ],
+      "found_relevant_ranks": {
+        "33387953": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "33387953",
+        "6363093",
+        "21164071",
+        "85665741",
+        "38023457",
+        "1836154",
+        "21307488",
+        "10326242",
+        "18682109",
+        "24790460"
+      ]
+    },
+    "820": {
+      "ndcg@10": 0.38685280723454163,
+      "mrr@10": 0.2,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.2,
+      "relevant_doc_ids": [
+        "8646760"
+      ],
+      "found_relevant_ranks": {
+        "8646760": 5
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 5,
+      "top_10_doc_ids": [
+        "35448676",
+        "4465762",
+        "25799020",
+        "16927286",
+        "8646760",
+        "13384318",
+        "19485243",
+        "1006165",
+        "39729277",
+        "8712839"
+      ]
+    },
+    "821": {
+      "ndcg@10": 0.3333333333333333,
+      "mrr@10": 0.14285714285714285,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.14285714285714285,
+      "relevant_doc_ids": [
+        "8646760"
+      ],
+      "found_relevant_ranks": {
+        "8646760": 7
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 7,
+      "top_10_doc_ids": [
+        "35448676",
+        "4465762",
+        "25799020",
+        "950306",
+        "1006165",
+        "13384318",
+        "8646760",
+        "7268522",
+        "16927286",
+        "39729277"
+      ]
+    },
+    "823": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "15319019"
+      ],
+      "found_relevant_ranks": {
+        "15319019": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "15319019",
+        "2319305",
+        "6426919",
+        "6421792",
+        "25014337",
+        "9505402",
+        "4347374",
+        "9687772",
+        "28614776",
+        "641786"
+      ]
+    },
+    "830": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.05263157894736842,
+      "relevant_doc_ids": [
+        "1897324"
+      ],
+      "found_relevant_ranks": {
+        "1897324": 19
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 19,
+      "top_10_doc_ids": [
+        "52873726",
+        "6259170",
+        "12737132",
+        "4324278",
+        "11535539",
+        "9199796",
+        "735130",
+        "1964163",
+        "6333347",
+        "9752604"
+      ]
+    },
+    "831": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.013513513513513514,
+      "relevant_doc_ids": [
+        "1897324"
+      ],
+      "found_relevant_ranks": {
+        "1897324": 74
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 74,
+      "top_10_doc_ids": [
+        "12737132",
+        "52873726",
+        "4324278",
+        "735130",
+        "9199796",
+        "11535539",
+        "6259170",
+        "34445160",
+        "36310858",
+        "5702790"
+      ]
+    },
+    "832": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "30303335"
+      ],
+      "found_relevant_ranks": {
+        "30303335": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "30303335",
+        "37964706",
+        "29362104",
+        "10562341",
+        "6936141",
+        "7820043",
+        "1605392",
+        "21199527",
+        "36399109",
+        "36271512"
+      ]
+    },
+    "834": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 0.0,
+      "map@100": 0.0,
+      "relevant_doc_ids": [
+        "5483793"
+      ],
+      "found_relevant_ranks": {},
+      "missing_relevant_doc_ids": [
+        "5483793"
+      ],
+      "first_relevant_rank": null,
+      "top_10_doc_ids": [
+        "23100962",
+        "23122306",
+        "22059387",
+        "35828148",
+        "6259170",
+        "13823200",
+        "8536018",
+        "14848619",
+        "1354567",
+        "21297708"
+      ]
+    },
+    "837": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "15928989"
+      ],
+      "found_relevant_ranks": {
+        "15928989": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "15928989",
+        "1780819",
+        "12240507",
+        "4409524",
+        "25858295",
+        "20725212",
+        "2958458",
+        "14972169",
+        "40987633",
+        "1428840"
+      ]
+    },
+    "839": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "1469751"
+      ],
+      "found_relevant_ranks": {
+        "1469751": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "1469751",
+        "13923069",
+        "6219790",
+        "1933281",
+        "213017",
+        "2506153",
+        "23897346",
+        "21521236",
+        "8182950",
+        "3545805"
+      ]
+    },
+    "845": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "17741440"
+      ],
+      "found_relevant_ranks": {
+        "17741440": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "17741440",
+        "29399239",
+        "9878167",
+        "2236768",
+        "43054703",
+        "36089763",
+        "28015516",
+        "14853989",
+        "1049501",
+        "11328820"
+      ]
+    },
+    "847": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "16787954"
+      ],
+      "found_relevant_ranks": {
+        "16787954": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "16787954",
+        "4424888",
+        "38043606",
+        "32023005",
+        "33835579",
+        "35079452",
+        "1386103",
+        "5284188",
+        "16066726",
+        "11837657"
+      ]
+    },
+    "852": {
+      "ndcg@10": 0.43067655807339306,
+      "mrr@10": 0.25,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.25,
+      "relevant_doc_ids": [
+        "13843341"
+      ],
+      "found_relevant_ranks": {
+        "13843341": 4
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 4,
+      "top_10_doc_ids": [
+        "474325",
+        "40867854",
+        "8190282",
+        "13843341",
+        "25098790",
+        "34208005",
+        "38735355",
+        "14361849",
+        "25612629",
+        "26611094"
+      ]
+    },
+    "859": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "1982286"
+      ],
+      "found_relevant_ranks": {
+        "1982286": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "22049489",
+        "1982286",
+        "12315072",
+        "14119470",
+        "3684342",
+        "15832146",
+        "16546131",
+        "7795952",
+        "12580014",
+        "25576204"
+      ]
+    },
+    "870": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.014285714285714285,
+      "relevant_doc_ids": [
+        "195689316"
+      ],
+      "found_relevant_ranks": {
+        "195689316": 70
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 70,
+      "top_10_doc_ids": [
+        "4345757",
+        "10463997",
+        "19307912",
+        "20288322",
+        "13441037",
+        "5839365",
+        "43220289",
+        "37583120",
+        "23967973",
+        "21553394"
+      ]
+    },
+    "873": {
+      "ndcg@10": 0.7387252447042175,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5944444444444444,
+      "relevant_doc_ids": [
+        "1180972",
+        "19307912",
+        "27393799",
+        "29025270",
+        "3315558"
+      ],
+      "found_relevant_ranks": {
+        "29025270": 2,
+        "1180972": 3,
+        "27393799": 4,
+        "3315558": 8,
+        "19307912": 9
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "4345757",
+        "29025270",
+        "1180972",
+        "27393799",
+        "13441037",
+        "41310252",
+        "25973484",
+        "3315558",
+        "19307912",
+        "23369842"
+      ]
+    },
+    "879": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "8426046"
+      ],
+      "found_relevant_ranks": {
+        "8426046": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "8426046",
+        "8327914",
+        "14050257",
+        "2619579",
+        "6828370",
+        "18421962",
+        "19358586",
+        "9304312",
+        "6820680",
+        "6404801"
+      ]
+    },
+    "880": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "8426046"
+      ],
+      "found_relevant_ranks": {
+        "8426046": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "8327914",
+        "8426046",
+        "20725212",
+        "53211308",
+        "19358586",
+        "13964633",
+        "2619579",
+        "18207615",
+        "8247469",
+        "7487927"
+      ]
+    },
+    "882": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "14803797"
+      ],
+      "found_relevant_ranks": {
+        "14803797": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "14803797",
+        "6327940",
+        "12709184",
+        "168265642",
+        "44624045",
+        "29460384",
+        "6793674",
+        "33684572",
+        "12207167",
+        "21297708"
+      ]
+    },
+    "887": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.01020408163265306,
+      "relevant_doc_ids": [
+        "18855191"
+      ],
+      "found_relevant_ranks": {
+        "18855191": 98
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 98,
+      "top_10_doc_ids": [
+        "4942718",
+        "2140513",
+        "24530633",
+        "22973574",
+        "92499",
+        "12824568",
+        "4452318",
+        "22908536",
+        "7568596",
+        "4423327"
+      ]
+    },
+    "903": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "10648422"
+      ],
+      "found_relevant_ranks": {
+        "10648422": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "10648422",
+        "5752492",
+        "9334631",
+        "5372773",
+        "21498497",
+        "22621251",
+        "54482327",
+        "34469966",
+        "195683603",
+        "26068103"
+      ]
+    },
+    "904": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "7370282"
+      ],
+      "found_relevant_ranks": {
+        "7370282": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "7370282",
+        "8997410",
+        "2177022",
+        "5700349",
+        "13992047",
+        "43224840",
+        "8596357",
+        "15491404",
+        "35660758",
+        "3825472"
+      ]
+    },
+    "907": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "6923961"
+      ],
+      "found_relevant_ranks": {
+        "6923961": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "6923961",
+        "21181273",
+        "25238950",
+        "4583180",
+        "57783564",
+        "17755060",
+        "24294572",
+        "4422868",
+        "30580263",
+        "24737389"
+      ]
+    },
+    "911": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "11254556"
+      ],
+      "found_relevant_ranks": {
+        "11254556": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "11254556",
+        "10530014",
+        "10666475",
+        "12130690",
+        "21392223",
+        "1686997",
+        "3684342",
+        "44562221",
+        "10889845",
+        "9614443"
+      ]
+    },
+    "913": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.012345679012345678,
+      "relevant_doc_ids": [
+        "3203590"
+      ],
+      "found_relevant_ranks": {
+        "3203590": 81
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 81,
+      "top_10_doc_ids": [
+        "9956893",
+        "14116046",
+        "11238784",
+        "25677651",
+        "24150328",
+        "23286603",
+        "31272411",
+        "17671145",
+        "23938319",
+        "56486733"
+      ]
+    },
+    "914": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.017241379310344827,
+      "relevant_doc_ids": [
+        "3203590"
+      ],
+      "found_relevant_ranks": {
+        "3203590": 58
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 58,
+      "top_10_doc_ids": [
+        "9956893",
+        "11238784",
+        "25677651",
+        "31272411",
+        "17671145",
+        "14116046",
+        "23938319",
+        "11557602",
+        "24150328",
+        "23286603"
+      ]
+    },
+    "921": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "1642727"
+      ],
+      "found_relevant_ranks": {
+        "1642727": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "1642727",
+        "6647414",
+        "50670403",
+        "17691617",
+        "2424794",
+        "24285403",
+        "21274919",
+        "13083189",
+        "12205576",
+        "37156349"
+      ]
+    },
+    "922": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "17077004"
+      ],
+      "found_relevant_ranks": {
+        "17077004": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "17077004",
+        "57121667",
+        "35087728",
+        "46353045",
+        "14319754",
+        "24943534",
+        "24700152",
+        "13899137",
+        "7111021",
+        "28806780"
+      ]
+    },
+    "936": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "5483793"
+      ],
+      "found_relevant_ranks": {
+        "5483793": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "5483793",
+        "23100962",
+        "22059387",
+        "23122306",
+        "20344442",
+        "24338780",
+        "33499189",
+        "2714623",
+        "5914739",
+        "4993011"
+      ]
+    },
+    "956": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "12956194"
+      ],
+      "found_relevant_ranks": {
+        "12956194": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "12956194",
+        "3127341",
+        "31107919",
+        "3610282",
+        "6061927",
+        "44935041",
+        "8677721",
+        "12685434",
+        "24042363",
+        "34469966"
+      ]
+    },
+    "957": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "123859"
+      ],
+      "found_relevant_ranks": {
+        "123859": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "123859",
+        "17934082",
+        "7370282",
+        "6308416",
+        "9977329",
+        "16280642",
+        "2121272",
+        "16355392",
+        "1871230",
+        "40667577"
+      ]
+    },
+    "960": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "8780599"
+      ],
+      "found_relevant_ranks": {
+        "8780599": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "8780599",
+        "12102963",
+        "12794099",
+        "14803797",
+        "35495268",
+        "12709184",
+        "25974070",
+        "43128141",
+        "1456068",
+        "29735200"
+      ]
+    },
+    "967": {
+      "ndcg@10": 0.6131471927654584,
+      "mrr@10": 1.0,
+      "recall@10": 0.5,
+      "recall@100": 1.0,
+      "map@100": 0.5588235294117647,
+      "relevant_doc_ids": [
+        "2119889",
+        "8997410"
+      ],
+      "found_relevant_ranks": {
+        "8997410": 1,
+        "2119889": 17
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "8997410",
+        "7223604",
+        "25089501",
+        "86694016",
+        "25928548",
+        "10574949",
+        "26025820",
+        "469066",
+        "1686997",
+        "15635366"
+      ]
+    },
+    "971": {
+      "ndcg@10": 0.9709286432396583,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.9166666666666666,
+      "relevant_doc_ids": [
+        "46695481",
+        "27873158",
+        "28617573",
+        "9764256"
+      ],
+      "found_relevant_ranks": {
+        "46695481": 1,
+        "27873158": 2,
+        "9764256": 3,
+        "28617573": 6
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "46695481",
+        "27873158",
+        "9764256",
+        "19140422",
+        "6561200",
+        "28617573",
+        "7650066",
+        "27446873",
+        "76415938",
+        "829646"
+      ]
+    },
+    "975": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.011627906976744186,
+      "relevant_doc_ids": [
+        "5304891"
+      ],
+      "found_relevant_ranks": {
+        "5304891": 86
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 86,
+      "top_10_doc_ids": [
+        "2844490",
+        "10359591",
+        "29509926",
+        "4454788",
+        "22852120",
+        "26068103",
+        "3866315",
+        "4429118",
+        "45401535",
+        "16863359"
+      ]
+    },
+    "982": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "2988714"
+      ],
+      "found_relevant_ranks": {
+        "2988714": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "2988714",
+        "4362729",
+        "38477436",
+        "6422576",
+        "24737389",
+        "12225214",
+        "19149247",
+        "29557235",
+        "4138659",
+        "8460275"
+      ]
+    },
+    "985": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "6828370"
+      ],
+      "found_relevant_ranks": {
+        "6828370": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "6828370",
+        "16346504",
+        "12652963",
+        "24294572",
+        "16364639",
+        "4729644",
+        "86602746",
+        "53211308",
+        "2619579",
+        "6913227"
+      ]
+    },
+    "993": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "16472469"
+      ],
+      "found_relevant_ranks": {
+        "16472469": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "16472469",
+        "26118532",
+        "15121114",
+        "25842866",
+        "42035464",
+        "4447055",
+        "26607366",
+        "1226452",
+        "6386930",
+        "7848113"
+      ]
+    },
+    "1012": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "9745001"
+      ],
+      "found_relevant_ranks": {
+        "9745001": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "9745001",
+        "43122426",
+        "6751418",
+        "26026009",
+        "37912677",
+        "18414462",
+        "25690516",
+        "9310407",
+        "3619931",
+        "19878070"
+      ]
+    },
+    "1014": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "6277638"
+      ],
+      "found_relevant_ranks": {
+        "6277638": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "6277638",
+        "17195001",
+        "1227277",
+        "36991551",
+        "4324278",
+        "20288322",
+        "37205759",
+        "10790846",
+        "4658268",
+        "116792"
+      ]
+    },
+    "1019": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "11603066"
+      ],
+      "found_relevant_ranks": {
+        "11603066": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "1225513",
+        "11603066",
+        "16737210",
+        "31844040",
+        "196664003",
+        "8698857",
+        "13072112",
+        "9875570",
+        "24896957",
+        "15286783"
+      ]
+    },
+    "1020": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "9433958"
+      ],
+      "found_relevant_ranks": {
+        "9433958": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "10559501",
+        "9433958",
+        "3308636",
+        "10627801",
+        "37727521",
+        "26731863",
+        "28015516",
+        "29429111",
+        "8496132",
+        "26133404"
+      ]
+    },
+    "1021": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "9433958"
+      ],
+      "found_relevant_ranks": {
+        "9433958": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "10559501",
+        "9433958",
+        "10627801",
+        "3308636",
+        "37727521",
+        "29429111",
+        "26731863",
+        "26873988",
+        "28015516",
+        "26133404"
+      ]
+    },
+    "1024": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.022222222222222223,
+      "relevant_doc_ids": [
+        "5373138"
+      ],
+      "found_relevant_ranks": {
+        "5373138": 45
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 45,
+      "top_10_doc_ids": [
+        "26672703",
+        "641786",
+        "14530534",
+        "6078882",
+        "24995939",
+        "8494570",
+        "6421792",
+        "11117679",
+        "33387953",
+        "39462488"
+      ]
+    },
+    "1029": {
+      "ndcg@10": 0.7653606369886217,
+      "mrr@10": 1.0,
+      "recall@10": 0.6666666666666666,
+      "recall@100": 1.0,
+      "map@100": 0.75,
+      "relevant_doc_ids": [
+        "13923140",
+        "13940200",
+        "11899391"
+      ],
+      "found_relevant_ranks": {
+        "11899391": 1,
+        "13923140": 2,
+        "13940200": 12
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "11899391",
+        "13923140",
+        "2388819",
+        "22852120",
+        "52805891",
+        "43534665",
+        "120626",
+        "266641",
+        "8325952",
+        "15707049"
+      ]
+    },
+    "1041": {
+      "ndcg@10": 0.20438239758848611,
+      "mrr@10": 0.14285714285714285,
+      "recall@10": 0.5,
+      "recall@100": 1.0,
+      "map@100": 0.16233766233766234,
+      "relevant_doc_ids": [
+        "25254425",
+        "16626264"
+      ],
+      "found_relevant_ranks": {
+        "16626264": 7,
+        "25254425": 11
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 7,
+      "top_10_doc_ids": [
+        "11844791",
+        "15778034",
+        "2817000",
+        "18694784",
+        "18038955",
+        "9451052",
+        "16626264",
+        "9881829",
+        "32638085",
+        "1259280"
+      ]
+    },
+    "1049": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "12486491"
+      ],
+      "found_relevant_ranks": {
+        "12486491": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "8925851",
+        "24737389",
+        "12486491",
+        "6670101",
+        "38844612",
+        "25786167",
+        "7487927",
+        "9977329",
+        "40781557",
+        "26112624"
+      ]
+    },
+    "1062": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "20381484"
+      ],
+      "found_relevant_ranks": {
+        "20381484": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "20381484",
+        "25748308",
+        "32985041",
+        "2139357",
+        "22995164",
+        "32638085",
+        "29148743",
+        "43156471",
+        "14171859",
+        "22968257"
+      ]
+    },
+    "1086": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "39281140"
+      ],
+      "found_relevant_ranks": {
+        "39281140": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "39281140",
+        "3981244",
+        "13883546",
+        "6083952",
+        "6112053",
+        "33533307",
+        "5260382",
+        "22057077",
+        "12039953",
+        "4036038"
+      ]
+    },
+    "1088": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "37549932"
+      ],
+      "found_relevant_ranks": {
+        "37549932": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "34439544",
+        "37549932",
+        "33638477",
+        "4323425",
+        "30580263",
+        "14863011",
+        "16550075",
+        "8496132",
+        "11900630",
+        "39381118"
+      ]
+    },
+    "1089": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "17628888"
+      ],
+      "found_relevant_ranks": {
+        "17628888": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "17628888",
+        "7915836",
+        "5436081",
+        "9732010",
+        "2266471",
+        "21948782",
+        "12866641",
+        "3701541",
+        "1727493",
+        "37608303"
+      ]
+    },
+    "1099": {
+      "ndcg@10": 0.38685280723454163,
+      "mrr@10": 0.2,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.2,
+      "relevant_doc_ids": [
+        "7662206"
+      ],
+      "found_relevant_ranks": {
+        "7662206": 5
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 5,
+      "top_10_doc_ids": [
+        "21557614",
+        "7454794",
+        "43629704",
+        "5698494",
+        "7662206",
+        "4687948",
+        "22420524",
+        "30981192",
+        "24005548",
+        "35534019"
+      ]
+    },
+    "1100": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "7662206"
+      ],
+      "found_relevant_ranks": {
+        "7662206": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "21557614",
+        "7454794",
+        "7662206",
+        "5698494",
+        "4687948",
+        "30981192",
+        "24005548",
+        "22420524",
+        "43629704",
+        "2391552"
+      ]
+    },
+    "1104": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "3898784"
+      ],
+      "found_relevant_ranks": {
+        "3898784": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "3898784",
+        "4910408",
+        "32328114",
+        "29981186",
+        "79231308",
+        "6158879",
+        "37619697",
+        "9813098",
+        "14973286",
+        "34338075"
+      ]
+    },
+    "1107": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "20532591"
+      ],
+      "found_relevant_ranks": {
+        "20532591": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "29381091",
+        "14865329",
+        "20532591",
+        "34582256",
+        "970012",
+        "26902591",
+        "275294",
+        "25687558",
+        "38023457",
+        "32955023"
+      ]
+    },
+    "1110": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 0.0,
+      "map@100": 0.0,
+      "relevant_doc_ids": [
+        "13770184"
+      ],
+      "found_relevant_ranks": {},
+      "missing_relevant_doc_ids": [
+        "13770184"
+      ],
+      "first_relevant_rank": null,
+      "top_10_doc_ids": [
+        "8529693",
+        "23245050",
+        "9244474",
+        "28894097",
+        "25837950",
+        "24273592",
+        "23377475",
+        "43483151",
+        "23013317",
+        "24396137"
+      ]
+    },
+    "1121": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "4456756"
+      ],
+      "found_relevant_ranks": {
+        "4456756": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "4456756",
+        "23076291",
+        "16398827",
+        "12932176",
+        "19571273",
+        "15590539",
+        "29745822",
+        "10790846",
+        "10009203",
+        "10555591"
+      ]
+    },
+    "1130": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "17997584"
+      ],
+      "found_relevant_ranks": {
+        "17997584": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "17997584",
+        "14644164",
+        "6913227",
+        "18546584",
+        "23912923",
+        "25988622",
+        "4418070",
+        "4380287",
+        "14834714",
+        "29015485"
+      ]
+    },
+    "1132": {
+      "ndcg@10": 0.39780880120575696,
+      "mrr@10": 0.14285714285714285,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.19642857142857142,
+      "relevant_doc_ids": [
+        "33499189",
+        "9283422"
+      ],
+      "found_relevant_ranks": {
+        "9283422": 7,
+        "33499189": 8
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 7,
+      "top_10_doc_ids": [
+        "41982985",
+        "15972906",
+        "5914739",
+        "2714623",
+        "6936141",
+        "34905328",
+        "9283422",
+        "33499189",
+        "2825380",
+        "36271512"
+      ]
+    },
+    "1137": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "33370"
+      ],
+      "found_relevant_ranks": {
+        "33370": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "33370",
+        "7898952",
+        "41293601",
+        "5123516",
+        "1836154",
+        "22901758",
+        "38355793",
+        "4979184",
+        "38023457",
+        "12887068"
+      ]
+    },
+    "1140": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "12009265"
+      ],
+      "found_relevant_ranks": {
+        "12009265": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "12009265",
+        "4500832",
+        "18473550",
+        "32766786",
+        "308862",
+        "25915873",
+        "79231308",
+        "25513319",
+        "12197393",
+        "7986878"
+      ]
+    },
+    "1144": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "10071552"
+      ],
+      "found_relevant_ranks": {
+        "10071552": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "10071552",
+        "9822397",
+        "6207111",
+        "3770750",
+        "12224536",
+        "8708082",
+        "30915421",
+        "1974176",
+        "13580614",
+        "27449472"
+      ]
+    },
+    "1146": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "13906581"
+      ],
+      "found_relevant_ranks": {
+        "13906581": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "13906581",
+        "2488880",
+        "17626822",
+        "10374686",
+        "16204011",
+        "79231308",
+        "21323587",
+        "13843341",
+        "41493639",
+        "5884524"
+      ]
+    },
+    "1150": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "11369420"
+      ],
+      "found_relevant_ranks": {
+        "11369420": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "11369420",
+        "10795340",
+        "2686003",
+        "9478135",
+        "5836",
+        "1145473",
+        "4387494",
+        "5765455",
+        "9460704",
+        "28614776"
+      ]
+    },
+    "1163": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "15305881"
+      ],
+      "found_relevant_ranks": {
+        "15305881": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "15305881",
+        "799586",
+        "8065561",
+        "17939443",
+        "22003328",
+        "10486817",
+        "10423989",
+        "31107919",
+        "24706198",
+        "7487927"
+      ]
+    },
+    "1175": {
+      "ndcg@10": 0.38685280723454163,
+      "mrr@10": 0.2,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.2,
+      "relevant_doc_ids": [
+        "31272411"
+      ],
+      "found_relevant_ranks": {
+        "31272411": 5
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 5,
+      "top_10_doc_ids": [
+        "1354567",
+        "35684881",
+        "17402386",
+        "23938319",
+        "31272411",
+        "12240507",
+        "1695604",
+        "10627801",
+        "3981729",
+        "15419873"
+      ]
+    },
+    "1179": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "31272411"
+      ],
+      "found_relevant_ranks": {
+        "31272411": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "10627801",
+        "31272411",
+        "25175223",
+        "23938319",
+        "39389082",
+        "44366096",
+        "20725212",
+        "12240507",
+        "6426919",
+        "3033830"
+      ]
+    },
+    "1180": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "31272411"
+      ],
+      "found_relevant_ranks": {
+        "31272411": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "31272411",
+        "44366096",
+        "2566674",
+        "8005007",
+        "9591368",
+        "10627801",
+        "14474178",
+        "24221369",
+        "15419873",
+        "6501747"
+      ]
+    },
+    "1185": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "16737210"
+      ],
+      "found_relevant_ranks": {
+        "16737210": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "16737210",
+        "41774099",
+        "21859699",
+        "21203899",
+        "7034001",
+        "40790033",
+        "10582939",
+        "3825750",
+        "23377475",
+        "13625993"
+      ]
+    },
+    "1187": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "52873726"
+      ],
+      "found_relevant_ranks": {
+        "52873726": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "52873726",
+        "12737132",
+        "22495397",
+        "40447899",
+        "36310858",
+        "1354567",
+        "29788648",
+        "4323449",
+        "1897324",
+        "34445160"
+      ]
+    },
+    "1191": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.05,
+      "relevant_doc_ids": [
+        "30655442"
+      ],
+      "found_relevant_ranks": {
+        "30655442": 20
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 20,
+      "top_10_doc_ids": [
+        "19058822",
+        "25121903",
+        "53302393",
+        "8721150",
+        "29807737",
+        "18670",
+        "10944947",
+        "10548391",
+        "12030680",
+        "17911973"
+      ]
+    },
+    "1194": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "11419230"
+      ],
+      "found_relevant_ranks": {
+        "11419230": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "11419230",
+        "26283293",
+        "24706198",
+        "15548965",
+        "16966326",
+        "24555417",
+        "20904154",
+        "21598000",
+        "29231620",
+        "6636088"
+      ]
+    },
+    "1196": {
+      "ndcg@10": 0.3562071871080222,
+      "mrr@10": 0.16666666666666666,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.16666666666666666,
+      "relevant_doc_ids": [
+        "25649714"
+      ],
+      "found_relevant_ranks": {
+        "25649714": 6
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 6,
+      "top_10_doc_ids": [
+        "33135135",
+        "154243324",
+        "31019903",
+        "79231308",
+        "20334484",
+        "25649714",
+        "153755807",
+        "5641851",
+        "24159217",
+        "25690564"
+      ]
+    },
+    "1197": {
+      "ndcg@10": 0.38685280723454163,
+      "mrr@10": 0.2,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.2,
+      "relevant_doc_ids": [
+        "25649714"
+      ],
+      "found_relevant_ranks": {
+        "25649714": 5
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 5,
+      "top_10_doc_ids": [
+        "33135135",
+        "154243324",
+        "31019903",
+        "153755807",
+        "25649714",
+        "20334484",
+        "79231308",
+        "5641851",
+        "25690564",
+        "24159217"
+      ]
+    },
+    "1199": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 0.0,
+      "map@100": 0.0,
+      "relevant_doc_ids": [
+        "16760369"
+      ],
+      "found_relevant_ranks": {},
+      "missing_relevant_doc_ids": [
+        "16760369"
+      ],
+      "first_relevant_rank": null,
+      "top_10_doc_ids": [
+        "7454794",
+        "21557614",
+        "4687948",
+        "5698494",
+        "8780599",
+        "14260013",
+        "1287809",
+        "2391552",
+        "11614737",
+        "34268160"
+      ]
+    },
+    "1200": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.06666666666666667,
+      "relevant_doc_ids": [
+        "3441524"
+      ],
+      "found_relevant_ranks": {
+        "3441524": 15
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 15,
+      "top_10_doc_ids": [
+        "1744752",
+        "885056",
+        "9021186",
+        "41620295",
+        "15472716",
+        "39929509",
+        "16270577",
+        "14367469",
+        "24311787",
+        "26488879"
+      ]
+    },
+    "1202": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "3475317"
+      ],
+      "found_relevant_ranks": {
+        "3475317": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "3475317",
+        "34615397",
+        "9977329",
+        "188911",
+        "24707550",
+        "9225850",
+        "19005293",
+        "21498497",
+        "1933281",
+        "7869794"
+      ]
+    },
+    "1204": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "31141365"
+      ],
+      "found_relevant_ranks": {
+        "31141365": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "31141365",
+        "8548635",
+        "3849194",
+        "52868579",
+        "25629722",
+        "2701077",
+        "9997636",
+        "15803282",
+        "12887068",
+        "27279525"
+      ]
+    },
+    "1207": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "18909530"
+      ],
+      "found_relevant_ranks": {
+        "18909530": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "18909530",
+        "25516011",
+        "344240",
+        "34016987",
+        "11951999",
+        "32927475",
+        "22973574",
+        "18676539",
+        "28517384",
+        "36444198"
+      ]
+    },
+    "1213": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 0.0,
+      "map@100": 0.0,
+      "relevant_doc_ids": [
+        "14407673"
+      ],
+      "found_relevant_ranks": {},
+      "missing_relevant_doc_ids": [
+        "14407673"
+      ],
+      "first_relevant_rank": null,
+      "top_10_doc_ids": [
+        "14386505",
+        "21395936",
+        "9334631",
+        "36444198",
+        "5035827",
+        "39084565",
+        "22621251",
+        "44562221",
+        "5107861",
+        "21498497"
+      ]
+    },
+    "1216": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "24142891"
+      ],
+      "found_relevant_ranks": {
+        "24142891": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "24142891",
+        "6788835",
+        "31107919",
+        "28468276",
+        "38805486",
+        "13889430",
+        "7915836",
+        "8903143",
+        "20943272",
+        "2973910"
+      ]
+    },
+    "1221": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.043478260869565216,
+      "relevant_doc_ids": [
+        "19736671"
+      ],
+      "found_relevant_ranks": {
+        "19736671": 23
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 23,
+      "top_10_doc_ids": [
+        "4325398",
+        "1836154",
+        "9038803",
+        "2402323",
+        "4457160",
+        "39758684",
+        "11271123",
+        "9737083",
+        "42836872",
+        "36713289"
+      ]
+    },
+    "1225": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "9650982"
+      ],
+      "found_relevant_ranks": {
+        "9650982": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "43334921",
+        "14315749",
+        "9650982",
+        "23830488",
+        "24783597",
+        "6078882",
+        "13905670",
+        "16806763",
+        "46617075",
+        "9226649"
+      ]
+    },
+    "1226": {
+      "ndcg@10": 0.3562071871080222,
+      "mrr@10": 0.16666666666666666,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.16666666666666666,
+      "relevant_doc_ids": [
+        "13777138"
+      ],
+      "found_relevant_ranks": {
+        "13777138": 6
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 6,
+      "top_10_doc_ids": [
+        "11951999",
+        "2086909",
+        "2405259",
+        "33677323",
+        "24731248",
+        "13777138",
+        "37549932",
+        "52873726",
+        "18987782",
+        "21562657"
+      ]
+    },
+    "1232": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "13905670"
+      ],
+      "found_relevant_ranks": {
+        "13905670": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "13905670",
+        "9244474",
+        "24783597",
+        "5922085",
+        "83707680",
+        "919007",
+        "4427060",
+        "4418070",
+        "834336",
+        "14340571"
+      ]
+    },
+    "1241": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "4427392"
+      ],
+      "found_relevant_ranks": {
+        "4427392": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "4427392",
+        "32797183",
+        "106301",
+        "4932668",
+        "25858295",
+        "2828460",
+        "38727075",
+        "14060030",
+        "6148876",
+        "14296612"
+      ]
+    },
+    "1245": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 0.0,
+      "map@100": 0.0,
+      "relevant_doc_ids": [
+        "7662395"
+      ],
+      "found_relevant_ranks": {},
+      "missing_relevant_doc_ids": [
+        "7662395"
+      ],
+      "first_relevant_rank": null,
+      "top_10_doc_ids": [
+        "23531592",
+        "167944455",
+        "85693958",
+        "40500723",
+        "3623127",
+        "1624106",
+        "12428497",
+        "30292811",
+        "3001685",
+        "11748341"
+      ]
+    },
+    "1259": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "24341590"
+      ],
+      "found_relevant_ranks": {
+        "24341590": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "24341590",
+        "13069283",
+        "13007205",
+        "2015126",
+        "20454006",
+        "24834968",
+        "3285322",
+        "18340282",
+        "11255504",
+        "24144677"
+      ]
+    },
+    "1262": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "44172171"
+      ],
+      "found_relevant_ranks": {
+        "44172171": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "44172171",
+        "21561474",
+        "42520882",
+        "25813706",
+        "21793890",
+        "461550",
+        "47018050",
+        "8577229",
+        "30122260",
+        "13023410"
+      ]
+    },
+    "1266": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "37480103"
+      ],
+      "found_relevant_ranks": {
+        "37480103": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "37480103",
+        "27123743",
+        "13765757",
+        "25973484",
+        "13831842",
+        "17450673",
+        "22007333",
+        "23557241",
+        "5864770",
+        "21874312"
+      ]
+    },
+    "1270": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "13900610"
+      ],
+      "found_relevant_ranks": {
+        "13900610": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "13900610",
+        "9976969",
+        "1102268",
+        "34227917",
+        "20491205",
+        "14843502",
+        "79231308",
+        "43855756",
+        "33533307",
+        "34228604"
+      ]
+    },
+    "1271": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "13768432"
+      ],
+      "found_relevant_ranks": {
+        "13768432": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "13768432",
+        "23124332",
+        "38040186",
+        "27550580",
+        "739734",
+        "15347087",
+        "1686881",
+        "19332616",
+        "32671519",
+        "46266579"
+      ]
+    },
+    "1272": {
+      "ndcg@10": 0.3333333333333333,
+      "mrr@10": 0.14285714285714285,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.14285714285714285,
+      "relevant_doc_ids": [
+        "17081238"
+      ],
+      "found_relevant_ranks": {
+        "17081238": 7
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 7,
+      "top_10_doc_ids": [
+        "15669393",
+        "15488881",
+        "15593561",
+        "24760136",
+        "26071782",
+        "43661837",
+        "17081238",
+        "37727521",
+        "25830701",
+        "25994317"
+      ]
+    },
+    "1273": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "11041152"
+      ],
+      "found_relevant_ranks": {
+        "11041152": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "11041152",
+        "14205246",
+        "1889358",
+        "30835854",
+        "20054396",
+        "1684489",
+        "2991954",
+        "26083387",
+        "6472746",
+        "493346"
+      ]
+    },
+    "1274": {
+      "ndcg@10": 0.8385465274895063,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.6666666666666666,
+      "relevant_doc_ids": [
+        "12428814",
+        "27731651",
+        "4406819"
+      ],
+      "found_relevant_ranks": {
+        "27731651": 1,
+        "4406819": 4,
+        "12428814": 6
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "27731651",
+        "7145763",
+        "7481159",
+        "4406819",
+        "22632303",
+        "12428814",
+        "22561064",
+        "1320137",
+        "6836086",
+        "3893473"
+      ]
+    },
+    "1278": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "11335781"
+      ],
+      "found_relevant_ranks": {
+        "11335781": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "11335781",
+        "2462673",
+        "1900152",
+        "22635278",
+        "4468861",
+        "8963413",
+        "49432306",
+        "6407356",
+        "24396137",
+        "3981033"
+      ]
+    },
+    "1279": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "11335781"
+      ],
+      "found_relevant_ranks": {
+        "11335781": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "11335781",
+        "2462673",
+        "1900152",
+        "22635278",
+        "4468861",
+        "7975937",
+        "8963413",
+        "24396137",
+        "49432306",
+        "1454773"
+      ]
+    },
+    "1280": {
+      "ndcg@10": 0.3010299956639812,
+      "mrr@10": 0.1111111111111111,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.1111111111111111,
+      "relevant_doc_ids": [
+        "4387784"
+      ],
+      "found_relevant_ranks": {
+        "4387784": 9
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 9,
+      "top_10_doc_ids": [
+        "29214508",
+        "37768883",
+        "36233757",
+        "38805486",
+        "2402323",
+        "18467982",
+        "25657127",
+        "21373240",
+        "4387784",
+        "37643601"
+      ]
+    },
+    "1281": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.0125,
+      "relevant_doc_ids": [
+        "4387784"
+      ],
+      "found_relevant_ranks": {
+        "4387784": 80
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 80,
+      "top_10_doc_ids": [
+        "29214508",
+        "37768883",
+        "36233757",
+        "25994317",
+        "18447487",
+        "38805486",
+        "21108759",
+        "10485142",
+        "2890952",
+        "22312627"
+      ]
+    },
+    "1282": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "23649163"
+      ],
+      "found_relevant_ranks": {
+        "23649163": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "23649163",
+        "27944135",
+        "41925568",
+        "6407356",
+        "79231308",
+        "17333231",
+        "34481589",
+        "23349986",
+        "10749308",
+        "7074001"
+      ]
+    },
+    "1290": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "4687948"
+      ],
+      "found_relevant_ranks": {
+        "4687948": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "4687948",
+        "21557614",
+        "22420524",
+        "7454794",
+        "9846940",
+        "24005548",
+        "40156901",
+        "2391552",
+        "5698494",
+        "30981192"
+      ]
+    },
+    "1292": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "56893404"
+      ],
+      "found_relevant_ranks": {
+        "56893404": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "56893404",
+        "76463821",
+        "1711571",
+        "13619127",
+        "15663829",
+        "1967017",
+        "10326242",
+        "17656445",
+        "25571386",
+        "43417006"
+      ]
+    },
+    "1298": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "11718220"
+      ],
+      "found_relevant_ranks": {
+        "11718220": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "11718220",
+        "79231308",
+        "20554003",
+        "29981186",
+        "3898784",
+        "9813098",
+        "34338075",
+        "16180601",
+        "37619697",
+        "20544428"
+      ]
+    },
+    "1303": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "12631697"
+      ],
+      "found_relevant_ranks": {
+        "12631697": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "12631697",
+        "22371455",
+        "21323758",
+        "29657303",
+        "79231308",
+        "19752008",
+        "21789744",
+        "25453683",
+        "35301079",
+        "14827874"
+      ]
+    },
+    "1316": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.030303030303030304,
+      "relevant_doc_ids": [
+        "27910499"
+      ],
+      "found_relevant_ranks": {
+        "27910499": 33
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 33,
+      "top_10_doc_ids": [
+        "27243019",
+        "24879055",
+        "21320417",
+        "37311371",
+        "13398997",
+        "991137",
+        "41226276",
+        "3155731",
+        "8563659",
+        "40094786"
+      ]
+    },
+    "1319": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "16284655"
+      ],
+      "found_relevant_ranks": {
+        "16284655": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "16284655",
+        "2437807",
+        "17991818",
+        "14192687",
+        "12742164",
+        "5395426",
+        "46193388",
+        "10074251",
+        "4388470",
+        "13969173"
+      ]
+    },
+    "1320": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "16284655"
+      ],
+      "found_relevant_ranks": {
+        "16284655": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "16284655",
+        "2437807",
+        "14192687",
+        "46193388",
+        "18038250",
+        "9988425",
+        "13969173",
+        "12742164",
+        "5395426",
+        "16964262"
+      ]
+    },
+    "1332": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 0.0,
+      "map@100": 0.0,
+      "relevant_doc_ids": [
+        "5304891"
+      ],
+      "found_relevant_ranks": {},
+      "missing_relevant_doc_ids": [
+        "5304891"
+      ],
+      "first_relevant_rank": null,
+      "top_10_doc_ids": [
+        "2844490",
+        "20722510",
+        "12705056",
+        "44935041",
+        "11233339",
+        "39264456",
+        "36386637",
+        "9334631",
+        "6397191",
+        "22889972"
+      ]
+    },
+    "1335": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "27910499"
+      ],
+      "found_relevant_ranks": {
+        "27910499": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "27910499",
+        "27243019",
+        "20220731",
+        "19511011",
+        "8354687",
+        "43587663",
+        "13398997",
+        "42693833",
+        "25985964",
+        "24795767"
+      ]
+    },
+    "1336": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "27910499"
+      ],
+      "found_relevant_ranks": {
+        "27910499": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "27910499",
+        "27243019",
+        "20220731",
+        "8354687",
+        "19511011",
+        "43587663",
+        "14834714",
+        "13398997",
+        "994800",
+        "34254203"
+      ]
+    },
+    "1337": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "20231138"
+      ],
+      "found_relevant_ranks": {
+        "20231138": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "20231138",
+        "7820043",
+        "19149247",
+        "11291348",
+        "13277623",
+        "1686997",
+        "31962403",
+        "9505448",
+        "2988714",
+        "41928290"
+      ]
+    },
+    "1339": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "15482274"
+      ],
+      "found_relevant_ranks": {
+        "15482274": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "15482274",
+        "79231308",
+        "41493639",
+        "42404093",
+        "11933721",
+        "45276789",
+        "8814634",
+        "52874170",
+        "70516463",
+        "5185871"
+      ]
+    },
+    "1344": {
+      "ndcg@10": 0.6309297535714575,
+      "mrr@10": 0.5,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.5,
+      "relevant_doc_ids": [
+        "9559146"
+      ],
+      "found_relevant_ranks": {
+        "9559146": 2
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 2,
+      "top_10_doc_ids": [
+        "6896063",
+        "9559146",
+        "43880096",
+        "9483851",
+        "15521377",
+        "27949347",
+        "22264117",
+        "7506409",
+        "31293581",
+        "3230557"
+      ]
+    },
+    "1352": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "12885341"
+      ],
+      "found_relevant_ranks": {
+        "12885341": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "12885341",
+        "34287602",
+        "26068103",
+        "10559501",
+        "38376189",
+        "25141908",
+        "42065070",
+        "44366096",
+        "15419873",
+        "23117928"
+      ]
+    },
+    "1359": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "11614737"
+      ],
+      "found_relevant_ranks": {
+        "11614737": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "11614737",
+        "5114940",
+        "34369306",
+        "5551138",
+        "24019260",
+        "5912283",
+        "21700295",
+        "3613041",
+        "8570690",
+        "24323369"
+      ]
+    },
+    "1362": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 0.0,
+      "map@100": 0.0,
+      "relevant_doc_ids": [
+        "8290953"
+      ],
+      "found_relevant_ranks": {},
+      "missing_relevant_doc_ids": [
+        "8290953"
+      ],
+      "first_relevant_rank": null,
+      "top_10_doc_ids": [
+        "34876410",
+        "3588621",
+        "79231308",
+        "7764903",
+        "2056197",
+        "9310407",
+        "22972632",
+        "17741440",
+        "12549585",
+        "496873"
+      ]
+    },
+    "1363": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.0136986301369863,
+      "relevant_doc_ids": [
+        "8290953"
+      ],
+      "found_relevant_ranks": {
+        "8290953": 73
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 73,
+      "top_10_doc_ids": [
+        "22972632",
+        "25175997",
+        "7711685",
+        "79231308",
+        "34876410",
+        "7764903",
+        "3588621",
+        "496873",
+        "2291922",
+        "2159648"
+      ]
+    },
+    "1368": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "2425364"
+      ],
+      "found_relevant_ranks": {
+        "2425364": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "23267371",
+        "275294",
+        "2425364",
+        "13312471",
+        "30720103",
+        "33740844",
+        "4462079",
+        "9555784",
+        "19799455",
+        "21553394"
+      ]
+    },
+    "1370": {
+      "ndcg@10": 0.43067655807339306,
+      "mrr@10": 0.25,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.25,
+      "relevant_doc_ids": [
+        "2425364"
+      ],
+      "found_relevant_ranks": {
+        "2425364": 4
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 4,
+      "top_10_doc_ids": [
+        "23267371",
+        "21553394",
+        "30720103",
+        "2425364",
+        "13312471",
+        "275294",
+        "9555784",
+        "3150030",
+        "36960449",
+        "19799455"
+      ]
+    },
+    "1379": {
+      "ndcg@10": 0.9709286432396583,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.9166666666666666,
+      "relevant_doc_ids": [
+        "16322674",
+        "27123743",
+        "23557241",
+        "17450673"
+      ],
+      "found_relevant_ranks": {
+        "27123743": 1,
+        "17450673": 2,
+        "16322674": 3,
+        "23557241": 6
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "27123743",
+        "17450673",
+        "16322674",
+        "5487448",
+        "13765757",
+        "23557241",
+        "37480103",
+        "25973484",
+        "38784540",
+        "13831842"
+      ]
+    },
+    "1382": {
+      "ndcg@10": 0.5,
+      "mrr@10": 0.3333333333333333,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 0.3333333333333333,
+      "relevant_doc_ids": [
+        "17755060"
+      ],
+      "found_relevant_ranks": {
+        "17755060": 3
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 3,
+      "top_10_doc_ids": [
+        "3831884",
+        "22914228",
+        "17755060",
+        "5256564",
+        "4138659",
+        "3085264",
+        "3468459",
+        "195689757",
+        "27647593",
+        "35543846"
+      ]
+    },
+    "1385": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "306006"
+      ],
+      "found_relevant_ranks": {
+        "306006": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "306006",
+        "9283422",
+        "11603066",
+        "2014909",
+        "17412260",
+        "10365787",
+        "37964706",
+        "11195653",
+        "19603353",
+        "11411060"
+      ]
+    },
+    "1389": {
+      "ndcg@10": 1.0,
+      "mrr@10": 1.0,
+      "recall@10": 1.0,
+      "recall@100": 1.0,
+      "map@100": 1.0,
+      "relevant_doc_ids": [
+        "23895668"
+      ],
+      "found_relevant_ranks": {
+        "23895668": 1
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 1,
+      "top_10_doc_ids": [
+        "23895668",
+        "1227277",
+        "13002003",
+        "26735905",
+        "8460275",
+        "2266471",
+        "31882215",
+        "2014909",
+        "36838958",
+        "25513319"
+      ]
+    },
+    "1395": {
+      "ndcg@10": 0.0,
+      "mrr@10": 0.0,
+      "recall@10": 0.0,
+      "recall@100": 1.0,
+      "map@100": 0.03333333333333333,
+      "relevant_doc_ids": [
+        "17717391"
+      ],
+      "found_relevant_ranks": {
+        "17717391": 30
+      },
+      "missing_relevant_doc_ids": [],
+      "first_relevant_rank": 30,
+      "top_10_doc_ids": [
+        "21063817",
+        "36399107",
+        "1976183",
+        "22963769",
+        "15335331",
+        "13923069",
+        "7506409",
+        "5774746",
+        "12650610",
+        "10165723"
+      ]
+    }
+  }
+}

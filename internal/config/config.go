@@ -8,9 +8,18 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
+
+	"gopkg.in/yaml.v3"
+)
+
+const (
+	envConfigPath    = "MNEMOSYNE_CONFIG"
+	envConfigPathAlt = "MNEMOSYNE_CONFIG_PATH"
 )
 
 // Config holds all application configuration.
@@ -41,6 +50,8 @@ const (
 	PoolingMean PoolingMethod = "mean"
 	// PoolingCLS takes the first token's ([CLS]) output vector.
 	PoolingCLS PoolingMethod = "cls"
+	// PoolingLast takes the last non-padding token's output vector.
+	PoolingLast PoolingMethod = "last"
 	// PoolingNone means the model already provides a pooled sentence embedding
 	// output and no additional pooling is needed.
 	PoolingNone PoolingMethod = "none"
@@ -55,19 +66,23 @@ type EmbeddingConfig struct {
 	QueryPrefix    string        `yaml:"query_prefix"`
 	DocumentPrefix string        `yaml:"document_prefix"`
 	Pooling        PoolingMethod `yaml:"pooling"`
+	TaskID         *int64        `yaml:"task_id"`
+	QueryTaskID    *int64        `yaml:"query_task_id"`
+	DocumentTaskID *int64        `yaml:"document_task_id"`
 
 	// OnnxInputNames overrides the default ONNX input node names.
 	// Default: ["input_ids", "attention_mask"] (+ "token_type_ids" for CLS pooling).
 	OnnxInputNames []string `yaml:"onnx_input_names"`
 
 	// OnnxOutputNames overrides the default ONNX output node names.
-	// Default: ["last_hidden_state"] for mean/CLS pooling, ["sentence_embedding"] for none.
+	// Default: ["last_hidden_state"] for mean/CLS/last pooling, ["sentence_embedding"] for none.
 	OnnxOutputNames []string `yaml:"onnx_output_names"`
 }
 
 // RerankerConfig configures the cross-encoder reranker model.
 type RerankerConfig struct {
 	ModelPath    string `yaml:"model_path"`
+	OnnxFile     string `yaml:"onnx_file"`
 	MaxSeqLength int    `yaml:"max_seq_length"`
 	Enabled      bool   `yaml:"enabled"`
 }
@@ -119,6 +134,7 @@ func DefaultConfig() *Config {
 		},
 		Reranker: RerankerConfig{
 			ModelPath:    filepath.Join(modelsDir, "ms-marco-MiniLM-L-6-v2"),
+			OnnxFile:     "onnx/model.onnx",
 			MaxSeqLength: 512,
 			Enabled:      true,
 		},
@@ -254,13 +270,88 @@ func defaultDataDirForOS(goos string) string {
 }
 
 // Load returns the application configuration.
-// For now, it returns defaults. YAML file loading will be added later.
-func Load() *Config {
-	return DefaultConfig()
+func Load() (*Config, error) {
+	cfg := DefaultConfig()
+
+	configPath, explicit := ConfigPath()
+	if configPath == "" {
+		applyEnvOverrides(cfg)
+		expandConfigPaths(cfg)
+		return cfg, nil
+	}
+
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		if explicit {
+			return nil, fmt.Errorf("reading config %s: %w", configPath, err)
+		}
+		applyEnvOverrides(cfg)
+		expandConfigPaths(cfg)
+		return cfg, nil
+	}
+
+	if err := yaml.Unmarshal(data, cfg); err != nil {
+		return nil, fmt.Errorf("parsing config %s: %w", configPath, err)
+	}
+
+	applyEnvOverrides(cfg)
+	expandConfigPaths(cfg)
+	return cfg, nil
 }
 
 // DataDir returns the default data directory path.
 // This is used by the setup package to know where to download files.
 func DataDir() string {
 	return defaultDataDir()
+}
+
+// ConfigPath returns the config path and whether it was explicitly provided.
+func ConfigPath() (string, bool) {
+	if p := os.Getenv(envConfigPath); p != "" {
+		return expandPath(p), true
+	}
+	if p := os.Getenv(envConfigPathAlt); p != "" {
+		return expandPath(p), true
+	}
+
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", false
+	}
+	return filepath.Join(home, ".config", "mnemosyne", "config.yaml"), false
+}
+
+func applyEnvOverrides(cfg *Config) {
+	if cfg == nil {
+		return
+	}
+	if value, ok := os.LookupEnv("MNEMOSYNE_DB_PATH"); ok {
+		cfg.DBPath = value
+	}
+}
+
+func expandConfigPaths(cfg *Config) {
+	cfg.DBPath = expandPath(cfg.DBPath)
+	cfg.OnnxRuntimeLib = expandPath(cfg.OnnxRuntimeLib)
+	cfg.Embedding.ModelPath = expandPath(cfg.Embedding.ModelPath)
+	cfg.Reranker.ModelPath = expandPath(cfg.Reranker.ModelPath)
+}
+
+func expandPath(path string) string {
+	if path == "" {
+		return ""
+	}
+
+	path = os.ExpandEnv(path)
+	if path == "~" {
+		if home, err := os.UserHomeDir(); err == nil {
+			return home
+		}
+	}
+	if after, ok := strings.CutPrefix(path, "~/"); ok {
+		if home, err := os.UserHomeDir(); err == nil {
+			return filepath.Join(home, after)
+		}
+	}
+	return path
 }

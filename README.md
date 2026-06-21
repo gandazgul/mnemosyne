@@ -90,6 +90,7 @@ task build
 # Search documents (hybrid: FTS5 + vector, fused with RRF)
 ./mnemosyne search "programming language"
 ./mnemosyne search --limit 5 "systems programming"
+./mnemosyne search -f json --limit 10 "programming language"
 
 # List documents
 ./mnemosyne list
@@ -130,6 +131,114 @@ task build
 ./mnemosyne forget myproject
 ```
 
+## Search Output Formats
+
+The `search` command supports three output formats:
+
+```bash
+./mnemosyne search -f color "query" # default human-readable color output
+./mnemosyne search -f plain "query" # stable plain text output
+./mnemosyne search -f json "query"  # machine-readable output for scripts and benchmarks
+```
+
+JSON search output is an object with `query`, `collection`, `count`, and a
+ranked `results` array. Each result includes:
+
+- `rank`, `document_id`, `collection_id`, `content`, `created_at`
+- parsed `metadata` when document metadata contains valid JSON
+- `metadata_raw` when metadata is present but not valid JSON
+- `rrf_score`, `fts_rank`, `vec_distance`, `reranker_score`, `is_reranked`
+- `sources`, such as `["fts", "vector"]`
+
+This format is intended for evaluation harnesses that need to map retrieved
+documents back to external corpus IDs stored in metadata.
+
+## Configuration
+
+Mnemosyne reads `~/.config/mnemosyne/config.yaml` when it exists. You can also
+point a single command or benchmark run at another config file:
+
+```bash
+MNEMOSYNE_CONFIG=./configs/jina.yaml ./mnemosyne search "query"
+MNEMOSYNE_DB_PATH=/tmp/mnemosyne.db ./mnemosyne add "temporary note"
+```
+
+Use [config.example.yaml](config.example.yaml) as a starting point. The most
+important model fields are:
+
+- `embedding.model_path`: directory containing `tokenizer.json`, `config.json`,
+  and the configured ONNX file
+- `embedding.onnx_file`: model path relative to `embedding.model_path`, usually
+  `onnx/model.onnx`
+- `embedding.dimensions`: vector size stored in SQLite; use a fresh DB or
+  re-import documents when this changes
+- `embedding.pooling`: `none` for a pooled output, `mean` for mean pooling,
+  `cls` for first-token pooling, or `last` for last-token pooling
+- `embedding.query_prefix` and `embedding.document_prefix`: model-specific text
+  prefixes for query/document embeddings
+- `reranker.model_path`: directory containing an ONNX cross-encoder reranker
+- `reranker.enabled`: set `false` to disable reranking globally for that config
+
+`mnemosyne setup` still auto-downloads the built-in default models. For custom
+model paths, place the model files yourself and run with `MNEMOSYNE_CONFIG` or
+copy the config to the default location.
+
+The `configs/` directory includes benchmark-oriented profiles for larger
+retrieval models, such as Jina v5 text retrieval. These profiles use a separate
+benchmark DB when passed through the BEIR harness with `--config` and
+`--run-label`.
+
+## Benchmarks
+
+Mnemosyne includes a small BEIR-compatible retrieval benchmark harness for
+SciFact. It downloads the public BEIR SciFact dataset, imports the corpus into
+an isolated benchmark database, runs `mnemosyne search -f json` for the judged
+test queries, and writes JSON plus Markdown result summaries.
+
+```bash
+# Short mechanics check over 10 judged queries and a 500-document corpus subset
+task bench:scifact-smoke
+
+# Standard full SciFact test split over the complete corpus
+task bench:scifact
+
+# Run the full benchmark in a detached screen session
+task bench:scifact-bg
+```
+
+The harness reports `nDCG@10`, `MRR@10`, `Recall@10`, `Recall@100`, and
+`MAP@100`. Result JSON and Markdown also include breakdowns for first relevant
+rank buckets, queries missing at 100, and the lowest `MRR@10` cases.
+Downloaded data and scratch databases are written under
+`benchmarks/data/` and `benchmarks/work/`, which are gitignored. Published
+result files are written to `benchmarks/results/`.
+
+Useful options can be passed after `--`:
+
+```bash
+task bench:scifact -- --no-rerank
+task bench:scifact -- --reuse-db
+task bench:scifact -- --config ./configs/jina.yaml --run-label jina-v2
+task bench:scifact-smoke -- --max-queries 25 --max-docs 1000
+task bench:scifact-bg -- --reuse-db
+```
+
+When `--config` is provided, the harness passes it to Mnemosyne as
+`MNEMOSYNE_CONFIG`. When `--run-label` is provided (or inferred from the config
+filename), the benchmark uses a separate work DB under `benchmarks/work/` and
+includes the label in result filenames. This keeps runs with different
+embedding dimensions from sharing a SQLite vector table by accident.
+
+The background task uses `screen` so long benchmark runs survive the shell that
+started them:
+
+```bash
+screen -ls
+tail -f benchmarks/work/beir/scifact/full-benchmark.log
+screen -r mnemosyne-scifact-benchmark
+screen -S mnemosyne-scifact-benchmark -X quit
+```
+
 ## Available Tasks
 
 ```bash
@@ -138,6 +247,9 @@ task test             # Run all tests
 task clean            # Remove build artifacts
 task lint             # Run linter (requires golangci-lint)
 task download-models  # Download ONNX models from HuggingFace (dev workflow)
+task bench:scifact-smoke # Run a small BEIR SciFact smoke benchmark
+task bench:scifact    # Run the full BEIR SciFact benchmark
+task bench:scifact-bg # Run the full benchmark in a detached screen session
 task release -- v0.1.0 # Create and push a new release tag
 ```
 

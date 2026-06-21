@@ -28,7 +28,12 @@ Store small documents (sentences to paragraphs) and retrieve them
 using hybrid search: full-text (BM25) + vector similarity (cosine),
 combined with Reciprocal Rank Fusion and local cross-encoder reranking.
 
-All ML inference runs locally via ONNX Runtime. No cloud APIs needed.`,
+All ML inference runs locally via ONNX Runtime. No cloud APIs needed.
+
+Configuration:
+  Mnemosyne reads ~/.config/mnemosyne/config.yaml by default.
+  Set MNEMOSYNE_CONFIG=/path/to/config.yaml to use another config file.
+  Set MNEMOSYNE_DB_PATH=/path/to/mnemosyne.db to override the database path.`,
 
 	// Run is called when the command is executed with no subcommands.
 	// This is a good place for a welcome message or default behavior.

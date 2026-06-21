@@ -10,6 +10,7 @@ import (
 
 func TestEnsureReady_AlreadyReady(t *testing.T) {
 	tmpDir := t.TempDir()
+	cfg := testConfig(tmpDir)
 
 	// Make it ready
 	libPath := filepath.Join(tmpDir, "lib", onnxRuntimeLibName())
@@ -25,7 +26,7 @@ func TestEnsureReady_AlreadyReady(t *testing.T) {
 		}
 	}
 
-	err := EnsureReady(context.Background(), tmpDir, nil)
+	err := EnsureReady(context.Background(), tmpDir, cfg, nil)
 	if err != nil {
 		t.Errorf("Expected no error for already ready env, got %v", err)
 	}
@@ -51,7 +52,7 @@ func TestRun_ErrorPropagation(t *testing.T) {
 	badPath := filepath.Join(tmpDir, "models")
 	_ = os.WriteFile(badPath, []byte("not a dir"), 0644)
 
-	err := Run(context.Background(), tmpDir, nil)
+	err := Run(context.Background(), tmpDir, testConfig(tmpDir), nil)
 	if err == nil {
 		t.Error("Expected error when models dir cannot be created")
 	}
@@ -87,7 +88,7 @@ func TestRun_MockModels(t *testing.T) {
 	// Actually we can't easily override the global models, so we'll just check
 	// the error from a bad network path or let it fail downloading and cover the error path
 
-	err := Run(context.Background(), tmpDir, func(file string, written, total int64) {})
+	err := Run(context.Background(), tmpDir, testConfig(tmpDir), func(file string, written, total int64) {})
 	// we expect an error because the model doesn't exist locally or download fails due to bad repo/connection in tests,
 	// but this will execute the download code paths and improve coverage
 	if err == nil {
@@ -174,7 +175,7 @@ func TestEnsureReady_FirstTime(t *testing.T) {
 	}
 	defer func() { RerankerModel = oldRerank }()
 
-	err := EnsureReady(context.Background(), tmpDir, func(file string, written, total int64) {})
+	err := EnsureReady(context.Background(), tmpDir, testConfig(tmpDir), func(file string, written, total int64) {})
 	if err == nil {
 		t.Log("Expected an error since bad/repo doesn't exist")
 	}

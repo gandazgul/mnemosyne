@@ -1,0 +1,27 @@
+# Jina v5 nano retrieval profile for local benchmark experiments.
+#
+# Download model files with:
+#   hf download jinaai/jina-embeddings-v5-text-nano-retrieval \
+#     --local-dir models/jina-embeddings-v5-text-nano-retrieval \
+#     --include "onnx/model.onnx" "onnx/model.onnx_data" "tokenizer.json" "config.json"
+
+embedding:
+  model_path: "./models/jina-embeddings-v5-text-nano-retrieval"
+  onnx_file: "onnx/model.onnx"
+  dimensions: 768
+  max_seq_length: 8192
+  query_prefix: "Query: "
+  document_prefix: "Document: "
+  pooling: "last"
+  onnx_input_names: ["input_ids", "attention_mask"]
+  onnx_output_names: ["last_hidden_state"]
+
+reranker:
+  enabled: false
+
+search:
+  rrf_k: 60
+  top_k: 10
+  rerank_candidates: 100
+  reranker_threshold: 0.001
+  rrf_threshold: 0.01

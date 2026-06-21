@@ -1,4 +1,12 @@
 # Mnemosyne configuration
+#
+# Default location:
+#   ~/.config/mnemosyne/config.yaml
+#
+# Use another config file for experiments:
+#   MNEMOSYNE_CONFIG=/path/to/config.yaml mnemosyne search "query"
+#
+# MNEMOSYNE_DB_PATH overrides db_path, which is useful for benchmarks.
 
 # Path to the SQLite database
 db_path: "~/.local/share/mnemosyne/mnemosyne.db"
@@ -11,7 +19,14 @@ embedding:
   max_seq_length: 512
   query_prefix: "Represent this sentence for searching relevant passages: "
   document_prefix: ""
+  # Pooling values:
+  # - none: model emits a pooled sentence_embedding output
+  # - mean: mean-pool token embeddings using attention_mask
+  # - cls: use the first token embedding
+  # - last: use the last non-padding token embedding
   pooling: "none"
+  onnx_input_names: ["input_ids", "attention_mask"]
+  onnx_output_names: ["sentence_embedding"]
 
 reranker:
   # Path to the reranker model directory
@@ -23,7 +38,7 @@ search:
   rrf_k: 60
   top_k: 10
   rerank_candidates: 50
-  # Minimum reranker score (logit) for inclusion. Negative = irrelevant.
-  reranker_threshold: 0.0
+  # Minimum reranker sigmoid score for inclusion.
+  reranker_threshold: 0.001
   # Minimum RRF score for inclusion (when reranking is disabled).
   rrf_threshold: 0.01

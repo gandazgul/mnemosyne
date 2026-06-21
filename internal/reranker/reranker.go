@@ -42,7 +42,11 @@ func NewONNXCrossEncoder(cfg config.RerankerConfig) (*ONNXCrossEncoder, error) {
 		return nil, fmt.Errorf("load tokenizer from %s: %w", tokenizerPath, err)
 	}
 
-	modelFile := filepath.Join(cfg.ModelPath, "onnx", "model.onnx")
+	onnxFile := cfg.OnnxFile
+	if onnxFile == "" {
+		onnxFile = "onnx/model.onnx"
+	}
+	modelFile := filepath.Join(cfg.ModelPath, onnxFile)
 
 	// Cross-encoders usually take input_ids, attention_mask, token_type_ids
 	inputNames := []string{"input_ids", "attention_mask", "token_type_ids"}

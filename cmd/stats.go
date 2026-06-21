@@ -14,7 +14,10 @@ var statsCmd = &cobra.Command{
 	Short: "Show database size and total document counts",
 	Long:  "Display statistics about the mnemosyne database and models.",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg := config.Load()
+		cfg, err := config.Load()
+		if err != nil {
+			return fmt.Errorf("loading config: %w", err)
+		}
 
 		database, err := openDB()
 		if err != nil {

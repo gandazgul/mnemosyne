@@ -11,19 +11,32 @@ import (
 const (
 	formatColor = "color"
 	formatPlain = "plain"
+	formatJSON  = "json"
 )
 
-// validFormats lists the accepted --format values.
+// validFormats lists the accepted --format values for human-readable commands.
 var validFormats = []string{formatColor, formatPlain}
+
+// validSearchFormats lists the accepted search --format values.
+var validSearchFormats = []string{formatColor, formatPlain, formatJSON}
 
 // validateFormat returns an error if the given format string is not recognized.
 func validateFormat(f string) error {
-	for _, v := range validFormats {
+	return validateFormatFrom(f, validFormats)
+}
+
+// validateSearchFormat returns an error if the given search format string is not recognized.
+func validateSearchFormat(f string) error {
+	return validateFormatFrom(f, validSearchFormats)
+}
+
+func validateFormatFrom(f string, formats []string) error {
+	for _, v := range formats {
 		if f == v {
 			return nil
 		}
 	}
-	return fmt.Errorf("invalid format %q; must be one of: %s", f, strings.Join(validFormats, ", "))
+	return fmt.Errorf("invalid format %q; must be one of: %s", f, strings.Join(formats, ", "))
 }
 
 // Color helpers — return plain strings when format is "plain" or NO_COLOR is set.

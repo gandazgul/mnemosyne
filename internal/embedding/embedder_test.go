@@ -128,6 +128,47 @@ func TestClsPool_Batch(t *testing.T) {
 	}
 }
 
+func TestLastPool(t *testing.T) {
+	// Batch of 2, seq_len=3, hidden_dim=2.
+	hiddenStates := []float32{
+		1, 2, 3, 4, 5, 6, // batch 0
+		10, 20, 30, 40, 50, 60, // batch 1
+	}
+	mask := []int64{
+		1, 1, 0, // batch 0 -> token 1
+		1, 1, 1, // batch 1 -> token 2
+	}
+
+	result0 := lastPool(hiddenStates, mask, 0, 3, 2)
+	result1 := lastPool(hiddenStates, mask, 1, 3, 2)
+
+	expected0 := []float32{3.0, 4.0}
+	expected1 := []float32{50.0, 60.0}
+
+	for i := range expected0 {
+		if math.Abs(float64(result0[i])-float64(expected0[i])) > 1e-6 {
+			t.Errorf("batch0[%d] = %f, want %f", i, result0[i], expected0[i])
+		}
+	}
+	for i := range expected1 {
+		if math.Abs(float64(result1[i])-float64(expected1[i])) > 1e-6 {
+			t.Errorf("batch1[%d] = %f, want %f", i, result1[i], expected1[i])
+		}
+	}
+}
+
+func TestLastPool_AllMasked(t *testing.T) {
+	hiddenStates := []float32{1, 2, 3, 4}
+	mask := []int64{0, 0}
+
+	result := lastPool(hiddenStates, mask, 0, 2, 2)
+	for i, val := range result {
+		if val != 0 {
+			t.Errorf("result[%d] = %f, want 0.0", i, val)
+		}
+	}
+}
+
 func TestL2Normalize(t *testing.T) {
 	v := []float32{3.0, 4.0}
 	l2Normalize(v)

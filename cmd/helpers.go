@@ -48,7 +48,10 @@ func resolveCollectionName(name string, global bool) (string, error) {
 // openDB loads config and opens the database connection.
 // The caller is responsible for closing the returned *db.DB.
 func openDB() (*db.DB, error) {
-	cfg := config.Load()
+	cfg, err := config.Load()
+	if err != nil {
+		return nil, fmt.Errorf("loading config: %w", err)
+	}
 
 	database, err := db.Open(cfg.DBPath)
 	if err != nil {
@@ -68,17 +71,19 @@ func openDB() (*db.DB, error) {
 // commands that need embeddings (add, search). Commands like list, delete, init
 // should not call this.
 func openEmbedder(ctx context.Context) (embedding.Embedder, *config.Config, error) {
+	cfg, err := config.Load()
+	if err != nil {
+		return nil, nil, fmt.Errorf("loading config: %w", err)
+	}
+
 	// Auto-download ONNX Runtime and models if not present.
 	dataDir := config.DataDir()
-	if err := setup.EnsureReady(ctx, dataDir, func(file string, written, total int64) {
+	if err := setup.EnsureReady(ctx, dataDir, cfg, func(file string, written, total int64) {
 		// Auto-download uses simple inline progress.
 		// The setup command uses a full progress bar.
 	}); err != nil {
 		return nil, nil, fmt.Errorf("setup: %w", err)
 	}
-
-	// Re-load config after setup (paths may now resolve to downloaded files).
-	cfg := config.Load()
 
 	if err := embedding.InitONNXRuntime(cfg.OnnxRuntimeLib); err != nil {
 		return nil, nil, fmt.Errorf("initializing ONNX Runtime: %w", err)

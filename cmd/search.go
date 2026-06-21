@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/fatih/color"
 	"github.com/gandazgul/mnemosyne/internal/config"
@@ -28,6 +31,7 @@ Examples:
   mnemosyne search "exact phrase"
   mnemosyne search golang concurrency
   mnemosyne search --limit 5 "how do goroutines work"
+  mnemosyne search -f json --limit 10 "benchmark query"
 
 If --name is not provided, the current directory name is used.`,
 	Args: cobra.MinimumNArgs(1),
@@ -44,7 +48,7 @@ If --name is not provided, the current directory name is used.`,
 		formatFlag, _ := cmd.Flags().GetString("format")
 		tagsFlag, _ := cmd.Flags().GetStringSlice("tag")
 
-		if err := validateFormat(formatFlag); err != nil {
+		if err := validateSearchFormat(formatFlag); err != nil {
 			return err
 		}
 		if plain(formatFlag) {
@@ -78,7 +82,10 @@ If --name is not provided, the current directory name is used.`,
 		}
 
 		// Load config for search settings and embedder.
-		cfg := config.Load()
+		cfg, err := config.Load()
+		if err != nil {
+			return fmt.Errorf("loading config: %w", err)
+		}
 
 		// Determine RRF k: flag overrides config.
 		rrfK := cfg.Search.RRFK
@@ -137,16 +144,42 @@ If --name is not provided, the current directory name is used.`,
 			return fmt.Errorf("searching: %w", err)
 		}
 
-		printSearchResults(results, query, collectionName, formatFlag, debugFlag)
-		return nil
+		return printSearchResults(results, query, collectionName, formatFlag, debugFlag)
 	},
 }
 
+type searchJSONOutput struct {
+	Query      string             `json:"query"`
+	Collection string             `json:"collection"`
+	Count      int                `json:"count"`
+	Results    []searchJSONResult `json:"results"`
+}
+
+type searchJSONResult struct {
+	Rank          int      `json:"rank"`
+	DocumentID    int64    `json:"document_id"`
+	CollectionID  int64    `json:"collection_id"`
+	Content       string   `json:"content"`
+	Metadata      any      `json:"metadata,omitempty"`
+	MetadataRaw   string   `json:"metadata_raw,omitempty"`
+	CreatedAt     string   `json:"created_at"`
+	RRFScore      float64  `json:"rrf_score"`
+	FTSRank       float64  `json:"fts_rank"`
+	VecDistance   float64  `json:"vec_distance"`
+	RerankerScore float32  `json:"reranker_score"`
+	IsReranked    bool     `json:"is_reranked"`
+	Sources       []string `json:"sources"`
+}
+
 // printSearchResults formats and prints search results to stdout.
-func printSearchResults(results []search.Result, query, collectionName, formatFlag string, debugFlag bool) {
+func printSearchResults(results []search.Result, query, collectionName, formatFlag string, debugFlag bool) error {
+	if formatFlag == formatJSON {
+		return printSearchResultsJSON(results, query, collectionName)
+	}
+
 	if len(results) == 0 {
 		fmt.Printf("No results for %q in collection %q\n", query, collectionName)
-		return
+		return nil
 	}
 
 	// Header.
@@ -216,6 +249,48 @@ func printSearchResults(results []search.Result, query, collectionName, formatFl
 			fmt.Println()
 		}
 	}
+
+	return nil
+}
+
+func printSearchResultsJSON(results []search.Result, query, collectionName string) error {
+	out := searchJSONOutput{
+		Query:      query,
+		Collection: collectionName,
+		Count:      len(results),
+		Results:    make([]searchJSONResult, 0, len(results)),
+	}
+
+	for i, r := range results {
+		item := searchJSONResult{
+			Rank:          i + 1,
+			DocumentID:    r.DocumentID,
+			CollectionID:  r.CollectionID,
+			Content:       r.Content,
+			CreatedAt:     r.CreatedAt.Format(time.RFC3339Nano),
+			RRFScore:      r.RRFScore,
+			FTSRank:       r.FTSRank,
+			VecDistance:   r.VecDistance,
+			RerankerScore: r.RerankerScore,
+			IsReranked:    r.IsReranked,
+			Sources:       r.Sources,
+		}
+
+		if r.Metadata != nil && *r.Metadata != "" {
+			var metadata any
+			if err := json.Unmarshal([]byte(*r.Metadata), &metadata); err == nil {
+				item.Metadata = metadata
+			} else {
+				item.MetadataRaw = *r.Metadata
+			}
+		}
+
+		out.Results = append(out.Results, item)
+	}
+
+	enc := json.NewEncoder(os.Stdout)
+	enc.SetIndent("", "  ")
+	return enc.Encode(out)
 }
 
 func init() {
@@ -228,7 +303,7 @@ func init() {
 	searchCmd.Flags().Float64("threshold", 0.0, "minimum score for a result to be included (overrides config rank/RRF limits if set)")
 	searchCmd.Flags().Bool("no-threshold", false, "disable score-based filtering (return all results)")
 	searchCmd.Flags().Bool("debug", false, "show scores, ranks, and sources for each result")
-	searchCmd.Flags().StringP("format", "f", "color", "output format: color (default) or plain")
+	searchCmd.Flags().StringP("format", "f", "color", "output format: color (default), plain, or json")
 	searchCmd.Flags().StringSliceP("tag", "t", nil, "filter results by one or more tags (must match all)")
 	rootCmd.AddCommand(searchCmd)
 }

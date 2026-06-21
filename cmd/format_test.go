@@ -12,7 +12,25 @@ func TestValidateFormat(t *testing.T) {
 	if err := validateFormat("plain"); err != nil {
 		t.Errorf("expected no error for 'plain', got %v", err)
 	}
+	if err := validateFormat("json"); err == nil {
+		t.Error("expected error for 'json' in default command formats")
+	}
 	if err := validateFormat("invalid"); err == nil {
+		t.Error("expected error for 'invalid'")
+	}
+}
+
+func TestValidateSearchFormat(t *testing.T) {
+	if err := validateSearchFormat("color"); err != nil {
+		t.Errorf("expected no error for 'color', got %v", err)
+	}
+	if err := validateSearchFormat("plain"); err != nil {
+		t.Errorf("expected no error for 'plain', got %v", err)
+	}
+	if err := validateSearchFormat("json"); err != nil {
+		t.Errorf("expected no error for 'json', got %v", err)
+	}
+	if err := validateSearchFormat("invalid"); err == nil {
 		t.Error("expected error for 'invalid'")
 	}
 }

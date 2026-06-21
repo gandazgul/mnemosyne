@@ -31,3 +31,7 @@ lib/
 include/
 sqlite.zip
 macosx-sdks/
+
+# Benchmark inputs and scratch databases
+benchmarks/data/
+benchmarks/work/
