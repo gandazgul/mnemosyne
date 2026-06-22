@@ -1,0 +1,109 @@
+{
+  "generated_at": "2026-06-22T03:15:32Z",
+  "dataset": "longmemeval_s_cleaned",
+  "source_url": "https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned/resolve/main/longmemeval_s_cleaned.json",
+  "query_count": 2,
+  "total_imported_docs": 16,
+  "elapsed_seconds": 5.893,
+  "config": {
+    "binary": "/Users/gandazgul/Documents/web/mnemosyne/cli/mnemosyne",
+    "work_dir": "/Users/gandazgul/Documents/web/mnemosyne/cli/benchmarks/work/longmemeval/session/jina-v5-nano",
+    "mnemosyne_config": "/Users/gandazgul/Documents/web/mnemosyne/cli/configs/jina-v5-text-nano-retrieval.yaml",
+    "run_label": "jina-v5-nano",
+    "doc_mode": "session",
+    "collection": "bench_longmemeval",
+    "limit": 10,
+    "rerank_candidates": 10,
+    "no_rerank": true,
+    "fusion": "vector-bm25",
+    "bm25_weight": 0.1,
+    "vector_only": false,
+    "fts_only": false,
+    "max_queries": 2,
+    "max_sessions": 8
+  },
+  "metrics": {
+    "recall_any@5": 1.0,
+    "recall_any@10": 1.0,
+    "recall_all@5": 1.0,
+    "recall_all@10": 1.0,
+    "mrr@10": 1.0,
+    "ndcg@10": 1.0
+  },
+  "breakdown": {
+    "first_relevant_rank_buckets": {
+      "rank_1": 2,
+      "rank_2_3": 0,
+      "rank_4_5": 0,
+      "rank_6_10": 0,
+      "missing@10": 0
+    },
+    "queries_missing_at_5": [],
+    "queries_missing_at_10": [],
+    "per_type": {
+      "single-session-user": {
+        "count": 2,
+        "recall_any@5": 1.0,
+        "recall_any@10": 1.0,
+        "recall_all@5": 1.0,
+        "recall_all@10": 1.0,
+        "mrr@10": 1.0,
+        "ndcg@10": 1.0
+      }
+    }
+  },
+  "per_query": {
+    "e47becba": {
+      "answer_session_ids": [
+        "answer_280352e9"
+      ],
+      "top_10_session_ids": [
+        "answer_280352e9",
+        "f6859b48_2",
+        "sharegpt_Jcy1CVN_0",
+        "85a1be56_1",
+        "52c34859_1",
+        "sharegpt_DGTCD7D_0",
+        "sharegpt_yywfIrx_0",
+        "sharegpt_Cr2tc1f_0"
+      ],
+      "first_relevant_rank": 1,
+      "recall_any@5": 1.0,
+      "recall_all@5": 1.0,
+      "recall_any@10": 1.0,
+      "recall_all@10": 1.0,
+      "mrr@10": 1.0,
+      "ndcg@10": 1.0,
+      "question": "What degree did I graduate with?",
+      "question_type": "single-session-user",
+      "question_date": "2023/05/30 (Tue) 23:40",
+      "doc_count": 8
+    },
+    "118b2229": {
+      "answer_session_ids": [
+        "answer_40a90d51"
+      ],
+      "top_10_session_ids": [
+        "answer_40a90d51",
+        "db73b7e4_4",
+        "ultrachat_311002",
+        "a0b8b0ad_6",
+        "sharegpt_5V5H2HN_0",
+        "ultrachat_577747",
+        "f0fc84ea",
+        "ultrachat_368854"
+      ],
+      "first_relevant_rank": 1,
+      "recall_any@5": 1.0,
+      "recall_all@5": 1.0,
+      "recall_any@10": 1.0,
+      "recall_all@10": 1.0,
+      "mrr@10": 1.0,
+      "ndcg@10": 1.0,
+      "question": "How long is my daily commute to work?",
+      "question_type": "single-session-user",
+      "question_date": "2023/05/30 (Tue) 20:36",
+      "doc_count": 8
+    }
+  }
+}

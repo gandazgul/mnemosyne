@@ -56,6 +56,7 @@ func TestEngine_Search_Rerank(t *testing.T) {
 		Query:            "programming language",
 		Limit:            10,
 		RRFK:             60,
+		Fusion:           search.FusionRRF,
 		ReRankCandidates: 10,
 	})
 	if err != nil {
@@ -145,6 +146,7 @@ func TestEngine_Search_NoRerank_Threshold(t *testing.T) {
 		Query:            "programming language",
 		Limit:            10,
 		RRFK:             60,
+		Fusion:           search.FusionRRF,
 		ReRankCandidates: 10,
 		RRFThreshold:     0.02, // A reasonable RRF threshold for this mock
 	})

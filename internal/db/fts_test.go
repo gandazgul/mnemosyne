@@ -179,6 +179,26 @@ func TestSearchFTS_SpecialCharacters(t *testing.T) {
 	}
 }
 
+func TestSearchFTS_NaturalLanguageQuery(t *testing.T) {
+	database := testDB(t)
+	c, _ := database.CreateCollection("natural-language")
+
+	_, _ = database.InsertDocument(c.ID, "A company failed to collect VAT from a customer invoice", nil)
+	_, _ = database.InsertDocument(c.ID, "Family budgeting and household expenses", nil)
+
+	results, err := database.SearchFTS(c.ID, "Should I pay a company who failed to collect VAT from me over 6 months ago?", nil, 0)
+	if err != nil {
+		t.Fatalf("SearchFTS() error = %v", err)
+	}
+
+	if len(results) == 0 {
+		t.Fatal("expected natural-language query to find a result")
+	}
+	if results[0].Content != "A company failed to collect VAT from a customer invoice" {
+		t.Errorf("top result = %q, want VAT company document", results[0].Content)
+	}
+}
+
 func TestSearchFTS_PhraseQuery(t *testing.T) {
 	database := testDB(t)
 	c, _ := database.CreateCollection("phrase-test")

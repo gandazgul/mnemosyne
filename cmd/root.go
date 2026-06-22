@@ -25,8 +25,8 @@ var rootCmd = &cobra.Command{
 	Long: `Mnemosyne - Local Document Storage & Retrieval
 
 Store small documents (sentences to paragraphs) and retrieve them
-using hybrid search: full-text (BM25) + vector similarity (cosine),
-combined with Reciprocal Rank Fusion and local cross-encoder reranking.
+using hybrid search: vector similarity (cosine) with a small BM25
+lexical boost, plus optional local cross-encoder reranking.
 
 All ML inference runs locally via ONNX Runtime. No cloud APIs needed.
 

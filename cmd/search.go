@@ -9,20 +9,21 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/gandazgul/mnemosyne/internal/config"
+	"github.com/gandazgul/mnemosyne/internal/embedding"
 	"github.com/gandazgul/mnemosyne/internal/reranker"
 	"github.com/gandazgul/mnemosyne/internal/search"
 	"github.com/spf13/cobra"
 )
 
 // searchCmd searches documents using hybrid search combining full-text search
-// (FTS5 with BM25 ranking) and vector similarity search (cosine distance),
-// fused via Reciprocal Rank Fusion (RRF).
+// and vector similarity search.
 var searchCmd = &cobra.Command{
 	Use:   "search [query]",
 	Short: "Search documents using hybrid keyword + semantic search",
 	Long: `Search documents in a collection using hybrid search, which combines
-full-text keyword search (BM25) and semantic vector search (cosine similarity),
-fused via Reciprocal Rank Fusion (RRF).
+semantic vector search with a small lexical BM25 boost by default. Use
+--fusion rrf to retrieve independent full-text and vector candidate lists and
+combine them with Reciprocal Rank Fusion (RRF).
 
 Documents found by both keyword match and semantic similarity are boosted
 above those found by only one method.
@@ -32,6 +33,10 @@ Examples:
   mnemosyne search golang concurrency
   mnemosyne search --limit 5 "how do goroutines work"
   mnemosyne search -f json --limit 10 "benchmark query"
+  mnemosyne search --fts-only --no-rerank "benchmark query"
+  mnemosyne search --vector-only --no-rerank "benchmark query"
+  mnemosyne search --fusion rrf --no-rerank "benchmark query"
+  mnemosyne search --fusion vector-bm25 --bm25-weight 0.10 --rerank-candidates 300 --no-rerank "benchmark query"
 
 If --name is not provided, the current directory name is used.`,
 	Args: cobra.MinimumNArgs(1),
@@ -42,14 +47,21 @@ If --name is not provided, the current directory name is used.`,
 		rrfKFlag, _ := cmd.Flags().GetInt("rrf-k")
 		rerankCandidatesFlag, _ := cmd.Flags().GetInt("rerank-candidates")
 		noRerankFlag, _ := cmd.Flags().GetBool("no-rerank")
+		fusionFlag, _ := cmd.Flags().GetString("fusion")
+		bm25WeightFlag, _ := cmd.Flags().GetFloat64("bm25-weight")
 		thresholdFlag, _ := cmd.Flags().GetFloat64("threshold")
 		noThresholdFlag, _ := cmd.Flags().GetBool("no-threshold")
 		debugFlag, _ := cmd.Flags().GetBool("debug")
 		formatFlag, _ := cmd.Flags().GetString("format")
 		tagsFlag, _ := cmd.Flags().GetStringSlice("tag")
+		ftsOnlyFlag, _ := cmd.Flags().GetBool("fts-only")
+		vectorOnlyFlag, _ := cmd.Flags().GetBool("vector-only")
 
 		if err := validateSearchFormat(formatFlag); err != nil {
 			return err
+		}
+		if ftsOnlyFlag && vectorOnlyFlag {
+			return fmt.Errorf("cannot use both --fts-only and --vector-only")
 		}
 		if plain(formatFlag) {
 			color.NoColor = true
@@ -98,18 +110,54 @@ If --name is not provided, the current directory name is used.`,
 			rerankCandidates = rerankCandidatesFlag
 		}
 
-		if err := database.EnsureVectorTable(cfg.Embedding.Dimensions); err != nil {
-			return fmt.Errorf("ensuring vector table: %w", err)
+		fusion := cfg.Search.Fusion
+		if fusion == "" {
+			fusion = search.FusionVectorBM25
+		}
+		if cmd.Flags().Changed("fusion") {
+			fusion = fusionFlag
+		}
+		if (ftsOnlyFlag || vectorOnlyFlag) && !cmd.Flags().Changed("fusion") {
+			fusion = search.FusionRRF
+		}
+		if fusion != search.FusionRRF && fusion != search.FusionVectorBM25 {
+			return fmt.Errorf("invalid fusion %q (expected %q or %q)", fusion, search.FusionRRF, search.FusionVectorBM25)
+		}
+		if fusion == search.FusionVectorBM25 && ftsOnlyFlag {
+			return fmt.Errorf("--fusion %s cannot be used with --fts-only", search.FusionVectorBM25)
 		}
 
-		embedder, cfg, err := openEmbedder(cmd.Context())
-		if err != nil {
-			return fmt.Errorf("loading embedding model: %w", err)
+		bm25Weight := cfg.Search.BM25Weight
+		if bm25Weight == 0 {
+			bm25Weight = 0.10
 		}
-		defer embedder.Close() //nolint:errcheck
+		if cmd.Flags().Changed("bm25-weight") {
+			bm25Weight = bm25WeightFlag
+		}
+		if bm25Weight < 0 || bm25Weight > 1 {
+			return fmt.Errorf("bm25 weight must be between 0 and 1")
+		}
+
+		useVector := !ftsOnlyFlag
+		useReranker := !noRerankFlag
+
+		var embedder embedding.Embedder
+		if useVector || useReranker {
+			if useVector {
+				if err := database.EnsureVectorTable(cfg.Embedding.Dimensions); err != nil {
+					return fmt.Errorf("ensuring vector table: %w", err)
+				}
+			}
+
+			embedder, cfg, err = openEmbedder(cmd.Context())
+			if err != nil {
+				return fmt.Errorf("loading embedding model: %w", err)
+			}
+			defer embedder.Close() //nolint:errcheck
+		}
 
 		var rr reranker.Reranker
-		if !noRerankFlag {
+		if useReranker {
 			rr, err = openReranker(cfg)
 			if err != nil {
 				return fmt.Errorf("loading reranker model: %w", err)
@@ -133,11 +181,15 @@ If --name is not provided, the current directory name is used.`,
 			Query:             query,
 			Limit:             limitFlag,
 			RRFK:              rrfK,
+			Fusion:            fusion,
+			BM25Weight:        bm25Weight,
 			ReRankCandidates:  rerankCandidates,
 			RerankerThreshold: rerankerThreshold,
 			RRFThreshold:      rrfThreshold,
 			DisableThreshold:  noThresholdFlag,
 			NoRerank:          noRerankFlag,
+			FTSOnly:           ftsOnlyFlag,
+			VectorOnly:        vectorOnlyFlag,
 			Tags:              tagsFlag,
 		})
 		if err != nil {
@@ -165,6 +217,7 @@ type searchJSONResult struct {
 	CreatedAt     string   `json:"created_at"`
 	RRFScore      float64  `json:"rrf_score"`
 	FTSRank       float64  `json:"fts_rank"`
+	BM25Score     float64  `json:"bm25_score"`
 	VecDistance   float64  `json:"vec_distance"`
 	RerankerScore float32  `json:"reranker_score"`
 	IsReranked    bool     `json:"is_reranked"`
@@ -220,6 +273,8 @@ func printSearchResults(results []search.Result, query, collectionName, formatFl
 				switch src {
 				case "fts":
 					details = append(details, fmt.Sprintf("fts_rank=%.4f", r.FTSRank))
+				case "bm25":
+					details = append(details, fmt.Sprintf("bm25=%.4f", r.BM25Score))
 				case "vector":
 					details = append(details, fmt.Sprintf("vec_dist=%.4f", r.VecDistance))
 				}
@@ -270,6 +325,7 @@ func printSearchResultsJSON(results []search.Result, query, collectionName strin
 			CreatedAt:     r.CreatedAt.Format(time.RFC3339Nano),
 			RRFScore:      r.RRFScore,
 			FTSRank:       r.FTSRank,
+			BM25Score:     r.BM25Score,
 			VecDistance:   r.VecDistance,
 			RerankerScore: r.RerankerScore,
 			IsReranked:    r.IsReranked,
@@ -300,6 +356,10 @@ func init() {
 	searchCmd.Flags().Int("rrf-k", 0, "RRF fusion constant (default from config, typically 60)")
 	searchCmd.Flags().Int("rerank-candidates", 0, "number of candidates to pass to the reranker")
 	searchCmd.Flags().Bool("no-rerank", false, "disable the cross-encoder reranking step")
+	searchCmd.Flags().String("fusion", "", "fusion strategy: vector-bm25 or rrf (default from config)")
+	searchCmd.Flags().Float64("bm25-weight", -1, "BM25 lexical weight for --fusion vector-bm25, 0.0 to 1.0 (default from config)")
+	searchCmd.Flags().Bool("fts-only", false, "use only full-text search candidates")
+	searchCmd.Flags().Bool("vector-only", false, "use only vector search candidates")
 	searchCmd.Flags().Float64("threshold", 0.0, "minimum score for a result to be included (overrides config rank/RRF limits if set)")
 	searchCmd.Flags().Bool("no-threshold", false, "disable score-based filtering (return all results)")
 	searchCmd.Flags().Bool("debug", false, "show scores, ranks, and sources for each result")

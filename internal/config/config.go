@@ -93,6 +93,18 @@ type SearchConfig struct {
 	TopK             int `yaml:"top_k"`
 	ReRankCandidates int `yaml:"rerank_candidates"`
 
+	// Fusion controls how search candidates are ranked before optional
+	// cross-encoder reranking. Supported values:
+	//   - vector-bm25: retrieve vector candidates first, then apply a small
+	//     in-memory BM25 lexical boost over that candidate set.
+	//   - rrf: retrieve independent FTS and vector candidate lists and combine
+	//     them with Reciprocal Rank Fusion.
+	Fusion string `yaml:"fusion"`
+
+	// BM25Weight controls the lexical BM25 contribution for vector-bm25 fusion.
+	// The vector score contribution is 1-BM25Weight. Defaults to 0.10.
+	BM25Weight float64 `yaml:"bm25_weight"`
+
 	// RerankerThreshold is the minimum reranker score (logit) for a result
 	// to be included. With a sigmoid function applied, values are between 0.0 and 1.0.
 	// We previously used logits with a threshold of -6.0. The equivalent sigmoid threshold
@@ -142,6 +154,8 @@ func DefaultConfig() *Config {
 			RRFK:              60,
 			TopK:              10,
 			ReRankCandidates:  50,
+			Fusion:            "vector-bm25",
+			BM25Weight:        0.10,
 			RerankerThreshold: 0.001, // Corresponds roughly to a logit of -6.9 (sigmoid(-6.9) ≈ 0.001)
 			RRFThreshold:      0.01,
 		},

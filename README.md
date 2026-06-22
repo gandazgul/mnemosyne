@@ -6,8 +6,8 @@
 
 A local document storage and retrieval CLI tool built in Go. Store small
 documents (sentences to paragraphs) and retrieve them using hybrid search:
-full-text (BM25) + vector similarity (cosine), combined with Reciprocal Rank
-Fusion and local cross-encoder reranking.
+vector similarity (cosine) with a small BM25 lexical boost, plus optional local
+cross-encoder reranking.
 
 All ML inference runs locally via ONNX Runtime. No cloud APIs required.
 
@@ -18,7 +18,8 @@ All ML inference runs locally via ONNX Runtime. No cloud APIs required.
   split and preserve heading context when adding `.md` files
 - **Full-text search** via SQLite FTS5 with BM25 ranking
 - **Vector search** via sqlite-vec with cosine similarity
-- **Hybrid search** combining both via Reciprocal Rank Fusion (RRF)
+- **Hybrid search** using vector-first retrieval with BM25 lexical reranking
+- **Legacy RRF fusion** for explicit full-text + vector candidate union
 - **Local reranking** with a cross-encoder model (ONNX Runtime) _(coming soon)_
 - **Automatic setup** -- downloads ONNX Runtime and ML models on first use (~500
   MB one-time)
@@ -87,10 +88,13 @@ task build
 ./mnemosyne add --file notes.txt
 ./mnemosyne add --file README.md # Automatically chunks by semantic headings
 
-# Search documents (hybrid: FTS5 + vector, fused with RRF)
+# Search documents (hybrid: vector-first BM25 fusion by default)
 ./mnemosyne search "programming language"
 ./mnemosyne search --limit 5 "systems programming"
 ./mnemosyne search -f json --limit 10 "programming language"
+./mnemosyne search --fts-only --no-rerank "programming language"
+./mnemosyne search --vector-only --no-rerank "programming language"
+./mnemosyne search --fusion rrf --no-rerank "programming language"
 
 # List documents
 ./mnemosyne list
@@ -206,9 +210,38 @@ task bench:scifact
 task bench:scifact-bg
 ```
 
-The harness reports `nDCG@10`, `MRR@10`, `Recall@10`, `Recall@100`, and
+Mnemosyne also includes a LongMemEval harness for memory-system retrieval
+comparisons. LongMemEval is per-question: each question has its own haystack of
+conversation sessions, so the harness builds an isolated Mnemosyne DB per
+question and scores whether the retrieved documents map back to the answer
+session IDs.
+
+```bash
+# Tiny mechanics check: 2 questions, trimmed haystacks
+task bench:longmemeval-smoke -- --config ./configs/jina-v5-text-nano-retrieval.yaml --run-label jina-v5-nano
+
+# Session-doc mode: one document per session, user turns joined.
+# This is the closest comparison to MemPalace's raw LongMemEval setup.
+python3 benchmarks/longmemeval/run.py \
+  --config ./configs/jina-v5-text-nano-retrieval.yaml \
+  --run-label jina-v5-nano \
+  --doc-mode session \
+  --no-rerank
+
+# Short-doc mode: one document per user/assistant message, scored by session hit.
+python3 benchmarks/longmemeval/run.py \
+  --config ./configs/jina-v5-text-nano-retrieval.yaml \
+  --run-label jina-v5-nano \
+  --doc-mode message \
+  --no-rerank
+```
+
+The BEIR harness reports `nDCG@10`, `MRR@10`, `Recall@10`, `Recall@100`, and
 `MAP@100`. Result JSON and Markdown also include breakdowns for first relevant
 rank buckets, queries missing at 100, and the lowest `MRR@10` cases.
+The LongMemEval harness reports session-level `recall_any@5`,
+`recall_any@10`, `recall_all@5`, `recall_all@10`, `MRR@10`, and `nDCG@10`,
+plus per-question-type breakdowns.
 Downloaded data and scratch databases are written under
 `benchmarks/data/` and `benchmarks/work/`, which are gitignored. Published
 result files are written to `benchmarks/results/`.
@@ -219,15 +252,30 @@ Useful options can be passed after `--`:
 task bench:scifact -- --no-rerank
 task bench:scifact -- --reuse-db
 task bench:scifact -- --config ./configs/jina.yaml --run-label jina-v2
+task bench:scifact -- --fts-only --no-rerank
+task bench:scifact -- --vector-only --no-rerank
+task bench:scifact -- --fusion rrf --no-rerank
+task bench:scifact -- --fusion vector-bm25 --bm25-weight 0.10 --rerank-candidates 300 --no-rerank
 task bench:scifact-smoke -- --max-queries 25 --max-docs 1000
 task bench:scifact-bg -- --reuse-db
 ```
+
+The default search fusion is `vector-bm25`, which retrieves vector candidates
+first, computes an in-memory BM25 score over that candidate set, and blends the
+scores with `--bm25-weight` (default `0.10`). Use `--fusion rrf` for the legacy
+global FTS + vector Reciprocal Rank Fusion mode. Use a larger
+`--rerank-candidates` value with vector-BM25 if you want lexical reranking to
+improve `Recall@100`; with only 100 candidates and a 100-result limit it can
+only change ordering.
 
 When `--config` is provided, the harness passes it to Mnemosyne as
 `MNEMOSYNE_CONFIG`. When `--run-label` is provided (or inferred from the config
 filename), the benchmark uses a separate work DB under `benchmarks/work/` and
 includes the label in result filenames. This keeps runs with different
 embedding dimensions from sharing a SQLite vector table by accident.
+Use `--reuse-db` for `--fts-only` comparisons when possible, since a fresh
+benchmark import still embeds vectorless corpus files through the normal import
+path.
 
 The background task uses `screen` so long benchmark runs survive the shell that
 started them:
@@ -335,7 +383,7 @@ mnemosyne/
 │   ├── list.go               # List documents
 │   ├── delete.go             # Delete a document by ID
 │   ├── forget.go             # Delete an entire collection
-│   ├── search.go             # Search (hybrid: FTS5 + vector + RRF)
+│   ├── search.go             # Search (hybrid: FTS5 + vector + fusion)
 │   ├── setup.go              # Download ONNX Runtime + ML models
 │   ├── export.go             # Export collections to JSONL
 │   ├── import.go             # Import collections from JSONL (auto-embeds if needed)
@@ -363,9 +411,10 @@ mnemosyne/
 │   │   ├── export.go          # ExportCollection (streams docs to JSONL)
 │   │   └── import.go          # ImportCollection (reads JSONL, auto-embeds if needed)
 │   ├── reranker/             # ONNX cross-encoder reranker (Phase 7)
-│   └── search/               # Hybrid search + RRF
-│       ├── hybrid.go         # Search engine (orchestrates FTS + vector + RRF)
-│       └── rrf.go            # Reciprocal Rank Fusion algorithm
+│   └── search/               # Hybrid search + fusion
+│       ├── bm25.go           # In-memory BM25 scoring for vector-first rerank
+│       ├── hybrid.go         # Search engine (orchestrates FTS/vector/fusion)
+│       └── rrf.go            # Result types + Reciprocal Rank Fusion algorithm
 ├── models/                   # ONNX model files (gitignored)
 ├── lib/                      # Native libraries (gitignored)
 ├── main.go                   # Entry point

@@ -9,7 +9,7 @@ import (
 
 // Result is a unified search result that can originate from FTS, vector search,
 // or a fusion of both. It carries the original scores from each source along
-// with the fused RRF score.
+// with the fused score.
 type Result struct {
 	// Document fields.
 	DocumentID   int64
@@ -18,13 +18,18 @@ type Result struct {
 	Metadata     *string
 	CreatedAt    time.Time
 
-	// RRFScore is the Reciprocal Rank Fusion score (higher = more relevant).
-	// Only set when results are fused from multiple sources.
+	// RRFScore is the final fused score (higher = more relevant). In RRF mode
+	// this is a Reciprocal Rank Fusion score; in vector-BM25 mode it is the
+	// blended vector/BM25 score.
 	RRFScore float64
 
 	// FTSRank is the BM25 relevance score from FTS5 (higher = more relevant).
 	// Zero if this document was not found by FTS search.
 	FTSRank float64
+
+	// BM25Score is an in-memory BM25 score used by vector-first lexical reranking.
+	// Zero if that fusion mode was not used or the document had no lexical match.
+	BM25Score float64
 
 	// VecDistance is the cosine distance from vector search (lower = more similar).
 	// Zero if this document was not found by vector search.

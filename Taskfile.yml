@@ -84,6 +84,28 @@ tasks:
     cmds:
       - python3 benchmarks/beir/run.py --dataset scifact --max-queries 10 --max-docs 500 --no-rerank {{.CLI_ARGS}}
 
+  bench:longmemeval-smoke:
+    desc: Run a short LongMemEval benchmark smoke test
+    deps: [build]
+    cmds:
+      - python3 benchmarks/longmemeval/run.py --max-queries 2 --max-sessions 8 --no-rerank {{.CLI_ARGS}}
+
+  bench:longmemeval-session-bg:
+    desc: Run the LongMemEval session-doc benchmark in a detached screen session
+    deps: [build]
+    cmds:
+      - mkdir -p benchmarks/work/longmemeval/session
+      - command -v screen >/dev/null 2>&1 || { echo >&2 "screen is required for bench:longmemeval-session-bg"; exit 1; }
+      - >-
+        screen -dmS mnemosyne-longmemeval-session
+        /bin/bash -lc
+        'cd "{{.ROOT_DIR}}" &&
+        python3 -u benchmarks/longmemeval/run.py --doc-mode session {{.CLI_ARGS}}
+        > benchmarks/work/longmemeval/session/full-benchmark.log 2>&1'
+      - 'echo "Started screen session: mnemosyne-longmemeval-session"'
+      - 'echo "Log: tail -f benchmarks/work/longmemeval/session/full-benchmark.log"'
+      - 'echo "Attach: screen -r mnemosyne-longmemeval-session"'
+
   cover:
     desc: Run tests and open HTML coverage report
     env:

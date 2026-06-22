@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"unicode"
 )
 
 // SearchResult represents a document matched by FTS5 search,
@@ -43,11 +44,14 @@ func (db *DB) SearchFTS(collectionID int64, query string, tags []string, limit i
 	// The query joins docs_fts with documents to:
 	// 1. Filter by collection_id (FTS5 table is global, not per-collection)
 	// 2. Retrieve full document fields
-	// 3. Rank by BM25 (bm25() returns negative values; more negative = more relevant)
-	//    We negate it so higher values = more relevant, which is more intuitive.
+	// 3. Rank by FTS5's hidden rank column. By default this is equivalent to
+	//    bm25(docs_fts), where lower values are more relevant. Ordering by the
+	//    hidden rank column lets FTS5 optimize ORDER BY/LIMIT internally instead
+	//    of forcing SQLite to materialize and sort all matches.
+	//    We negate it in the result so higher values = more relevant.
 	sql := `
 		SELECT d.id, d.collection_id, d.content, d.metadata, d.created_at,
-		       -bm25(docs_fts) AS rank
+		       docs_fts.rank AS rank
 		FROM docs_fts
 		JOIN documents d ON d.id = docs_fts.rowid
 		WHERE docs_fts MATCH ?
@@ -61,7 +65,7 @@ func (db *DB) SearchFTS(collectionID int64, query string, tags []string, limit i
 		args = append(args, tag)
 	}
 
-	sql += " ORDER BY rank DESC"
+	sql += " ORDER BY rank"
 
 	if limit > 0 {
 		sql += " LIMIT ?"
@@ -83,30 +87,67 @@ func (db *DB) SearchFTS(collectionID int64, query string, tags []string, limit i
 		if err := rows.Scan(&r.ID, &r.CollectionID, &r.Content, &r.Metadata, &r.CreatedAt, &r.Rank); err != nil {
 			return nil, fmt.Errorf("scanning FTS result: %w", err)
 		}
+		r.Rank = -r.Rank
 		results = append(results, r)
 	}
 
 	return results, rows.Err()
 }
 
-// sanitizeFTSQuery cleans a user query for safe use with FTS5 MATCH.
-// It removes special FTS5 syntax characters that could cause parse errors,
-// while preserving quoted phrases and basic word tokens.
+// sanitizeFTSQuery converts a user query into a safe FTS5 MATCH expression.
+// Ordinary natural-language text is treated as a retrieval query: low-signal
+// stopwords are removed and remaining terms are OR'd so sparse questions do
+// not become expensive all-terms-required boolean queries. Explicit quoted
+// phrases are preserved as exact phrase clauses.
 func sanitizeFTSQuery(query string) string {
 	query = strings.TrimSpace(query)
 	if query == "" {
 		return ""
 	}
 
-	// Remove characters that are FTS5 column filters or operators.
-	// Keep: letters, digits, spaces, double quotes (for phrases), hyphens, underscores.
+	var clauses []string
+
+	if strings.Count(query, `"`)%2 == 0 {
+		for {
+			start := strings.Index(query, `"`)
+			if start < 0 {
+				clauses = append(clauses, ftsTokenClauses(query)...)
+				break
+			}
+
+			clauses = append(clauses, ftsTokenClauses(query[:start])...)
+			query = query[start+1:]
+
+			end := strings.Index(query, `"`)
+			if end < 0 {
+				// This should be unreachable because quote count is even, but keep
+				// the fallback defensive.
+				clauses = append(clauses, ftsTokenClauses(query)...)
+				break
+			}
+
+			if phrase := sanitizeFTSPhrase(query[:end]); phrase != "" {
+				clauses = append(clauses, phrase)
+			}
+			query = query[end+1:]
+		}
+	} else {
+		// Unbalanced quotes cause FTS5 parse errors. Treat the quotes as noise.
+		clauses = append(clauses, ftsTokenClauses(strings.ReplaceAll(query, `"`, " "))...)
+	}
+
+	if len(clauses) == 0 {
+		return ""
+	}
+	return strings.Join(clauses, " OR ")
+}
+
+func ftsTokenClauses(query string) []string {
+	var clauses []string
 	var b strings.Builder
 	for _, r := range query {
 		switch {
-		case r >= 'a' && r <= 'z',
-			r >= 'A' && r <= 'Z',
-			r >= '0' && r <= '9',
-			r == ' ', r == '"', r == '_':
+		case unicode.IsLetter(r), unicode.IsDigit(r), r == '_':
 			b.WriteRune(r)
 		default:
 			// Replace other characters with a space to avoid breaking tokenization.
@@ -114,13 +155,64 @@ func sanitizeFTSQuery(query string) string {
 		}
 	}
 
-	// Collapse multiple spaces and trim.
-	result := strings.Join(strings.Fields(b.String()), " ")
-
-	// Ensure balanced double quotes (unbalanced quotes cause FTS5 parse errors).
-	if strings.Count(result, `"`)%2 != 0 {
-		result = strings.ReplaceAll(result, `"`, "")
+	for _, token := range strings.Fields(b.String()) {
+		if isFTSStopword(token) || isLowSignalFTSToken(token) {
+			continue
+		}
+		clauses = append(clauses, token)
 	}
 
-	return result
+	return clauses
+}
+
+func sanitizeFTSPhrase(phrase string) string {
+	var b strings.Builder
+	for _, r := range phrase {
+		switch {
+		case unicode.IsLetter(r), unicode.IsDigit(r), r == '_':
+			b.WriteRune(r)
+		default:
+			b.WriteRune(' ')
+		}
+	}
+
+	tokens := strings.Fields(b.String())
+	if len(tokens) == 0 {
+		return ""
+	}
+	return `"` + strings.Join(tokens, " ") + `"`
+}
+
+func isLowSignalFTSToken(token string) bool {
+	runes := []rune(token)
+	return len(runes) == 1 && unicode.IsDigit(runes[0])
+}
+
+func isFTSStopword(token string) bool {
+	_, ok := ftsStopwords[strings.ToLower(token)]
+	return ok
+}
+
+var ftsStopwords = map[string]struct{}{
+	"a": {}, "about": {}, "above": {}, "after": {}, "again": {}, "against": {},
+	"all": {}, "am": {}, "an": {}, "and": {}, "any": {}, "are": {}, "as": {},
+	"at": {}, "be": {}, "because": {}, "been": {}, "before": {}, "being": {},
+	"below": {}, "between": {}, "both": {}, "but": {}, "by": {}, "can": {},
+	"could": {}, "did": {}, "do": {}, "does": {}, "doing": {}, "down": {},
+	"during": {}, "each": {}, "few": {}, "for": {}, "from": {}, "further": {},
+	"had": {}, "has": {}, "have": {}, "having": {}, "he": {}, "her": {},
+	"here": {}, "hers": {}, "herself": {}, "him": {}, "himself": {}, "his": {},
+	"how": {}, "i": {}, "if": {}, "in": {}, "into": {}, "is": {}, "it": {},
+	"its": {}, "itself": {}, "just": {}, "me": {}, "more": {}, "most": {},
+	"my": {}, "myself": {}, "no": {}, "nor": {}, "not": {}, "now": {},
+	"of": {}, "off": {}, "on": {}, "once": {}, "only": {}, "or": {},
+	"other": {}, "our": {}, "ours": {}, "ourselves": {}, "out": {}, "over": {},
+	"own": {}, "same": {}, "she": {}, "should": {}, "so": {}, "some": {},
+	"such": {}, "than": {}, "that": {}, "the": {}, "their": {}, "theirs": {},
+	"them": {}, "themselves": {}, "then": {}, "there": {}, "these": {},
+	"they": {}, "this": {}, "those": {}, "through": {}, "to": {}, "too": {},
+	"under": {}, "until": {}, "up": {}, "very": {}, "was": {}, "we": {},
+	"were": {}, "what": {}, "when": {}, "where": {}, "which": {}, "while": {},
+	"who": {}, "whom": {}, "why": {}, "will": {}, "with": {}, "you": {},
+	"your": {}, "yours": {}, "yourself": {}, "yourselves": {},
 }

@@ -19,6 +19,12 @@ func TestDefaultConfig(t *testing.T) {
 	if cfg.Search.TopK != 10 {
 		t.Errorf("expected TopK 10, got %d", cfg.Search.TopK)
 	}
+	if cfg.Search.Fusion != "vector-bm25" {
+		t.Errorf("expected Fusion vector-bm25, got %q", cfg.Search.Fusion)
+	}
+	if cfg.Search.BM25Weight != 0.10 {
+		t.Errorf("expected BM25Weight 0.10, got %f", cfg.Search.BM25Weight)
+	}
 	if cfg.DBPath == "" {
 		t.Error("expected DBPath to be set")
 	}
@@ -130,6 +136,12 @@ search:
 	}
 	if cfg.Search.TopK != 10 {
 		t.Errorf("expected omitted top_k to keep default 10, got %d", cfg.Search.TopK)
+	}
+	if cfg.Search.Fusion != "vector-bm25" {
+		t.Errorf("expected omitted fusion to keep default vector-bm25, got %q", cfg.Search.Fusion)
+	}
+	if cfg.Search.BM25Weight != 0.10 {
+		t.Errorf("expected omitted bm25_weight to keep default 0.10, got %f", cfg.Search.BM25Weight)
 	}
 }
 

@@ -152,6 +152,7 @@ func TestEngine_Search(t *testing.T) {
 		Query:            "go programming goroutine",
 		Limit:            10,
 		RRFK:             60,
+		Fusion:           search.FusionRRF,
 		ReRankCandidates: 10,
 	})
 	if err != nil {
@@ -207,6 +208,7 @@ func TestEngine_Search_BothSourcesBoosted(t *testing.T) {
 		Query:            "go programming",
 		Limit:            10,
 		RRFK:             60,
+		Fusion:           search.FusionRRF,
 		ReRankCandidates: 10,
 	})
 	if err != nil {
@@ -246,6 +248,7 @@ func TestEngine_Search_Limit(t *testing.T) {
 		Query:            "programming language",
 		Limit:            2,
 		RRFK:             60,
+		Fusion:           search.FusionRRF,
 		ReRankCandidates: 10,
 	})
 	if err != nil {
@@ -254,6 +257,188 @@ func TestEngine_Search_Limit(t *testing.T) {
 
 	if len(results) > 2 {
 		t.Errorf("expected at most 2 results, got %d", len(results))
+	}
+}
+
+func TestEngine_Search_FTSOnly(t *testing.T) {
+	embedder := newMockEmbedder([]string{"go", "programming"})
+	database := testDB(t)
+
+	docs := []string{
+		"Go programming language",
+		"Cooking recipes",
+	}
+
+	collID := seedCollection(t, database, embedder, "test", docs)
+
+	engine := search.NewEngine(database, nil, nil)
+	results, err := engine.Search(search.Options{
+		CollectionID:     collID,
+		Query:            "go programming",
+		Limit:            10,
+		RRFK:             60,
+		ReRankCandidates: 10,
+		FTSOnly:          true,
+		DisableThreshold: true,
+	})
+	if err != nil {
+		t.Fatalf("Search() error: %v", err)
+	}
+
+	if len(results) == 0 {
+		t.Fatal("expected FTS-only results")
+	}
+	for _, r := range results {
+		if len(r.Sources) != 1 || r.Sources[0] != "fts" {
+			t.Fatalf("expected only fts source, got %v", r.Sources)
+		}
+		if r.FTSRank <= 0 {
+			t.Fatalf("expected FTSRank to be populated, got %f", r.FTSRank)
+		}
+		if r.VecDistance != 0 {
+			t.Fatalf("expected VecDistance to be unset, got %f", r.VecDistance)
+		}
+	}
+}
+
+func TestEngine_Search_VectorOnly(t *testing.T) {
+	embedder := newMockEmbedder([]string{"go", "programming"})
+	database := testDB(t)
+
+	docs := []string{
+		"Go programming language",
+		"Cooking recipes",
+	}
+
+	collID := seedCollection(t, database, embedder, "test", docs)
+
+	engine := search.NewEngine(database, embedder, nil)
+	results, err := engine.Search(search.Options{
+		CollectionID:     collID,
+		Query:            "go programming",
+		Limit:            10,
+		RRFK:             60,
+		ReRankCandidates: 10,
+		VectorOnly:       true,
+		DisableThreshold: true,
+	})
+	if err != nil {
+		t.Fatalf("Search() error: %v", err)
+	}
+
+	if len(results) == 0 {
+		t.Fatal("expected vector-only results")
+	}
+	for _, r := range results {
+		if len(r.Sources) != 1 || r.Sources[0] != "vector" {
+			t.Fatalf("expected only vector source, got %v", r.Sources)
+		}
+		if r.FTSRank != 0 {
+			t.Fatalf("expected FTSRank to be unset, got %f", r.FTSRank)
+		}
+	}
+}
+
+func TestEngine_Search_VectorBM25Fusion(t *testing.T) {
+	embedder := newMockEmbedder([]string{"semantic", "concept"})
+	database := testDB(t)
+
+	docs := []string{
+		"semantic concept general discussion",
+		"exactterm exactterm exactterm exactterm",
+	}
+
+	collID := seedCollection(t, database, embedder, "test", docs)
+
+	engine := search.NewEngine(database, embedder, nil)
+	results, err := engine.Search(search.Options{
+		CollectionID:     collID,
+		Query:            "semantic exactterm",
+		Limit:            10,
+		ReRankCandidates: 10,
+		Fusion:           search.FusionVectorBM25,
+		BM25Weight:       1.0,
+		DisableThreshold: true,
+	})
+	if err != nil {
+		t.Fatalf("Search() error: %v", err)
+	}
+
+	if len(results) < 2 {
+		t.Fatalf("expected at least 2 results, got %d", len(results))
+	}
+	if results[0].Content != "exactterm exactterm exactterm exactterm" {
+		t.Fatalf("expected lexical match to be promoted, got %q", results[0].Content)
+	}
+	if results[0].BM25Score <= 0 {
+		t.Fatalf("expected BM25Score to be populated, got %f", results[0].BM25Score)
+	}
+	if !contains(results[0].Sources, "bm25") || !contains(results[0].Sources, "vector") {
+		t.Fatalf("expected vector and bm25 sources, got %v", results[0].Sources)
+	}
+}
+
+func TestEngine_Search_DefaultFusionIsVectorBM25(t *testing.T) {
+	embedder := newMockEmbedder([]string{"semantic", "concept"})
+	database := testDB(t)
+
+	docs := []string{
+		"semantic concept general discussion",
+		"exactterm exactterm exactterm exactterm",
+	}
+
+	collID := seedCollection(t, database, embedder, "test", docs)
+
+	engine := search.NewEngine(database, embedder, nil)
+	results, err := engine.Search(search.Options{
+		CollectionID:     collID,
+		Query:            "semantic exactterm",
+		Limit:            10,
+		ReRankCandidates: 10,
+		BM25Weight:       1.0,
+		DisableThreshold: true,
+	})
+	if err != nil {
+		t.Fatalf("Search() error: %v", err)
+	}
+
+	if len(results) == 0 {
+		t.Fatal("expected default vector-BM25 results")
+	}
+	if !contains(results[0].Sources, "bm25") || !contains(results[0].Sources, "vector") {
+		t.Fatalf("expected default fusion to include vector and bm25 sources, got %v", results[0].Sources)
+	}
+}
+
+func TestEngine_Search_SourceModeConflict(t *testing.T) {
+	database := testDB(t)
+	engine := search.NewEngine(database, nil, nil)
+
+	_, err := engine.Search(search.Options{
+		CollectionID: 1,
+		Query:        "test",
+		Limit:        10,
+		FTSOnly:      true,
+		VectorOnly:   true,
+	})
+	if err == nil {
+		t.Fatal("expected error when both source-only modes are enabled")
+	}
+}
+
+func TestEngine_Search_VectorBM25RejectsFTSOnly(t *testing.T) {
+	database := testDB(t)
+	engine := search.NewEngine(database, nil, nil)
+
+	_, err := engine.Search(search.Options{
+		CollectionID: 1,
+		Query:        "test",
+		Limit:        10,
+		Fusion:       search.FusionVectorBM25,
+		FTSOnly:      true,
+	})
+	if err == nil {
+		t.Fatal("expected error when vector-bm25 fusion is used with FTSOnly")
 	}
 }
 
@@ -269,4 +454,13 @@ func TestEngine_Search_RequiresEmbedder(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error when searching without embedder")
 	}
+}
+
+func contains(values []string, want string) bool {
+	for _, value := range values {
+		if value == want {
+			return true
+		}
+	}
+	return false
 }

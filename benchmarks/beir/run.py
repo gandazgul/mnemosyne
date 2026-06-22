@@ -111,6 +111,29 @@ def parse_args() -> argparse.Namespace:
         help="Disable cross-encoder reranking during search.",
     )
     parser.add_argument(
+        "--fusion",
+        choices=["rrf", "vector-bm25"],
+        default=None,
+        help="Search fusion strategy. Defaults to vector-bm25 for hybrid runs and rrf for source-only runs.",
+    )
+    parser.add_argument(
+        "--bm25-weight",
+        type=float,
+        default=0.10,
+        help="BM25 lexical weight for --fusion vector-bm25. Defaults to 0.10.",
+    )
+    source_group = parser.add_mutually_exclusive_group()
+    source_group.add_argument(
+        "--fts-only",
+        action="store_true",
+        help="Use only full-text search candidates.",
+    )
+    source_group.add_argument(
+        "--vector-only",
+        action="store_true",
+        help="Use only vector search candidates.",
+    )
+    parser.add_argument(
         "--reuse-db",
         action="store_true",
         help="Reuse an existing benchmark DB instead of rebuilding/importing.",
@@ -296,6 +319,10 @@ def query_mnemosyne(
     limit: int,
     rerank_candidates: int,
     no_rerank: bool,
+    fusion: str,
+    bm25_weight: float,
+    fts_only: bool,
+    vector_only: bool,
     db_path: Path,
     config_path: Path | None,
     repo_root: Path,
@@ -311,10 +338,18 @@ def query_mnemosyne(
         str(limit),
         "--rerank-candidates",
         str(rerank_candidates),
+        "--fusion",
+        fusion,
+        "--bm25-weight",
+        str(bm25_weight),
         "--no-threshold",
     ]
     if no_rerank:
         cmd.append("--no-rerank")
+    if fts_only:
+        cmd.append("--fts-only")
+    if vector_only:
+        cmd.append("--vector-only")
     cmd.append(query)
 
     env = mnemosyne_env(db_path, config_path)
@@ -485,6 +520,17 @@ def write_results(
 ) -> tuple[Path, Path]:
     results_dir.mkdir(parents=True, exist_ok=True)
     mode = "no-rerank" if payload["config"]["no_rerank"] else "rerank"
+    source_mode = payload["config"].get("source_mode") or "hybrid"
+    if source_mode != "hybrid":
+        mode = f"{source_mode}-{mode}"
+    elif payload["config"].get("fusion") != "rrf":
+        fusion = payload["config"]["fusion"]
+        if fusion == "vector-bm25":
+            bm25_weight = str(payload["config"]["bm25_weight"]).replace(".", "p")
+            candidates = payload["config"]["rerank_candidates"]
+            mode = f"{fusion}-w{bm25_weight}-c{candidates}-{mode}"
+        else:
+            mode = f"{fusion}-{mode}"
     label = payload["config"].get("run_label")
     label_part = f"-{label}" if label else ""
     suffix = f"{dataset}{label_part}-{mode}-smoke-{max_queries}" if max_queries else f"{dataset}{label_part}-{mode}"
@@ -507,6 +553,10 @@ def write_results(
         if payload["config"].get("max_docs"):
             f.write(f"- Corpus subset limit: {payload['config']['max_docs']}\n")
         f.write(f"- Search limit: {payload['config']['limit']}\n")
+        f.write(f"- Source mode: `{payload['config']['source_mode']}`\n")
+        f.write(f"- Fusion: `{payload['config']['fusion']}`\n")
+        if payload["config"].get("fusion") == "vector-bm25":
+            f.write(f"- BM25 weight: `{payload['config']['bm25_weight']}`\n")
         f.write(f"- Rerank candidates: {payload['config']['rerank_candidates']}\n")
         f.write(f"- Rerank enabled: {not payload['config']['no_rerank']}\n")
         if payload["config"].get("run_label"):
@@ -576,6 +626,22 @@ def main() -> int:
     binary = args.binary.resolve()
     config_path = args.config.resolve() if args.config else None
     run_label = sanitize_label(args.run_label or config_path.stem) if (args.run_label or config_path) else None
+    source_mode = "hybrid"
+    if args.fts_only:
+        source_mode = "fts-only"
+    elif args.vector_only:
+        source_mode = "vector-only"
+
+    fusion = args.fusion
+    if fusion is None:
+        fusion = "rrf" if source_mode != "hybrid" else "vector-bm25"
+
+    if fusion == "vector-bm25" and args.fts_only:
+        print("--fusion vector-bm25 cannot be used with --fts-only", file=sys.stderr)
+        return 2
+    if args.bm25_weight < 0 or args.bm25_weight > 1:
+        print("--bm25-weight must be between 0 and 1", file=sys.stderr)
+        return 2
 
     if not binary.exists():
         print(f"mnemosyne binary not found at {binary}; run `task build` first", file=sys.stderr)
@@ -622,6 +688,10 @@ def main() -> int:
             limit=args.limit,
             rerank_candidates=args.rerank_candidates,
             no_rerank=args.no_rerank,
+            fusion=fusion,
+            bm25_weight=args.bm25_weight,
+            fts_only=args.fts_only,
+            vector_only=args.vector_only,
             db_path=db_path,
             config_path=config_path,
             repo_root=repo_root,
@@ -650,6 +720,11 @@ def main() -> int:
             "limit": args.limit,
             "rerank_candidates": args.rerank_candidates,
             "no_rerank": args.no_rerank,
+            "fusion": fusion,
+            "bm25_weight": args.bm25_weight,
+            "source_mode": source_mode,
+            "fts_only": args.fts_only,
+            "vector_only": args.vector_only,
             "max_queries": args.max_queries,
             "max_docs": args.max_docs,
         },

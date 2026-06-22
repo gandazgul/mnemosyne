@@ -35,10 +35,15 @@ reranker:
   enabled: true
 
 search:
+  # Default fusion retrieves vector candidates first, then applies a small
+  # in-memory BM25 lexical boost over that candidate set. Use "rrf" for the
+  # legacy global FTS + vector Reciprocal Rank Fusion mode.
+  fusion: "vector-bm25"
+  bm25_weight: 0.10
   rrf_k: 60
   top_k: 10
   rerank_candidates: 50
   # Minimum reranker sigmoid score for inclusion.
   reranker_threshold: 0.001
-  # Minimum RRF score for inclusion (when reranking is disabled).
+  # Minimum fused score for inclusion (when reranking is disabled).
   rrf_threshold: 0.01
