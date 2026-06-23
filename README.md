@@ -403,6 +403,7 @@ mnemosyne/
 │   ├── setup.go              # Download ONNX Runtime + ML models
 │   ├── export.go             # Export collections to JSONL
 │   ├── import.go             # Import collections from JSONL (auto-embeds if needed)
+│   ├── import_claude.go      # Claude Code memory import backend
 │   ├── helpers.go            # Shared helpers (resolve collection, open DB/embedder)
 │   └── format.go             # Output format validation + color helpers
 ├── internal/
@@ -454,6 +455,41 @@ mnemosyne/
 | Task runner      | [Task](https://taskfile.dev/)                                           |
 
 ## Integrations
+
+### Claude Code
+
+Mnemosyne can import existing Claude Code memory files into a Mnemosyne
+collection:
+
+```bash
+# Preview what would be imported without writing anything
+mnemosyne import --agent claude --dry-run
+
+# Import current-project Claude Code memories into the current collection
+mnemosyne import --agent claude
+
+# Also include user-level Claude Code memories from ~/.claude
+mnemosyne import --agent claude --include-user
+
+# Import a specific file or directory
+mnemosyne import --agent claude --path ~/.claude/CLAUDE.md --name claude-import
+```
+
+The importer is non-destructive: it only reads Claude Code memory files and
+appends them as new Mnemosyne documents. It does not edit, delete, move,
+overwrite, or truncate any Claude Code files or existing Mnemosyne memories.
+
+By default, `import --agent claude` looks for current-project Claude Code
+memory:
+
+- `./CLAUDE.md`
+- `./.claude/CLAUDE.md`
+- `./CLAUDE.local.md`
+- `./.claude/rules/*.md`
+- `~/.claude/projects/<current-project>/memory/*.md`
+
+Imported documents are embedded for search and tagged with `claude-code`,
+`imported`, and their source scope.
 
 ### Pi & OpenCode extensions
 

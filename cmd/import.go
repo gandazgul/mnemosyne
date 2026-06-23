@@ -18,7 +18,7 @@ import (
 // importCmd imports collections from JSONL files.
 var importCmd = &cobra.Command{
 	Use:   "import <file.jsonl>",
-	Short: "Import collections from JSONL files",
+	Short: "Import collections from JSONL files or agent memory",
 	Long: `Import one or more collections from JSONL files exported by 'mnemosyne export'.
 
 When the file includes vector embeddings, the import is fast and model-independent
@@ -30,14 +30,44 @@ the embedding model to be available (it is auto-downloaded on first use).
 
 If the collection already exists, documents are appended to it.
 
+Use --agent to import memories from another agent's memory system. Agent imports
+append new Mnemosyne documents and do not modify source agent memory files.
+
 Examples:
   mnemosyne import my-project.jsonl                # import into original collection name
   mnemosyne import my-project.jsonl --name other    # override collection name
-  mnemosyne import --dir ./backups/                 # import all .jsonl files from directory`,
+  mnemosyne import --dir ./backups/                 # import all .jsonl files from directory
+  mnemosyne import --agent claude --dry-run         # preview Claude Code memories
+  mnemosyne import --agent claude                   # import Claude Code memories`,
 	Args: cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		nameFlag, _ := cmd.Flags().GetString("name")
 		dirFlag, _ := cmd.Flags().GetString("dir")
+		agentFlag, _ := cmd.Flags().GetString("agent")
+		globalFlag, _ := cmd.Flags().GetBool("global")
+		dryRunFlag, _ := cmd.Flags().GetBool("dry-run")
+		includeUserFlag, _ := cmd.Flags().GetBool("include-user")
+		pathFlags, _ := cmd.Flags().GetStringSlice("path")
+
+		if agentFlag != "" {
+			if len(args) > 0 {
+				return fmt.Errorf("cannot use --agent with a file argument; use --path for agent-specific source paths")
+			}
+			if dirFlag != "" {
+				return fmt.Errorf("cannot use --agent with --dir")
+			}
+			return importAgent(cmd, agentFlag, importAgentOptions{
+				Name:        nameFlag,
+				Global:      globalFlag,
+				DryRun:      dryRunFlag,
+				IncludeUser: includeUserFlag,
+				Paths:       pathFlags,
+			})
+		}
+
+		if globalFlag || dryRunFlag || includeUserFlag || hasNonEmptyPath(pathFlags) {
+			return fmt.Errorf("--global, --dry-run, --include-user, and --path require --agent")
+		}
 
 		if dirFlag != "" && len(args) > 0 {
 			return fmt.Errorf("cannot use --dir with a file argument")
@@ -166,5 +196,36 @@ func importDir(cmd *cobra.Command, database *db.DB, dirPath string, embedFn back
 func init() {
 	importCmd.Flags().StringP("name", "n", "", "override collection name")
 	importCmd.Flags().StringP("dir", "d", "", "import all .jsonl files from directory")
+	importCmd.Flags().String("agent", "", "import memories from an agent memory system (supported: claude)")
+	importCmd.Flags().BoolP("global", "g", false, "use the global collection for agent imports")
+	importCmd.Flags().Bool("dry-run", false, "preview an agent import without writing to Mnemosyne")
+	importCmd.Flags().Bool("include-user", false, "include user-level memories for agent imports")
+	importCmd.Flags().StringSlice("path", nil, "specific agent memory file or directory to import (repeatable)")
 	rootCmd.AddCommand(importCmd)
+}
+
+type importAgentOptions struct {
+	Name        string
+	Global      bool
+	DryRun      bool
+	IncludeUser bool
+	Paths       []string
+}
+
+func importAgent(cmd *cobra.Command, agent string, opts importAgentOptions) error {
+	switch strings.ToLower(agent) {
+	case "claude", "claude-code":
+		return importClaudeAgent(cmd, opts)
+	default:
+		return fmt.Errorf("unsupported import agent %q (supported: claude)", agent)
+	}
+}
+
+func hasNonEmptyPath(paths []string) bool {
+	for _, path := range paths {
+		if strings.TrimSpace(path) != "" {
+			return true
+		}
+	}
+	return false
 }
