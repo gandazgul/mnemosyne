@@ -194,6 +194,15 @@ benchmark DB when passed through the BEIR harness with `--config` and
 
 ## Benchmarks
 
+**Current LongMemEval headline:** Mnemosyne retrieves the correct memory session
+in the top 5 for 98.8% of questions and in the top 10 for 99.8% of questions
+on the full 500-question LongMemEval cleaned set, using short per-message
+documents, local Jina v5 nano embeddings, vector-BM25 fusion, and no LLM
+reranker.
+
+See [benchmarks/README.md](benchmarks/README.md) for published results,
+comparison notes, and full reproduction commands.
+
 Mnemosyne includes a small BEIR-compatible retrieval benchmark harness for
 SciFact. It downloads the public BEIR SciFact dataset, imports the corpus into
 an isolated benchmark database, runs `mnemosyne search -f json` for the judged
@@ -215,6 +224,13 @@ comparisons. LongMemEval is per-question: each question has its own haystack of
 conversation sessions, so the harness builds an isolated Mnemosyne DB per
 question and scores whether the retrieved documents map back to the answer
 session IDs.
+
+Published no-rerank LongMemEval results:
+
+| Document Mode | Recall@5 | Recall@10 | MRR@10 | nDCG@10 |
+| --- | ---: | ---: | ---: | ---: |
+| `message` | 0.9880 | 0.9980 | 0.9586 | 0.9575 |
+| `session` | 0.9920 | 0.9940 | 0.9491 | 0.9486 |
 
 ```bash
 # Tiny mechanics check: 2 questions, trimmed haystacks
