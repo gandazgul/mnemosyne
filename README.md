@@ -39,7 +39,9 @@ For building from source:
 - **Task** -- task runner. Install: `brew install go-task` or see
   [taskfile.dev](https://taskfile.dev/installation/)
 
-## Quick Start
+## Installation
+
+### Install the CLI
 
 Install the latest release to `~/.local/bin`:
 
@@ -47,92 +49,229 @@ Install the latest release to `~/.local/bin`:
 curl -fsSL https://raw.githubusercontent.com/gandazgul/mnemosyne/main/install.sh | sh
 ```
 
-Then run:
+Make sure `~/.local/bin` is on your `PATH`, then run the one-time setup:
 
 ```bash
 mnemosyne --help
 mnemosyne setup
 ```
 
-To build from source instead:
+`mnemosyne setup` downloads ONNX Runtime and the local ML models (~500 MB). It
+also runs automatically the first time you add or search memories.
+
+### Connect Mnemosyne to your agent
+
+Mnemosyne is agent-agnostic: install the CLI once, then connect the integration
+for each assistant you use. The integrations below all use the same local
+Mnemosyne collections, so memories can follow you across agents.
+
+#### Claude Code
+
+Use the separate
+[claudecode-mnemosyne](https://github.com/gandazgul/claudecode-mnemosyne) skill
+when you want Claude Code to store and search Mnemosyne memories instead of
+relying on Claude Code's built-in memory files.
 
 ```bash
-# Clone the repo
-git clone https://github.com/gandazgul/mnemosyne.git
-cd mnemosyne
+# 1. Install the mnemosyne CLI first
+curl -fsSL https://raw.githubusercontent.com/gandazgul/mnemosyne/main/install.sh | sh
+mnemosyne setup
 
-# Build
-task build
+# 2. Install the Claude Code skill globally with npx skills
+npx skills@latest add https://github.com/gandazgul/claudecode-mnemosyne \
+  --skill mnemosyne \
+  --agent claude-code \
+  --global \
+  --yes
 
+# 3. Restart any active Claude Code sessions
+```
+
+`npx skills@latest` installs the `mnemosyne` skill to
+`~/.claude/skills/mnemosyne` for Claude Code. On the next Claude Code session,
+the skill grants Claude Code permission to run the `mnemosyne` CLI for memory
+recall, storage, and deletion.
+
+If you prefer not to use `npx`, clone the
+[claudecode-mnemosyne](https://github.com/gandazgul/claudecode-mnemosyne) repo
+and run its `./install.sh` script instead.
+
+To migrate existing Claude Code memory into Mnemosyne, run this from the project
+you want to import:
+
+```bash
+# Preview what would be imported without writing anything
+mnemosyne import --agent claude --dry-run
+
+# Import current-project Claude Code memories into the current collection
+mnemosyne import --agent claude
+
+# Also include user-level Claude Code memories from ~/.claude
+mnemosyne import --agent claude --include-user
+
+# Import a specific file or directory
+mnemosyne import --agent claude --path ~/.claude/CLAUDE.md --name claude-import
+```
+
+The importer is non-destructive: it reads Claude Code memory files and appends
+them as new Mnemosyne documents. It does not edit, delete, move, overwrite, or
+truncate any Claude Code files or existing Mnemosyne memories.
+
+By default, `import --agent claude` looks for current-project Claude Code
+memory:
+
+- `./CLAUDE.md`
+- `./.claude/CLAUDE.md`
+- `./CLAUDE.local.md`
+- `./.claude/rules/*.md`
+- `~/.claude/projects/<current-project>/memory/*.md`
+
+Imported documents are embedded for search and tagged with `claude-code`,
+`imported`, and their source scope.
+
+The skill enables Mnemosyne access, but it does not disable Claude Code's
+built-in memory by itself. To make Mnemosyne the source of truth, add the
+instruction block in [Other agents](#other-agents) to your project `CLAUDE.md`
+or user-level Claude instructions.
+
+See the
+[claudecode-mnemosyne README](https://github.com/gandazgul/claudecode-mnemosyne)
+for manual installation and implementation details.
+
+#### Pi and OpenCode
+
+Mnemosyne integrates with [Pi](https://pi.dev) via the
+[pi-mnemosyne](https://github.com/gandazgul/pi-mnemosyne) extension and with
+[OpenCode](https://opencode.ai/) via the
+[opencode-mnemosyne](https://github.com/gandazgul/opencode-mnemosyne) plugin.
+
+These extensions provide `memory_recall`, `memory_store`, `memory_delete` (plus
+global variants) and automatically inject core memories into the system prompt.
+They also re-inject core memories and tool descriptions during compactions.
+
+See the extension README files for installation and usage details:
+
+- [pi-mnemosyne](https://github.com/gandazgul/pi-mnemosyne)
+- [opencode-mnemosyne](https://github.com/gandazgul/opencode-mnemosyne)
+
+#### Other agents
+
+For agents or IDEs that support `AGENTS.md`, project instructions, or similar
+custom guidance, add this instruction block after installing the CLI:
+
+```markdown
+## Memory (Mnemosyne)
+
+Mnemosyne is a CLI memory storage and semantic retrieval tool. Memories are kept
+in a project namespace named after the root folder. Use `-n [namespace]` to
+access another namespace and `--global` / `-g` for global user preferences.
+
+- Use Mnemosyne as the source of truth for persistent memory instead of the
+  agent's built-in memory system.
+- At the start of a session, run `mnemosyne list -t core -f plain` to load core
+  memories. These are critical user preferences and project-specific facts.
+- Search for relevant context with `mnemosyne search -f plain [query]` and
+  `mnemosyne search -g -f plain [query]`.
+- After significant decisions, or when the user asks you to remember something,
+  store one concise memory with `mnemosyne add "memory content"`. Use
+  `mnemosyne add -g "memory content"` for cross-project preferences.
+- Do not store new durable memories in the agent's built-in memory system unless
+  the user explicitly asks for that.
+- Delete contradicted memories with `mnemosyne delete [memory id]` before
+  storing updated replacements. The memory id appears in brackets, e.g. `[123]`.
+- Mark critical, always-relevant context as core with `-t core`, but use it
+  sparingly. You can add more tags, for example:
+  `mnemosyne add "database is sqlite" -t tech-stack -t database`.
+- When finishing a session, store durable memories that will help future agents
+  continue the work with the right context.
+```
+
+## Quick Start
+
+```bash
 # Run
-./mnemosyne
+mnemosyne
 
 # See available commands
-./mnemosyne --help
+mnemosyne --help
 
 # Check version
-./mnemosyne version
+mnemosyne version
 
 # Download ONNX Runtime and ML models (~500 MB one-time)
 # This also happens automatically on first 'add' or 'search'.
-./mnemosyne setup
+mnemosyne setup
 
 # Initialize a collection (uses current directory name by default)
-# Note: If a collection with this name already exists elsewhere,
-# init will error out to prevent accidental linking.
-./mnemosyne init
+# This is idempotent: if the collection already exists, init confirms it.
+mnemosyne init
 
-# Add documents (triggers model download on first use if not already set up)
-./mnemosyne add "Go is a statically typed programming language"
-./mnemosyne add "Rust focuses on memory safety and zero-cost abstractions"
-./mnemosyne add --file notes.txt
-./mnemosyne add --file README.md # Automatically chunks by semantic headings
+# Add documents (requires an initialized collection and triggers model download
+# on first use if setup has not already run)
+mnemosyne add "Go is a statically typed programming language"
+mnemosyne add "Rust focuses on memory safety and zero-cost abstractions"
+mnemosyne add --file notes.txt
+mnemosyne add --file README.md # Automatically chunks by semantic headings
+printf 'Piped note' | mnemosyne add --stdin
+mnemosyne add "Important project preference" -t core -t preference
 
 # Search documents (hybrid: vector-first BM25 fusion by default)
-./mnemosyne search "programming language"
-./mnemosyne search --limit 5 "systems programming"
-./mnemosyne search -f json --limit 10 "programming language"
-./mnemosyne search --fts-only --no-rerank "programming language"
-./mnemosyne search --vector-only --no-rerank "programming language"
-./mnemosyne search --fusion rrf --no-rerank "programming language"
+mnemosyne search "programming language"
+mnemosyne search --limit 5 "systems programming"
+mnemosyne search -f json --limit 10 "programming language"
+mnemosyne search --fts-only --no-rerank "programming language"
+mnemosyne search --vector-only --no-rerank "programming language"
+mnemosyne search --fusion rrf --no-rerank "programming language"
 
 # List documents
-./mnemosyne list
+mnemosyne list
 
-# List documents without colors
-./mnemosyne list -f plain
+# List documents without colors, limit results, or filter by tags
+mnemosyne list -f plain
+mnemosyne list --limit 5
+mnemosyne list -t core
+
+# List tags used in a collection
+mnemosyne tags
 
 # Delete a document by ID
-./mnemosyne delete 1
+mnemosyne delete 1
 
 # Use a named collection (with --name or -n)
-./mnemosyne init -n myproject
-./mnemosyne add -n myproject "some text"
-./mnemosyne search -n myproject "some query"
+mnemosyne init -n myproject
+mnemosyne add -n myproject "some text"
+mnemosyne search -n myproject "some query"
 
 # Use the global collection shortcut
-./mnemosyne add -g "Global memory"
-./mnemosyne search --global "global memory"
+mnemosyne init -g
+mnemosyne add -g "Global memory"
+mnemosyne search --global "global memory"
+
+# Show collections and database stats
+mnemosyne collections
+mnemosyne stats
 
 # Delete an entire collection
-./mnemosyne forget myproject
+mnemosyne forget -n myproject
+mnemosyne forget -n myproject --yes # skip confirmation
 
 # Export a collection to JSONL (includes vectors for fast import)
-./mnemosyne export --name myproject
+mnemosyne export --name myproject
 
 # Export without vectors (smaller file; embeddings auto-generated on import)
-./mnemosyne export --name myproject --no-embeddings
+mnemosyne export --name myproject --no-embeddings
 
 # Export all collections
-./mnemosyne export --all
+mnemosyne export --all
 
 # Import a collection (auto-embeds if vectors are missing)
-./mnemosyne import myproject.jsonl
-./mnemosyne import myproject.jsonl --name other   # override collection name
-./mnemosyne import --dir ./backups/               # import all .jsonl files
+mnemosyne import myproject.jsonl
+mnemosyne import myproject.jsonl --name other   # override collection name
+mnemosyne import --dir ./backups/               # import all .jsonl files
 
-# Delete an entire collection
-./mnemosyne forget myproject
+# Import Claude Code memory without modifying Claude files
+mnemosyne import --agent claude --dry-run
+mnemosyne import --agent claude --include-user
 ```
 
 ## Search Output Formats
@@ -140,9 +279,9 @@ task build
 The `search` command supports three output formats:
 
 ```bash
-./mnemosyne search -f color "query" # default human-readable color output
-./mnemosyne search -f plain "query" # stable plain text output
-./mnemosyne search -f json "query"  # machine-readable output for scripts and benchmarks
+mnemosyne search -f color "query" # default human-readable color output
+mnemosyne search -f plain "query" # stable plain text output
+mnemosyne search -f json "query"  # machine-readable output for scripts and benchmarks
 ```
 
 JSON search output is an object with `query`, `collection`, `count`, and a
@@ -163,8 +302,8 @@ Mnemosyne reads `~/.config/mnemosyne/config.yaml` when it exists. You can also
 point a single command or benchmark run at another config file:
 
 ```bash
-MNEMOSYNE_CONFIG=./configs/jina.yaml ./mnemosyne search "query"
-MNEMOSYNE_DB_PATH=/tmp/mnemosyne.db ./mnemosyne add "temporary note"
+MNEMOSYNE_CONFIG=./configs/jina.yaml mnemosyne search "query"
+MNEMOSYNE_DB_PATH=/tmp/mnemosyne.db mnemosyne add "temporary note"
 ```
 
 Use [config.example.yaml](config.example.yaml) as a starting point. The most
@@ -195,8 +334,8 @@ benchmark DB when passed through the BEIR harness with `--config` and
 ## Benchmarks
 
 **Current LongMemEval headline:** Mnemosyne retrieves the correct memory session
-in the top 5 for 98.8% of questions and in the top 10 for 99.8% of questions
-on the full 500-question LongMemEval cleaned set, using short per-message
+in the top 5 for 98.8% of questions and in the top 10 for 99.8% of questions on
+the full 500-question LongMemEval cleaned set, using short per-message
 documents, local Jina v5 nano embeddings, vector-BM25 fusion, and no LLM
 reranker.
 
@@ -228,9 +367,9 @@ session IDs.
 Published no-rerank LongMemEval results:
 
 | Document Mode | Recall@5 | Recall@10 | MRR@10 | nDCG@10 |
-| --- | ---: | ---: | ---: | ---: |
-| `message` | 0.9880 | 0.9980 | 0.9586 | 0.9575 |
-| `session` | 0.9920 | 0.9940 | 0.9491 | 0.9486 |
+| ------------- | -------: | --------: | -----: | ------: |
+| `message`     |   0.9880 |    0.9980 | 0.9586 |  0.9575 |
+| `session`     |   0.9920 |    0.9940 | 0.9491 |  0.9486 |
 
 ```bash
 # Tiny mechanics check: 2 questions, trimmed haystacks
@@ -254,11 +393,10 @@ python3 benchmarks/longmemeval/run.py \
 
 The BEIR harness reports `nDCG@10`, `MRR@10`, `Recall@10`, `Recall@100`, and
 `MAP@100`. Result JSON and Markdown also include breakdowns for first relevant
-rank buckets, queries missing at 100, and the lowest `MRR@10` cases.
-The LongMemEval harness reports session-level `recall_any@5`,
-`recall_any@10`, `recall_all@5`, `recall_all@10`, `MRR@10`, and `nDCG@10`,
-plus per-question-type breakdowns.
-Downloaded data and scratch databases are written under
+rank buckets, queries missing at 100, and the lowest `MRR@10` cases. The
+LongMemEval harness reports session-level `recall_any@5`, `recall_any@10`,
+`recall_all@5`, `recall_all@10`, `MRR@10`, and `nDCG@10`, plus per-question-type
+breakdowns. Downloaded data and scratch databases are written under
 `benchmarks/data/` and `benchmarks/work/`, which are gitignored. Published
 result files are written to `benchmarks/results/`.
 
@@ -287,11 +425,10 @@ only change ordering.
 When `--config` is provided, the harness passes it to Mnemosyne as
 `MNEMOSYNE_CONFIG`. When `--run-label` is provided (or inferred from the config
 filename), the benchmark uses a separate work DB under `benchmarks/work/` and
-includes the label in result filenames. This keeps runs with different
-embedding dimensions from sharing a SQLite vector table by accident.
-Use `--reuse-db` for `--fts-only` comparisons when possible, since a fresh
-benchmark import still embeds vectorless corpus files through the normal import
-path.
+includes the label in result filenames. This keeps runs with different embedding
+dimensions from sharing a SQLite vector table by accident. Use `--reuse-db` for
+`--fts-only` comparisons when possible, since a fresh benchmark import still
+embeds vectorless corpus files through the normal import path.
 
 The background task uses `screen` so long benchmark runs survive the shell that
 started them:
@@ -341,13 +478,13 @@ Mnemosyne supports JSONL-based export and import for backup and transfer.
 
 ```bash
 # Full export (includes vectors)
-./mnemosyne export --name myproject
+mnemosyne export --name myproject
 
 # Lightweight export (no vectors, ~10x smaller)
-./mnemosyne export --name myproject --no-embeddings
+mnemosyne export --name myproject --no-embeddings
 
 # Import (auto-embeds if vectors are missing)
-./mnemosyne import myproject.jsonl
+mnemosyne import myproject.jsonl
 ```
 
 ## Creating a Release
@@ -381,7 +518,7 @@ components and downloads them automatically to `~/.local/share/mnemosyne/`.
 **Manual**: Run `mnemosyne setup` to download everything upfront:
 
 ```bash
-./mnemosyne setup
+mnemosyne setup
 ```
 
 The command is idempotent -- it skips files that are already downloaded. No
@@ -454,91 +591,7 @@ mnemosyne/
 | Reranker model   | ms-marco-MiniLM-L-6-v2 (cross-encoder)                                  |
 | Task runner      | [Task](https://taskfile.dev/)                                           |
 
-## Integrations
-
-### Claude Code
-
-Mnemosyne can import existing Claude Code memory files into a Mnemosyne
-collection:
-
-```bash
-# Preview what would be imported without writing anything
-mnemosyne import --agent claude --dry-run
-
-# Import current-project Claude Code memories into the current collection
-mnemosyne import --agent claude
-
-# Also include user-level Claude Code memories from ~/.claude
-mnemosyne import --agent claude --include-user
-
-# Import a specific file or directory
-mnemosyne import --agent claude --path ~/.claude/CLAUDE.md --name claude-import
-```
-
-The importer is non-destructive: it only reads Claude Code memory files and
-appends them as new Mnemosyne documents. It does not edit, delete, move,
-overwrite, or truncate any Claude Code files or existing Mnemosyne memories.
-
-By default, `import --agent claude` looks for current-project Claude Code
-memory:
-
-- `./CLAUDE.md`
-- `./.claude/CLAUDE.md`
-- `./CLAUDE.local.md`
-- `./.claude/rules/*.md`
-- `~/.claude/projects/<current-project>/memory/*.md`
-
-Imported documents are embedded for search and tagged with `claude-code`,
-`imported`, and their source scope.
-
-### Pi & OpenCode extensions
-
-Mnemosyne also integrates with [Pi](https://pi.dev) via the
-[pi-mnemosyne](https://github.com/gandazgul/pi-mnemosyne) extension. And with
-[OpenCode](https://opencode.ai/) via the
-[opencode-mnemosyne](https://github.com/gandazgul/opencode-mnemosyne) plugin.
-
-These extensions provide `memory_recall`, `memory_store`, `memory_delete` (plus
-global variants) and automatically inject core memories into the system prompt.
-They also re-inject core memories and tool descriptions during compactions.
-
-See the particular extension's README files for installation and usage details.
-
-### Generic
-
-For other agents or IDEs that support AGENTS.md or similar add this:
-
-```markdown
-## Memory (mnemosyne)
-
-mnemosyne is a cli memory storage and semantic retrieval tool. the memories are
-kept in a project namespace named after the root folder you can access other
-namespaces by using -n [namespace name].
-
-- At the start of a session, use `mnemosyne list -t core -f plain` to get all
-  core memories, these will be user preferences and project specific things you
-  should know.
-
-Then also use `mnemosyne search -f plain [query relevant to the user's prompt]`
-and `mnemosyne search -g -f plain [query relevant to the user's prompt]` to
-search relevant memories. `-g` searches on a global namespace for broad user
-preferences.
-
-- After significant decisions, use `mnemosyne add "new memory"` to save a
-  concise fact you want to remember. Also do this if the user explicitly asks
-  you to remember something.
-- Delete contradicted memories with `mnemosyne delete [memory id]` before
-  storing updated ones. The memory id is shown in the output in brackets e.g.
-  `[123]`.
-- Mark critical, always-relevant context as core (-t core) — but use sparingly.
-  You can also use other tags as you see fit:
-  `mnemosyne add "database is sqlite" -t tech-stack -t database`
-- When you are done with a session, store any memories that you think are
-  relevant to the user and the project. This will help you recall important
-  information in future sessions.
-```
-
-### Sleeping
+## Sleeping
 
 Use this prompt template to ask the model to optimize memories:
 
