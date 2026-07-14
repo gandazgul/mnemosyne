@@ -48,6 +48,12 @@ tasks:
     cmds:
       - ./{{.BINARY_NAME}} {{.CLI_ARGS}}
 
+  ci:
+    desc: run all verifications
+    cmds:
+      - task lint
+      - task test
+
   test:
     desc: Run all tests
     env:
