@@ -84,6 +84,71 @@ func (db *DB) InsertDocumentWithVector(collectionID int64, content string, metad
 	}, nil
 }
 
+// UpdateDocumentMetadata updates metadata for an existing document within a collection.
+// Returns an error if the document does not exist in the given collection.
+func (db *DB) UpdateDocumentMetadata(id, collectionID int64, metadata *string) error {
+	result, err := db.conn.Exec(
+		"UPDATE documents SET metadata = ? WHERE id = ? AND collection_id = ?",
+		metadata, id, collectionID,
+	)
+	if err != nil {
+		return fmt.Errorf("updating metadata for document %d: %w", id, err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("getting rows affected: %w", err)
+	}
+	if rows == 0 {
+		return fmt.Errorf("document %d not found in collection %d", id, collectionID)
+	}
+
+	return nil
+}
+
+// UpdateDocumentWithVector updates document content, metadata, and vector atomically.
+// Returns an error if the document does not exist in the given collection.
+func (db *DB) UpdateDocumentWithVector(id, collectionID int64, content string, metadata *string, embedding []float32) error {
+	tx, err := db.conn.Begin()
+	if err != nil {
+		return fmt.Errorf("beginning transaction: %w", err)
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	result, err := tx.Exec(
+		"UPDATE documents SET content = ?, metadata = ? WHERE id = ? AND collection_id = ?",
+		content, metadata, id, collectionID,
+	)
+	if err != nil {
+		return fmt.Errorf("updating document %d: %w", id, err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("getting rows affected: %w", err)
+	}
+	if rows == 0 {
+		return fmt.Errorf("document %d not found in collection %d", id, collectionID)
+	}
+
+	if _, err := tx.Exec("DELETE FROM docs_vec WHERE document_id = ?", id); err != nil {
+		return fmt.Errorf("deleting vector for document %d: %w", id, err)
+	}
+
+	if _, err := tx.Exec(
+		"INSERT INTO docs_vec (document_id, embedding, collection_id) VALUES (?, ?, ?)",
+		id, SerializeFloat32(embedding), collectionID,
+	); err != nil {
+		return fmt.Errorf("inserting vector for document %d: %w", id, err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("committing transaction: %w", err)
+	}
+
+	return nil
+}
+
 // GetDocumentByID retrieves a single document by its ID.
 // Returns nil, nil if the document does not exist.
 func (db *DB) GetDocumentByID(id int64) (*Document, error) {

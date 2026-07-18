@@ -307,6 +307,33 @@ func TestSearchFTS_AfterCollectionDelete(t *testing.T) {
 	}
 }
 
+func TestSearchFTS_AfterUpdate(t *testing.T) {
+	database := testDBWithVectors(t, 4)
+	c, _ := database.CreateCollection("update-sync")
+
+	doc, _ := database.InsertDocumentWithVector(c.ID, "oldterm document", nil, []float32{1, 0, 0, 0})
+
+	if err := database.UpdateDocumentWithVector(doc.ID, c.ID, "newterm document", nil, []float32{0, 1, 0, 0}); err != nil {
+		t.Fatalf("UpdateDocumentWithVector() error = %v", err)
+	}
+
+	oldResults, err := database.SearchFTS(c.ID, "oldterm", nil, 0)
+	if err != nil {
+		t.Fatalf("SearchFTS(oldterm) error = %v", err)
+	}
+	if len(oldResults) != 0 {
+		t.Errorf("expected old term to disappear after update, got %d results", len(oldResults))
+	}
+
+	newResults, err := database.SearchFTS(c.ID, "newterm", nil, 0)
+	if err != nil {
+		t.Fatalf("SearchFTS(newterm) error = %v", err)
+	}
+	if len(newResults) != 1 || newResults[0].ID != doc.ID {
+		t.Fatalf("expected updated term to be searchable, got %#v", newResults)
+	}
+}
+
 func TestSanitizeFTSQuery_UnbalancedQuotes(t *testing.T) {
 	database := testDB(t)
 	c, _ := database.CreateCollection("unbalanced-quotes")

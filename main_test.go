@@ -112,6 +112,12 @@ func TestIntegrationPipeline(t *testing.T) {
 		t.Fatalf("Expected 'Added document' in output, got: %s", output)
 	}
 
+	fields := strings.Fields(output)
+	if len(fields) < 3 {
+		t.Fatalf("Expected add output to include document ID, got: %s", output)
+	}
+	docID := fields[2]
+
 	// Test 3: Search document
 	t.Log("Searching document...")
 	stdout, stderr = runCLI(t, binPath, env, "search", "--name", colName, "artificial intelligence")
@@ -120,7 +126,23 @@ func TestIntegrationPipeline(t *testing.T) {
 		t.Fatalf("Expected to find the document in search results, got: %s", output)
 	}
 
-	// Test 4: Collections list
+	// Test 4: Update document
+	t.Log("Updating document...")
+	stdout, stderr = runCLI(t, binPath, env, "update", "--name", colName, docID, "This revised document is about knowledge management.")
+	output = stdout + stderr
+	if !strings.Contains(output, "Updated document") {
+		t.Fatalf("Expected 'Updated document' in output, got: %s", output)
+	}
+
+	// Test 5: Search updated document
+	t.Log("Searching updated document...")
+	stdout, stderr = runCLI(t, binPath, env, "search", "--name", colName, "knowledge management")
+	output = stdout + stderr
+	if !strings.Contains(output, "This revised document") {
+		t.Fatalf("Expected to find the updated document in search results, got: %s", output)
+	}
+
+	// Test 6: Collections list
 	t.Log("Listing collections...")
 	stdout, stderr = runCLI(t, binPath, env, "collections")
 	output = stdout + stderr
@@ -128,7 +150,7 @@ func TestIntegrationPipeline(t *testing.T) {
 		t.Fatalf("Expected to find the collection in list, got: %s", output)
 	}
 
-	// Test 5: Stats
+	// Test 7: Stats
 	t.Log("Getting stats...")
 	stdout, stderr = runCLI(t, binPath, env, "stats")
 	output = stdout + stderr

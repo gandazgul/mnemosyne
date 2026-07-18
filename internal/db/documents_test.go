@@ -134,6 +134,165 @@ func TestListDocuments_CollectionScoped(t *testing.T) {
 	}
 }
 
+func TestUpdateDocumentMetadata(t *testing.T) {
+	database := testDBWithVectors(t, 4)
+	c, _ := database.CreateCollection("docs")
+
+	meta := `{"tags":["old"],"source":"test"}`
+	doc, _ := database.InsertDocumentWithVector(c.ID, "unchanged content", nil, []float32{1, 0, 0, 0})
+	before, _ := database.GetDocumentByID(doc.ID)
+
+	if err := database.UpdateDocumentMetadata(doc.ID, c.ID, &meta); err != nil {
+		t.Fatalf("UpdateDocumentMetadata() error = %v", err)
+	}
+
+	updated, err := database.GetDocumentByID(doc.ID)
+	if err != nil {
+		t.Fatalf("GetDocumentByID() error = %v", err)
+	}
+	if updated.ID != doc.ID {
+		t.Errorf("ID = %d, want %d", updated.ID, doc.ID)
+	}
+	if updated.CollectionID != c.ID {
+		t.Errorf("CollectionID = %d, want %d", updated.CollectionID, c.ID)
+	}
+	if updated.Content != "unchanged content" {
+		t.Errorf("Content = %q, want unchanged content", updated.Content)
+	}
+	if updated.Metadata == nil || *updated.Metadata != meta {
+		t.Errorf("Metadata = %v, want %q", updated.Metadata, meta)
+	}
+	if !updated.CreatedAt.Equal(before.CreatedAt) {
+		t.Errorf("CreatedAt = %v, want %v", updated.CreatedAt, before.CreatedAt)
+	}
+
+	results, err := database.SearchVectors(c.ID, []float32{1, 0, 0, 0}, nil, 1)
+	if err != nil {
+		t.Fatalf("SearchVectors() error = %v", err)
+	}
+	if len(results) != 1 || results[0].ID != doc.ID {
+		t.Fatalf("expected unchanged vector to remain searchable, got %#v", results)
+	}
+}
+
+func TestUpdateDocumentMetadata_NotFound(t *testing.T) {
+	database := testDB(t)
+	c, _ := database.CreateCollection("docs")
+
+	if err := database.UpdateDocumentMetadata(999, c.ID, nil); err == nil {
+		t.Fatal("expected error for missing document")
+	}
+}
+
+func TestUpdateDocumentMetadata_WrongCollection(t *testing.T) {
+	database := testDB(t)
+	c1, _ := database.CreateCollection("docs-1")
+	c2, _ := database.CreateCollection("docs-2")
+	doc, _ := database.InsertDocument(c1.ID, "content", nil)
+
+	if err := database.UpdateDocumentMetadata(doc.ID, c2.ID, nil); err == nil {
+		t.Fatal("expected error for wrong collection")
+	}
+}
+
+func TestUpdateDocumentWithVector(t *testing.T) {
+	database := testDBWithVectors(t, 4)
+	c, _ := database.CreateCollection("docs")
+
+	meta := `{"source":"test"}`
+	doc, _ := database.InsertDocumentWithVector(c.ID, "old content", nil, []float32{1, 0, 0, 0})
+	before, _ := database.GetDocumentByID(doc.ID)
+
+	if err := database.UpdateDocumentWithVector(doc.ID, c.ID, "new content", &meta, []float32{0, 1, 0, 0}); err != nil {
+		t.Fatalf("UpdateDocumentWithVector() error = %v", err)
+	}
+
+	updated, err := database.GetDocumentByID(doc.ID)
+	if err != nil {
+		t.Fatalf("GetDocumentByID() error = %v", err)
+	}
+	if updated.ID != doc.ID {
+		t.Errorf("ID = %d, want %d", updated.ID, doc.ID)
+	}
+	if updated.CollectionID != c.ID {
+		t.Errorf("CollectionID = %d, want %d", updated.CollectionID, c.ID)
+	}
+	if updated.Content != "new content" {
+		t.Errorf("Content = %q, want new content", updated.Content)
+	}
+	if updated.Metadata == nil || *updated.Metadata != meta {
+		t.Errorf("Metadata = %v, want %q", updated.Metadata, meta)
+	}
+	if !updated.CreatedAt.Equal(before.CreatedAt) {
+		t.Errorf("CreatedAt = %v, want %v", updated.CreatedAt, before.CreatedAt)
+	}
+
+	oldResults, err := database.SearchVectors(c.ID, []float32{1, 0, 0, 0}, nil, 1)
+	if err != nil {
+		t.Fatalf("SearchVectors(old) error = %v", err)
+	}
+	if len(oldResults) != 1 || oldResults[0].ID != doc.ID || oldResults[0].Distance == 0 {
+		t.Fatalf("expected old vector to be replaced with non-zero distance, got %#v", oldResults)
+	}
+
+	newResults, err := database.SearchVectors(c.ID, []float32{0, 1, 0, 0}, nil, 1)
+	if err != nil {
+		t.Fatalf("SearchVectors(new) error = %v", err)
+	}
+	if len(newResults) != 1 || newResults[0].ID != doc.ID {
+		t.Fatalf("expected new vector to be searchable, got %#v", newResults)
+	}
+}
+
+func TestUpdateDocumentWithVector_NotFound(t *testing.T) {
+	database := testDBWithVectors(t, 4)
+	c, _ := database.CreateCollection("docs")
+
+	if err := database.UpdateDocumentWithVector(999, c.ID, "new", nil, []float32{1, 0, 0, 0}); err == nil {
+		t.Fatal("expected error for missing document")
+	}
+}
+
+func TestUpdateDocumentWithVector_WrongCollection(t *testing.T) {
+	database := testDBWithVectors(t, 4)
+	c1, _ := database.CreateCollection("docs-1")
+	c2, _ := database.CreateCollection("docs-2")
+	doc, _ := database.InsertDocumentWithVector(c1.ID, "old", nil, []float32{1, 0, 0, 0})
+
+	if err := database.UpdateDocumentWithVector(doc.ID, c2.ID, "new", nil, []float32{0, 1, 0, 0}); err == nil {
+		t.Fatal("expected error for wrong collection")
+	}
+
+	updated, _ := database.GetDocumentByID(doc.ID)
+	if updated.Content != "old" {
+		t.Errorf("Content = %q, want old", updated.Content)
+	}
+}
+
+func TestUpdateDocumentWithVector_RollsBackOnVectorError(t *testing.T) {
+	database := testDBWithVectors(t, 4)
+	c, _ := database.CreateCollection("docs")
+	doc, _ := database.InsertDocumentWithVector(c.ID, "old", nil, []float32{1, 0, 0, 0})
+
+	err := database.UpdateDocumentWithVector(doc.ID, c.ID, "new", nil, []float32{1, 2, 3})
+	if err == nil {
+		t.Fatal("expected error for vector dimension mismatch")
+	}
+
+	updated, _ := database.GetDocumentByID(doc.ID)
+	if updated.Content != "old" {
+		t.Errorf("Content = %q, want rollback to old", updated.Content)
+	}
+
+	results, err := database.SearchVectors(c.ID, []float32{1, 0, 0, 0}, nil, 1)
+	if err != nil {
+		t.Fatalf("SearchVectors() error = %v", err)
+	}
+	if len(results) != 1 || results[0].ID != doc.ID {
+		t.Fatalf("expected original vector after rollback, got %#v", results)
+	}
+}
+
 func TestDeleteDocument(t *testing.T) {
 	database := testDB(t)
 	c, _ := database.CreateCollection("docs")

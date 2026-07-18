@@ -148,6 +148,8 @@ Mnemosyne integrates with [Pi](https://pi.dev) via the
 These extensions provide `memory_recall`, `memory_store`, `memory_delete` (plus
 global variants) and automatically inject core memories into the system prompt.
 They also re-inject core memories and tool descriptions during compactions.
+The CLI supports strict in-place updates with `mnemosyne update`; dedicated
+agent-tool wrappers for updates are separate integration work.
 
 See the extension README files for installation and usage details:
 
@@ -177,8 +179,10 @@ access another namespace and `--global` / `-g` for global user preferences.
   `mnemosyne add -g "memory content"` for cross-project preferences.
 - Do not store new durable memories in the agent's built-in memory system unless
   the user explicitly asks for that.
-- Delete contradicted memories with `mnemosyne delete [memory id]` before
-  storing updated replacements. The memory id appears in brackets, e.g. `[123]`.
+- Correct contradicted or outdated memories in place with
+  `mnemosyne update [memory id] "updated memory content"`. The memory id
+  appears in brackets, e.g. `[123]`. Use `mnemosyne delete [memory id]` only
+  when the memory should be removed.
 - Mark critical, always-relevant context as core with `-t core`, but use it
   sparingly. You can add more tags, for example:
   `mnemosyne add "database is sqlite" -t tech-stack -t database`.
@@ -234,17 +238,27 @@ mnemosyne list -t core
 # List tags used in a collection
 mnemosyne tags
 
+# Update an existing document by ID (strict: errors if the ID is missing or in another collection)
+mnemosyne update 1 "Revised memory content"
+mnemosyne update 1 --file revised-note.txt
+printf 'Revised piped note' | mnemosyne update 1 --stdin
+mnemosyne update 1 -t reviewed          # Add a tag, preserving existing tags
+mnemosyne update 1 --replace-tags -t core # Replace all tags with the supplied tags
+mnemosyne update 1 --replace-tags       # Clear all tags
+
 # Delete a document by ID
 mnemosyne delete 1
 
 # Use a named collection (with --name or -n)
 mnemosyne init -n myproject
 mnemosyne add -n myproject "some text"
+mnemosyne update -n myproject 1 "revised text"
 mnemosyne search -n myproject "some query"
 
 # Use the global collection shortcut
 mnemosyne init -g
 mnemosyne add -g "Global memory"
+mnemosyne update -g 1 "Revised global memory"
 mnemosyne search --global "global memory"
 
 # Show collections and database stats
@@ -533,6 +547,7 @@ mnemosyne/
 │   ├── version.go            # version subcommand
 │   ├── init.go               # Initialize a collection
 │   ├── add.go                # Add a document (embeds + stores vector)
+│   ├── update.go             # Update an existing document by ID
 │   ├── list.go               # List documents
 │   ├── delete.go             # Delete a document by ID
 │   ├── forget.go             # Delete an entire collection
@@ -622,8 +637,9 @@ Process:
    frequently accessed information, while regular memories can be used for less
    critical or less frequently accessed information.
 
-Delete with \`mnemosyne delete [memory id]\` and add with \`mnemosyne add
-"memory content" -t tag1 -t tag2\`.
+Update corrected memories in place with \`mnemosyne update [memory id]
+"memory content" -t tag1 -t tag2\`. Delete with \`mnemosyne delete [memory id]\`
+only when the memory should be removed.
 ```
 
 ## Acknowledgements
