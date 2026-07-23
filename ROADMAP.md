@@ -24,7 +24,6 @@ This document outlines the planned features, ideas for the future, and explicitl
 ## 💡 Ideas for Later
 
 * **Daemon/Server Mode (Batch Ingest)**: Keep ONNX models loaded in memory via a background process. While its utility for regular CLI usage is limited, it could serve well later for a dedicated batch ingest command.
-* **Linux Releases**: Provide pre-compiled binaries for popular Linux distros to avoid the need for users to set up a Go environment or compile from source.
 * **Interactive TUI**: An interactive terminal UI (using something like `bubbletea`) to visually explore collections, scroll through document chunks, and live-preview search results.
 
 ## 🚫 Out of Scope

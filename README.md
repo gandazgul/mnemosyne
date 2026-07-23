@@ -465,7 +465,7 @@ task download-models  # Download ONNX models from HuggingFace (dev workflow)
 task bench:scifact-smoke # Run a small BEIR SciFact smoke benchmark
 task bench:scifact    # Run the full BEIR SciFact benchmark
 task bench:scifact-bg # Run the full benchmark in a detached screen session
-task release -- v0.1.0 # Create and push a new release tag
+task release       # Validate local GoReleaser artifacts (snapshot by default)
 ```
 
 ## Export & Import
@@ -503,18 +503,25 @@ mnemosyne import myproject.jsonl
 
 ## Creating a Release
 
-To create a new versioned release with cross-compiled binaries and an automated
-changelog:
+To create a new versioned release with binaries and an automated changelog:
 
-1. Use the `release` task and pass the new semantic version tag:
+1. Create and push an annotated `v*` tag:
    ```bash
-   task release -- v0.1.0
+   git tag -a v0.3.0 -m "Release v0.3.0"
+   git push origin v0.3.0
    ```
-2. The `Release` GitHub Action workflow will automatically trigger.
-3. It uses GoReleaser and `zig cc` to build `linux/amd64`, `linux/arm64`,
-   `darwin/amd64`, and `darwin/arm64` binaries.
-4. The workflow will publish a new GitHub Release with the attached binaries and
-   an auto-generated changelog based on conventional commits.
+2. The `Release` GitHub Action workflow will automatically trigger from the tag.
+3. The workflow publishes:
+   - macOS `amd64` and `arm64` archives from GoReleaser on a macOS runner.
+   - Linux `amd64` and `arm64` archives from native Ubuntu 22.04 runners. These
+     Linux binaries use CGO and target an Ubuntu 22.04-era glibc baseline.
+   - Windows `amd64` zip archives from the native Windows/MSYS2 job.
+4. The release archives contain the CLI and project files. ONNX Runtime and model
+   files are still installed separately by `mnemosyne setup` or first-use setup.
+
+Use `task release` only to validate local GoReleaser artifacts. It runs a
+snapshot by default; `CONFIRM=true task release` runs GoReleaser's official mode
+for the current tag but does not create or push tags.
 
 ## Setup
 

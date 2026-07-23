@@ -41,6 +41,55 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  linux-release:
+    needs: goreleaser
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            arch: amd64
+          - runner: ubuntu-22.04-arm
+            arch: arm64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Build Linux Release Binary
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          COMMIT="$(git rev-parse --short HEAD)"
+          DATE="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+          ASSET="mnemosyne_${VERSION}_linux_${{ matrix.arch }}.tar.gz"
+
+          go build -tags sqlite_fts5 \
+            -ldflags "-w -X github.com/gandazgul/mnemosyne/cmd.Version=${VERSION} -X github.com/gandazgul/mnemosyne/cmd.Commit=${COMMIT} -X github.com/gandazgul/mnemosyne/cmd.Date=${DATE} -X github.com/gandazgul/mnemosyne/cmd.Release=true" \
+            -o mnemosyne .
+
+          actual="$(./mnemosyne version)"
+          expected="mnemosyne ${VERSION} (linux/${{ matrix.arch }})"
+          if [ "${actual}" != "${expected}" ]; then
+            echo "Expected version output: ${expected}" >&2
+            echo "Actual version output:   ${actual}" >&2
+            exit 1
+          fi
+
+          tar -czf "${ASSET}" mnemosyne LICENSE README.md CHANGELOG.md
+        env:
+          CGO_ENABLED: "1"
+
+      - name: Upload Linux Release Asset
+        run: gh release upload "${GITHUB_REF_NAME}" "mnemosyne_${GITHUB_REF_NAME#v}_linux_${{ matrix.arch }}.tar.gz" --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   windows-release:
     needs: goreleaser
     runs-on: windows-latest

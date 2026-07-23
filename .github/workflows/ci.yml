@@ -7,6 +7,29 @@ on:
     branches: [ main ]
 
 jobs:
+  linux-arm64-compile:
+    runs-on: ubuntu-22.04-arm
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: Compile Test Packages
+        run: go test -run '^$' -tags sqlite_fts5 ./...
+        env:
+          CGO_ENABLED: "1"
+
+      - name: Build Dev Binary
+        run: |
+          go build -tags sqlite_fts5 -o mnemosyne-linux-arm64 .
+          ./mnemosyne-linux-arm64 version
+        env:
+          CGO_ENABLED: "1"
+
   test-and-build:
     strategy:
       matrix:

@@ -155,18 +155,10 @@ tasks:
       - rm -f $(go env GOPATH)/bin/{{.BINARY_NAME}}
       - echo "Removed $(go env GOPATH)/bin/{{.BINARY_NAME}}"
 
-  download-all-libs:
-    desc: Download all required native libraries for all target architectures (used by release)
+  download-darwin-libs:
+    desc: Download macOS native libraries used by GoReleaser
     cmds:
-      - mkdir -p {{.LIB_DIR}}/linux_amd64 {{.LIB_DIR}}/linux_arm64 {{.LIB_DIR}}/darwin_arm64 {{.LIB_DIR}}/darwin_amd64 tmp_libs
-      # Linux amd64
-      - curl -fsSL "https://github.com/microsoft/onnxruntime/releases/download/v{{.ONNXRUNTIME_VERSION}}/onnxruntime-linux-x64-{{.ONNXRUNTIME_VERSION}}.tgz" | tar xz -C tmp_libs
-      - cp -rP tmp_libs/*/lib/libonnxruntime* {{.LIB_DIR}}/linux_amd64/
-      - rm -rf tmp_libs/*
-      # Linux arm64
-      - curl -fsSL "https://github.com/microsoft/onnxruntime/releases/download/v{{.ONNXRUNTIME_VERSION}}/onnxruntime-linux-aarch64-{{.ONNXRUNTIME_VERSION}}.tgz" | tar xz -C tmp_libs
-      - cp -rP tmp_libs/*/lib/libonnxruntime* {{.LIB_DIR}}/linux_arm64/
-      - rm -rf tmp_libs/*
+      - mkdir -p {{.LIB_DIR}}/darwin_arm64 {{.LIB_DIR}}/darwin_amd64 tmp_libs
       # macOS arm64
       - curl -fsSL "https://github.com/microsoft/onnxruntime/releases/download/v{{.ONNXRUNTIME_VERSION}}/onnxruntime-osx-arm64-{{.ONNXRUNTIME_VERSION}}.tgz" | tar xz -C tmp_libs
       - cp -rP tmp_libs/*/lib/libonnxruntime* {{.LIB_DIR}}/darwin_arm64/
@@ -256,14 +248,13 @@ tasks:
       - git push origin "v{{.VERSION}}"
 
   release:
-    desc: 'Release using GoReleaser (default: snapshot, use CONFIRM=true for official release)'
+    desc: 'Run GoReleaser locally (snapshot by default; CONFIRM=true publishes current tag but does not create or push tags)'
     dotenv: ['.env']
     vars:
       CONFIRM: '{{.CONFIRM | default "false"}}'
       SDK_PATH:
         sh: xcrun --show-sdk-path 2>/dev/null || echo ""
     cmds:
-      - command -v zig >/dev/null 2>&1 || { echo >&2 "zig is required but it's not installed. Aborting."; exit 1; }
       - command -v goreleaser >/dev/null 2>&1 || { echo >&2 "goreleaser is required but it's not installed. Aborting."; exit 1; }
       - |
         export SDK_PATH="{{.SDK_PATH}}"
