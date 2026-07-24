@@ -15,6 +15,7 @@ import (
 func TestExportCmd_NoFlags(t *testing.T) {
 	tmpDir := t.TempDir()
 	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	resetExportFlagsForTest(t)
 
 	outBuf := new(bytes.Buffer)
 	rootCmd.SetOut(outBuf)
@@ -30,6 +31,7 @@ func TestExportCmd_NoFlags(t *testing.T) {
 func TestExportCmd_CollectionNotFound(t *testing.T) {
 	tmpDir := t.TempDir()
 	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	resetExportFlagsForTest(t)
 
 	outBuf := new(bytes.Buffer)
 	rootCmd.SetOut(outBuf)
@@ -42,9 +44,54 @@ func TestExportCmd_CollectionNotFound(t *testing.T) {
 	}
 }
 
+func TestExportCmd_GlobalFreshDatabaseLazilyInitializesEmptyExport(t *testing.T) {
+	tmpDir := t.TempDir()
+	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	resetExportFlagsForTest(t)
+
+	outBuf := new(bytes.Buffer)
+	rootCmd.SetOut(outBuf)
+	rootCmd.SetErr(outBuf)
+
+	outputPath := filepath.Join(tmpDir, "global.jsonl")
+	rootCmd.SetArgs([]string{"export", "--global", "--output", outputPath, "--no-embeddings"})
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatalf("fresh global export error: %v", err)
+	}
+	if !strings.Contains(outBuf.String(), `Exported 0 documents from "global"`) {
+		t.Fatalf("expected empty global export output, got: %s", outBuf.String())
+	}
+
+	data, err := os.ReadFile(outputPath)
+	if err != nil {
+		t.Fatalf("reading output file: %v", err)
+	}
+	lines := strings.Split(strings.TrimSpace(string(data)), "\n")
+	if len(lines) != 1 {
+		t.Fatalf("expected header-only export, got %d lines: %q", len(lines), string(data))
+	}
+	var header backup.Header
+	if err := json.Unmarshal([]byte(lines[0]), &header); err != nil {
+		t.Fatalf("parsing header: %v", err)
+	}
+	if header.Collection != "global" || header.DocCount != 0 {
+		t.Fatalf("header = %#v, want global doc_count 0", header)
+	}
+
+	database, err := openDB()
+	if err != nil {
+		t.Fatalf("open db: %v", err)
+	}
+	defer database.Close() //nolint:errcheck
+	if got := countCollectionsNamedForTest(t, database, "global"); got != 1 {
+		t.Fatalf("global collection count = %d, want 1", got)
+	}
+}
+
 func TestExportCmd_SingleCollection(t *testing.T) {
 	tmpDir := t.TempDir()
 	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	resetExportFlagsForTest(t)
 
 	// Create collection with a document.
 	database, err := db.Open(filepath.Join(tmpDir, "mnemosyne.db"))
@@ -117,6 +164,7 @@ func TestExportCmd_SingleCollection(t *testing.T) {
 func TestExportCmd_AllEmpty(t *testing.T) {
 	tmpDir := t.TempDir()
 	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	resetExportFlagsForTest(t)
 
 	outBuf := new(bytes.Buffer)
 	rootCmd.SetOut(outBuf)
@@ -135,6 +183,7 @@ func TestExportCmd_AllEmpty(t *testing.T) {
 func TestExportCmd_ConflictingFlags(t *testing.T) {
 	tmpDir := t.TempDir()
 	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	resetExportFlagsForTest(t)
 
 	outBuf := new(bytes.Buffer)
 	rootCmd.SetOut(outBuf)
@@ -144,5 +193,21 @@ func TestExportCmd_ConflictingFlags(t *testing.T) {
 	err := rootCmd.Execute()
 	if err == nil {
 		t.Error("expected error when --all and --name both provided")
+	}
+}
+
+func resetExportFlagsForTest(t *testing.T) {
+	t.Helper()
+	for name, value := range map[string]string{
+		"name":          "",
+		"global":        "false",
+		"all":           "false",
+		"output":        "",
+		"yes":           "false",
+		"no-embeddings": "false",
+	} {
+		if err := exportCmd.Flags().Set(name, value); err != nil {
+			t.Fatalf("reset flag %s: %v", name, err)
+		}
 	}
 }

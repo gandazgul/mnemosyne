@@ -8,9 +8,36 @@ import (
 	"testing"
 )
 
+func TestForgetCmd_GlobalFreshDatabaseLazilyInitializesThenDeletes(t *testing.T) {
+	tmpDir := t.TempDir()
+	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	resetForgetFlagsForTest(t)
+
+	outBuf := new(bytes.Buffer)
+	rootCmd.SetOut(outBuf)
+	rootCmd.SetErr(outBuf)
+	rootCmd.SetArgs([]string{"forget", "--global", "--yes"})
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatalf("fresh global forget error: %v", err)
+	}
+	if !strings.Contains(outBuf.String(), `Deleted collection "global" and 0 documents.`) {
+		t.Fatalf("expected empty global delete output, got: %s", outBuf.String())
+	}
+
+	database, err := openDB()
+	if err != nil {
+		t.Fatalf("open db: %v", err)
+	}
+	defer database.Close() //nolint:errcheck
+	if got := countCollectionsNamedForTest(t, database, "global"); got != 0 {
+		t.Fatalf("global collection count after forget = %d, want 0", got)
+	}
+}
+
 func TestForgetCmd(t *testing.T) {
 	tmpDir := t.TempDir()
 	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	resetForgetFlagsForTest(t)
 
 	db, err := openDB()
 	if err != nil {
@@ -125,4 +152,17 @@ func TestForgetCmd(t *testing.T) {
 			t.Error("expected error for missing collection")
 		}
 	})
+}
+
+func resetForgetFlagsForTest(t *testing.T) {
+	t.Helper()
+	for name, value := range map[string]string{
+		"name":   "",
+		"global": "false",
+		"yes":    "false",
+	} {
+		if err := forgetCmd.Flags().Set(name, value); err != nil {
+			t.Fatalf("reset flag %s: %v", name, err)
+		}
+	}
 }

@@ -61,6 +61,30 @@ func openDB() (*db.DB, error) {
 	return database, nil
 }
 
+// getSelectedCollection returns the selected collection, lazily creating the
+// reserved global collection only when it was explicitly selected with
+// --global/-g. Named and current-directory collections remain explicit.
+func getSelectedCollection(database *db.DB, collectionName string, global bool) (*db.Collection, error) {
+	if global {
+		collection, _, err := database.GetOrCreateCollection(collectionName)
+		if err != nil {
+			return nil, fmt.Errorf("getting or creating global collection %q: %w", collectionName, err)
+		}
+		return collection, nil
+	}
+
+	collection, err := database.GetCollectionByName(collectionName)
+	if err != nil {
+		return nil, fmt.Errorf("looking up collection: %w", err)
+	}
+	if collection == nil {
+		return nil, fmt.Errorf("collection %q does not exist; run 'mnemosyne init --name %s' first",
+			collectionName, collectionName)
+	}
+
+	return collection, nil
+}
+
 // openEmbedder initializes ONNX Runtime and creates an embedder from the config.
 // The caller is responsible for calling Close() on the returned embedder.
 //

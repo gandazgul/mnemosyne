@@ -3,7 +3,10 @@ package cmd
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
+
+	dbpkg "github.com/gandazgul/mnemosyne/internal/db"
 )
 
 func TestResolveCollectionName(t *testing.T) {
@@ -73,4 +76,72 @@ func TestOpenDB(t *testing.T) {
 	if db == nil {
 		t.Error("expected valid DB instance, got nil")
 	}
+}
+
+func TestGetSelectedCollection_LazilyCreatesGlobal(t *testing.T) {
+	tmpDB := filepath.Join(t.TempDir(), "mnemosyne.db")
+	t.Setenv("MNEMOSYNE_DB_PATH", tmpDB)
+
+	database, err := openDB()
+	if err != nil {
+		t.Fatalf("openDB: %v", err)
+	}
+	defer database.Close() //nolint:errcheck
+
+	first, err := getSelectedCollection(database, "global", true)
+	if err != nil {
+		t.Fatalf("first global lookup: %v", err)
+	}
+	if first.Name != "global" {
+		t.Fatalf("collection name = %q, want global", first.Name)
+	}
+
+	second, err := getSelectedCollection(database, "global", true)
+	if err != nil {
+		t.Fatalf("second global lookup: %v", err)
+	}
+	if second.ID != first.ID {
+		t.Fatalf("second lookup ID = %d, want %d", second.ID, first.ID)
+	}
+
+	if got := countCollectionsNamedForTest(t, database, "global"); got != 1 {
+		t.Fatalf("global collection count = %d, want 1", got)
+	}
+}
+
+func TestGetSelectedCollection_MissingNamedCollectionIsStrict(t *testing.T) {
+	tmpDB := filepath.Join(t.TempDir(), "mnemosyne.db")
+	t.Setenv("MNEMOSYNE_DB_PATH", tmpDB)
+
+	database, err := openDB()
+	if err != nil {
+		t.Fatalf("openDB: %v", err)
+	}
+	defer database.Close() //nolint:errcheck
+
+	_, err = getSelectedCollection(database, "missing", false)
+	if err == nil {
+		t.Fatal("expected missing named collection error")
+	}
+	if !strings.Contains(err.Error(), "mnemosyne init --name missing") {
+		t.Fatalf("expected init guidance for missing named collection, got %v", err)
+	}
+	if got := countCollectionsNamedForTest(t, database, "missing"); got != 0 {
+		t.Fatalf("missing named collection count = %d, want 0", got)
+	}
+}
+
+func countCollectionsNamedForTest(t *testing.T, database *dbpkg.DB, name string) int {
+	t.Helper()
+	collections, err := database.ListCollections()
+	if err != nil {
+		t.Fatalf("ListCollections: %v", err)
+	}
+	count := 0
+	for _, collection := range collections {
+		if collection.Name == name {
+			count++
+		}
+	}
+	return count
 }

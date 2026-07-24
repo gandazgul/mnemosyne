@@ -81,6 +81,31 @@ func TestUpdateCmd_RejectsMissingAndWrongCollection(t *testing.T) {
 	}
 }
 
+func TestUpdateCmd_GlobalFreshDatabaseLazilyInitializesThenRejectsMissingDocument(t *testing.T) {
+	tmpDir := t.TempDir()
+	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+
+	_, err := executeUpdateForTest(t, "update", "--global", "999", "--tag", "new")
+	if err == nil {
+		t.Fatal("expected missing document error")
+	}
+	if !strings.Contains(err.Error(), `document 999 not found in collection "global"`) {
+		t.Fatalf("expected missing global document error, got %v", err)
+	}
+	if strings.Contains(err.Error(), "mnemosyne init") || strings.Contains(err.Error(), "collection") && strings.Contains(err.Error(), "does not exist") {
+		t.Fatalf("global update should not fail on missing collection, got %v", err)
+	}
+
+	database, openErr := openDB()
+	if openErr != nil {
+		t.Fatalf("open db: %v", openErr)
+	}
+	defer database.Close() //nolint:errcheck
+	if got := countCollectionsNamedForTest(t, database, "global"); got != 1 {
+		t.Fatalf("global collection count = %d, want 1", got)
+	}
+}
+
 func TestUpdateCmd_RejectsInvalidInputs(t *testing.T) {
 	tmpDir := t.TempDir()
 	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))

@@ -68,13 +68,9 @@ is preserved.`,
 		}
 		defer database.Close() //nolint:errcheck
 
-		collection, err := database.GetCollectionByName(collectionName)
+		collection, err := getSelectedCollection(database, collectionName, globalFlag)
 		if err != nil {
-			return fmt.Errorf("looking up collection: %w", err)
-		}
-		if collection == nil {
-			return fmt.Errorf("collection %q does not exist; run 'mnemosyne init --name %s' first",
-				collectionName, collectionName)
+			return err
 		}
 
 		doc, err := database.GetDocumentByID(id)

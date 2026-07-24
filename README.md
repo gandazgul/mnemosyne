@@ -166,7 +166,8 @@ custom guidance, add this instruction block after installing the CLI:
 
 Mnemosyne is a CLI memory storage and semantic retrieval tool. Memories are kept
 in a project namespace named after the root folder. Use `-n [namespace]` to
-access another namespace and `--global` / `-g` for global user preferences.
+access another namespace and `--global` / `-g` for global user preferences; the
+global namespace is created automatically the first time you use it.
 
 - Use Mnemosyne as the source of truth for persistent memory instead of the
   agent's built-in memory system.
@@ -255,9 +256,9 @@ mnemosyne add -n myproject "some text"
 mnemosyne update -n myproject 1 "revised text"
 mnemosyne search -n myproject "some query"
 
-# Use the global collection shortcut
-mnemosyne init -g
+# Use the global collection shortcut (created automatically on first use)
 mnemosyne add -g "Global memory"
+mnemosyne list -g
 mnemosyne update -g 1 "Revised global memory"
 mnemosyne search --global "global memory"
 

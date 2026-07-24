@@ -24,7 +24,8 @@ or piped via stdin with --stdin.
 The document is embedded using the configured ONNX model and stored alongside
 its vector representation for semantic search.
 
-The collection must already exist (use 'mnemosyne init' first).
+Named collections must already exist (use 'mnemosyne init' first).
+The global collection is created automatically on first --global use.
 If --name is not provided, the current directory name is used.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		nameFlag, _ := cmd.Flags().GetString("name")
@@ -157,13 +158,9 @@ If --name is not provided, the current directory name is used.`,
 			return fmt.Errorf("ensuring vector table: %w", err)
 		}
 
-		collection, err := database.GetCollectionByName(collectionName)
+		collection, err := getSelectedCollection(database, collectionName, globalFlag)
 		if err != nil {
-			return fmt.Errorf("looking up collection: %w", err)
-		}
-		if collection == nil {
-			return fmt.Errorf("collection %q does not exist; run 'mnemosyne init --name %s' first",
-				collectionName, collectionName)
+			return err
 		}
 
 		// Initialize the embedder to generate a vector for this document.

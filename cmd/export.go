@@ -73,6 +73,9 @@ Examples:
 			if err != nil {
 				return err
 			}
+			if _, err := getSelectedCollection(database, collectionName, globalFlag); err != nil {
+				return err
+			}
 		}
 
 		return exportSingleCollection(cmd, database, collectionName, outputFlag, noEmbeddings)

@@ -35,12 +35,9 @@ is used as the collection name.`,
 		defer database.Close() //nolint:errcheck
 
 		// Verify the collection exists and show what will be deleted.
-		collection, err := database.GetCollectionByName(collectionName)
+		collection, err := getSelectedCollection(database, collectionName, globalFlag)
 		if err != nil {
-			return fmt.Errorf("looking up collection: %w", err)
-		}
-		if collection == nil {
-			return fmt.Errorf("collection %q does not exist", collectionName)
+			return err
 		}
 
 		docCount, err := database.CountDocuments(collection.ID, nil)
