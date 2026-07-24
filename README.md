@@ -92,6 +92,13 @@ custom guidance, add this instruction block after installing the CLI:
 - When you are done with a session, store any memories that you think are relevant to the user and the project. This will help you recall important information in future sessions.
 ```
 
+#### Sleep
+
+For conservative memory maintenance, use the [Sleep prompt](docs/sleep-prompt.md).
+It is tuned for preserving durable context while removing only exact duplicates,
+clearly deprecated facts, explicitly superseded memories, or lossless
+consolidations.
+
 ## Benchmarks
 
 **Headline:** Mnemosyne retrieves the correct memory session
@@ -498,42 +505,6 @@ To create a new versioned release with binaries and an automated changelog:
 Use `task release` only to validate local GoReleaser artifacts. It runs a
 snapshot by default; `CONFIRM=true task release` runs GoReleaser's official mode
 for the current tag but does not create or push tags.
-
-## Sleeping
-
-Use this prompt template to ask the model to optimize memories:
-
-```markdown
----
-description: Optimize long-term memory quality
----
-
-You are running sleep mode to optimize long-term memory quality.
-
-Goal:
-
-- Improve memory signal quality for future sessions.
-- Preserve high-value, durable context.
-- Reduce noise, redundancy, and stale information.
-
-Process:
-
-1. Use \`mnemosyne export --no-embeddings\` to export all memories and core
-   memories to a file ([project name].jsonl in the root directory).
-2. Analyze the memories for relevance, redundancy, and importance. Optimize the
-   memories by deleting irrelevant or redundant ones, and consolidating
-   important but similar memories. Focus on keeping the most relevant and
-   important information while minimizing noise and redundancy in the memory
-   system.
-3. Move memories from the core memories (tags: ['core']) to regular or vice
-   versa as needed. Core memories should be reserved for the most critical and
-   frequently accessed information, while regular memories can be used for less
-   critical or less frequently accessed information.
-
-Update corrected memories in place with \`mnemosyne update [memory id]
-"memory content" -t tag1 -t tag2\`. Delete with \`mnemosyne delete [memory id]\`
-only when the memory should be removed.
-```
 
 ## Acknowledgements
 
