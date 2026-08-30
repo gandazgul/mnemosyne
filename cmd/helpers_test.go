@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	dbpkg "github.com/gandazgul/mnemosyne/internal/db"
+	dbpkg "github.com/gandazgul/mnemoteca/internal/db"
 )
 
 func TestResolveCollectionName(t *testing.T) {
@@ -65,7 +65,7 @@ func TestResolveCollectionName(t *testing.T) {
 func TestOpenDB(t *testing.T) {
 	// Temporarily override DBPath to a test file so we don't clobber the real DB
 	tmpDB := filepath.Join(t.TempDir(), "test.db")
-	t.Setenv("MNEMOSYNE_DB_PATH", tmpDB)
+	t.Setenv("MNEMOTECA_DB_PATH", tmpDB)
 
 	db, err := openDB()
 	if err != nil {
@@ -79,8 +79,8 @@ func TestOpenDB(t *testing.T) {
 }
 
 func TestGetSelectedCollection_LazilyCreatesGlobal(t *testing.T) {
-	tmpDB := filepath.Join(t.TempDir(), "mnemosyne.db")
-	t.Setenv("MNEMOSYNE_DB_PATH", tmpDB)
+	tmpDB := filepath.Join(t.TempDir(), "mnemoteca.db")
+	t.Setenv("MNEMOTECA_DB_PATH", tmpDB)
 
 	database, err := openDB()
 	if err != nil {
@@ -110,8 +110,8 @@ func TestGetSelectedCollection_LazilyCreatesGlobal(t *testing.T) {
 }
 
 func TestGetSelectedCollection_MissingNamedCollectionIsStrict(t *testing.T) {
-	tmpDB := filepath.Join(t.TempDir(), "mnemosyne.db")
-	t.Setenv("MNEMOSYNE_DB_PATH", tmpDB)
+	tmpDB := filepath.Join(t.TempDir(), "mnemoteca.db")
+	t.Setenv("MNEMOTECA_DB_PATH", tmpDB)
 
 	database, err := openDB()
 	if err != nil {
@@ -123,7 +123,7 @@ func TestGetSelectedCollection_MissingNamedCollectionIsStrict(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected missing named collection error")
 	}
-	if !strings.Contains(err.Error(), "mnemosyne init --name missing") {
+	if !strings.Contains(err.Error(), "mnemoteca init --name missing") {
 		t.Fatalf("expected init guidance for missing named collection, got %v", err)
 	}
 	if got := countCollectionsNamedForTest(t, database, "missing"); got != 0 {

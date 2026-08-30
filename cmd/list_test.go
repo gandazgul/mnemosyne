@@ -9,7 +9,7 @@ import (
 
 func TestListCmd_GlobalFreshDatabaseLazilyInitializes(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 	resetListFlagsForTest(t)
 
 	outBuf := new(bytes.Buffer)
@@ -24,7 +24,7 @@ func TestListCmd_GlobalFreshDatabaseLazilyInitializes(t *testing.T) {
 	if !strings.Contains(output, `No documents in collection "global"`) {
 		t.Fatalf("expected empty global list output, got: %s", output)
 	}
-	if strings.Contains(output, "mnemosyne init") {
+	if strings.Contains(output, "mnemoteca init") {
 		t.Fatalf("global list should not print init guidance, got: %s", output)
 	}
 
@@ -40,7 +40,7 @@ func TestListCmd_GlobalFreshDatabaseLazilyInitializes(t *testing.T) {
 
 func TestListCmd_MissingNamedCollectionRemainsStrict(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 	resetListFlagsForTest(t)
 
 	outBuf := new(bytes.Buffer)
@@ -51,7 +51,7 @@ func TestListCmd_MissingNamedCollectionRemainsStrict(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected missing named collection error")
 	}
-	if !strings.Contains(err.Error(), "mnemosyne init --name missing") {
+	if !strings.Contains(err.Error(), "mnemoteca init --name missing") {
 		t.Fatalf("expected valid init guidance, got %v", err)
 	}
 
@@ -67,7 +67,7 @@ func TestListCmd_MissingNamedCollectionRemainsStrict(t *testing.T) {
 
 func TestListCmd(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 	resetListFlagsForTest(t)
 
 	db, err := openDB()

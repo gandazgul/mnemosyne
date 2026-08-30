@@ -41,6 +41,27 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Verify macOS archive contracts
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          for arch in amd64 arm64; do
+            asset="dist/mnemoteca_${VERSION}_darwin_${arch}.tar.gz"
+            test -f "$asset"
+            tar -tzf "$asset" | sed 's#^.*/##' | grep -Eq '^mnemosyne$' && exit 1 || true
+            count="$(tar -tzf "$asset" | sed 's#^.*/##' | grep -Ec '^mnemoteca$')"
+            test "$count" = "1"
+            tmp="$(mktemp -d)"
+            tar -xzf "$asset" -C "$tmp"
+            bin="$(find "$tmp" -type f -name mnemoteca | head -n 1)"
+            actual="$($bin version | sed -n '1p')"
+            expected="mnemoteca ${VERSION} (darwin/${arch})"
+            if [ "$actual" != "$expected" ]; then
+              echo "Expected version output: $expected" >&2
+              echo "Actual version output:   $actual" >&2
+              exit 1
+            fi
+          done
+
   linux-release:
     needs: goreleaser
     strategy:
@@ -67,26 +88,29 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           COMMIT="$(git rev-parse --short HEAD)"
           DATE="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-          ASSET="mnemosyne_${VERSION}_linux_${{ matrix.arch }}.tar.gz"
+          ASSET="mnemoteca_${VERSION}_linux_${{ matrix.arch }}.tar.gz"
 
           go build -tags sqlite_fts5 \
-            -ldflags "-w -X github.com/gandazgul/mnemosyne/cmd.Version=${VERSION} -X github.com/gandazgul/mnemosyne/cmd.Commit=${COMMIT} -X github.com/gandazgul/mnemosyne/cmd.Date=${DATE} -X github.com/gandazgul/mnemosyne/cmd.Release=true" \
-            -o mnemosyne .
+            -ldflags "-w -X github.com/gandazgul/mnemoteca/cmd.Version=${VERSION} -X github.com/gandazgul/mnemoteca/cmd.Commit=${COMMIT} -X github.com/gandazgul/mnemoteca/cmd.Date=${DATE} -X github.com/gandazgul/mnemoteca/cmd.Release=true" \
+            -o mnemoteca .
 
-          actual="$(./mnemosyne version)"
-          expected="mnemosyne ${VERSION} (linux/${{ matrix.arch }})"
+          actual="$(./mnemoteca version | sed -n '1p')"
+          expected="mnemoteca ${VERSION} (linux/${{ matrix.arch }})"
           if [ "${actual}" != "${expected}" ]; then
             echo "Expected version output: ${expected}" >&2
             echo "Actual version output:   ${actual}" >&2
             exit 1
           fi
 
-          tar -czf "${ASSET}" mnemosyne LICENSE README.md CHANGELOG.md
+          tar -czf "${ASSET}" mnemoteca LICENSE README.md CHANGELOG.md
+          tar -tzf "${ASSET}" | sed 's#^.*/##' | grep -Eq '^mnemosyne$' && exit 1 || true
+          count="$(tar -tzf "${ASSET}" | sed 's#^.*/##' | grep -Ec '^mnemoteca$')"
+          test "$count" = "1"
         env:
           CGO_ENABLED: "1"
 
       - name: Upload Linux Release Asset
-        run: gh release upload "${GITHUB_REF_NAME}" "mnemosyne_${GITHUB_REF_NAME#v}_linux_${{ matrix.arch }}.tar.gz" --clobber
+        run: gh release upload "${GITHUB_REF_NAME}" "mnemoteca_${GITHUB_REF_NAME#v}_linux_${{ matrix.arch }}.tar.gz" --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -110,7 +134,7 @@ jobs:
           msystem: MINGW64
           update: true
           path-type: inherit
-          install: mingw-w64-x86_64-gcc mingw-w64-x86_64-sqlite3 zip
+          install: mingw-w64-x86_64-gcc mingw-w64-x86_64-sqlite3 zip unzip
 
       - name: Verify Windows CGO Dependencies
         shell: msys2 {0}
@@ -122,17 +146,27 @@ jobs:
       - name: Build Windows Release Binary
         shell: msys2 {0}
         run: |
-          VERSION="${GITHUB_REF_NAME}"
+          VERSION="${GITHUB_REF_NAME#v}"
           COMMIT="$(git rev-parse --short HEAD)"
           DATE="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-          ASSET="mnemosyne_${GITHUB_REF_NAME}_windows_amd64.zip"
+          ASSET="mnemoteca_${VERSION}_windows_amd64.zip"
 
           go build -tags sqlite_fts5 \
-            -ldflags "-w -X github.com/gandazgul/mnemosyne/cmd.Version=${VERSION} -X github.com/gandazgul/mnemosyne/cmd.Commit=${COMMIT} -X github.com/gandazgul/mnemosyne/cmd.Date=${DATE}" \
-            -o mnemosyne.exe .
+            -ldflags "-w -X github.com/gandazgul/mnemoteca/cmd.Version=${VERSION} -X github.com/gandazgul/mnemoteca/cmd.Commit=${COMMIT} -X github.com/gandazgul/mnemoteca/cmd.Date=${DATE} -X github.com/gandazgul/mnemoteca/cmd.Release=true" \
+            -o mnemoteca.exe .
 
-          ./mnemosyne.exe version
-          zip "${ASSET}" mnemosyne.exe
+          actual="$(./mnemoteca.exe version | sed -n '1p')"
+          expected="mnemoteca ${VERSION} (windows/amd64)"
+          if [ "${actual}" != "${expected}" ]; then
+            echo "Expected version output: ${expected}" >&2
+            echo "Actual version output:   ${actual}" >&2
+            exit 1
+          fi
+
+          zip "${ASSET}" mnemoteca.exe
+          unzip -l "${ASSET}" | grep 'mnemosyne.exe' && exit 1 || true
+          count="$(unzip -Z1 "${ASSET}" | sed 's#^.*/##' | grep -Ec '^mnemoteca.exe$')"
+          test "$count" = "1"
         env:
           CGO_ENABLED: "1"
           CC: gcc
@@ -141,6 +175,6 @@ jobs:
 
       - name: Upload Windows Release Asset
         shell: pwsh
-        run: gh release upload "${env:GITHUB_REF_NAME}" "mnemosyne_${env:GITHUB_REF_NAME}_windows_amd64.zip" --clobber
+        run: gh release upload "${env:GITHUB_REF_NAME}" "mnemoteca_$($env:GITHUB_REF_NAME.TrimStart('v'))_windows_amd64.zip" --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

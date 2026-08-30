@@ -1,4 +1,4 @@
-// Package db provides SQLite database access for mnemosyne.
+// Package db provides SQLite database access for mnemoteca.
 //
 // This package manages the database connection, schema migrations, and provides
 // repositories for collections and documents. It uses mattn/go-sqlite3 with CGO,

@@ -1,6 +1,23 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Rename active documentation, installer examples, configuration paths, benchmark
+  reproduction commands, and integration links to Mnemoteca.
+- Add an authoritative migration guide for moving from Mnemosyne to Mnemoteca,
+  including macOS/Linux installer prompts, manual export/import, Windows ZIP
+  migration with no compatibility shim, partial-import recovery, cleanup safety,
+  and integration replacement order.
+- Rename release artifacts and installer defaults to Mnemoteca. The POSIX
+  installer now installs `mnemoteca` and owns the guided Mnemosyne export/import
+  transition.
+
 ## v0.2.3 (2026-06-23)
+
+Historical entries below refer to the product name, paths, and repository links
+that existed at the time of release.
 
 ### New Features
 

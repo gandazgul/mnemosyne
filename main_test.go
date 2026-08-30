@@ -13,7 +13,7 @@ import (
 func buildCLI(t *testing.T) string {
 	t.Helper()
 
-	exePath := filepath.Join(t.TempDir(), "mnemosyne-test-bin")
+	exePath := filepath.Join(t.TempDir(), "mnemoteca-test-bin")
 
 	// Get current working directory for CGO_LDFLAGS
 	cwd, err := os.Getwd()
@@ -27,7 +27,7 @@ func buildCLI(t *testing.T) string {
 	cmd.Env = append(os.Environ(), fmt.Sprintf("CGO_LDFLAGS=-L%s", filepath.Join(cwd, "lib")))
 
 	if out, err := cmd.CombinedOutput(); err != nil {
-		t.Fatalf("Failed to build mnemosyne: %v\nOutput:\n%s", err, string(out))
+		t.Fatalf("Failed to build mnemoteca: %v\nOutput:\n%s", err, string(out))
 	}
 
 	return exePath
@@ -59,7 +59,7 @@ func prepareIntegrationDataDir(t *testing.T, tempDir string) {
 		t.Fatalf("Failed to get cwd: %v", err)
 	}
 
-	dataDir := filepath.Join(tempDir, "mnemosyne")
+	dataDir := filepath.Join(tempDir, "mnemoteca")
 	if err := os.MkdirAll(dataDir, 0755); err != nil {
 		t.Fatalf("Failed to create test data dir: %v", err)
 	}
@@ -92,7 +92,7 @@ func TestIntegrationPipeline(t *testing.T) {
 
 	env := []string{
 		fmt.Sprintf("XDG_DATA_HOME=%s", tempDir),
-		fmt.Sprintf("MNEMOSYNE_DB_PATH=%s", dbPath),
+		fmt.Sprintf("MNEMOTECA_DB_PATH=%s", dbPath),
 	}
 
 	// Test 1: Initialize a new collection

@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/gandazgul/mnemosyne/internal/config"
+	"github.com/gandazgul/mnemoteca/internal/config"
 )
 
 func TestReady_EmptyDir(t *testing.T) {

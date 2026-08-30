@@ -6,8 +6,8 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/gandazgul/mnemosyne/internal/config"
-	"github.com/gandazgul/mnemosyne/internal/embedding"
+	"github.com/gandazgul/mnemoteca/internal/config"
+	"github.com/gandazgul/mnemoteca/internal/embedding"
 )
 
 // testOnnxRuntimeLib returns the path to the ONNX Runtime shared library.

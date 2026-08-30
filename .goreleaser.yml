@@ -1,6 +1,6 @@
 version: 2
 
-project_name: mnemosyne
+project_name: mnemoteca
 
 before:
   hooks:
@@ -11,6 +11,7 @@ env:
 
 builds:
   - id: "darwin"
+    binary: mnemoteca
     goos:
       - darwin
     goarch:
@@ -23,12 +24,16 @@ builds:
     flags:
       - -tags=sqlite_fts5
     ldflags:
-      - -w -X github.com/gandazgul/mnemosyne/cmd.Version={{.Version}} -X github.com/gandazgul/mnemosyne/cmd.Commit={{.Commit}} -X github.com/gandazgul/mnemosyne/cmd.Date={{.Date}} -X github.com/gandazgul/mnemosyne/cmd.Release=true
+      - -w -X github.com/gandazgul/mnemoteca/cmd.Version={{.Version}} -X github.com/gandazgul/mnemoteca/cmd.Commit={{.Commit}} -X github.com/gandazgul/mnemoteca/cmd.Date={{.Date}} -X github.com/gandazgul/mnemoteca/cmd.Release=true
 
 archives:
   - formats:
       - tar.gz
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+      - CHANGELOG.md
 
 checksum:
   name_template: "checksums.txt"

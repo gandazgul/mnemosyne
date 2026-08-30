@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gandazgul/mnemosyne/internal/db"
+	"github.com/gandazgul/mnemoteca/internal/db"
 )
 
 // EmbedFunc generates an embedding vector for the given content.

@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/gandazgul/mnemosyne/internal/config"
+	"github.com/gandazgul/mnemoteca/internal/config"
 )
 
 // testModelsDir returns the path to the test models directory.

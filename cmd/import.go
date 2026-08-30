@@ -8,10 +8,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gandazgul/mnemosyne/internal/backup"
-	"github.com/gandazgul/mnemosyne/internal/config"
-	"github.com/gandazgul/mnemosyne/internal/db"
-	"github.com/gandazgul/mnemosyne/internal/embedding"
+	"github.com/gandazgul/mnemoteca/internal/backup"
+	"github.com/gandazgul/mnemoteca/internal/config"
+	"github.com/gandazgul/mnemoteca/internal/db"
+	"github.com/gandazgul/mnemoteca/internal/embedding"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +19,7 @@ import (
 var importCmd = &cobra.Command{
 	Use:   "import <file.jsonl>",
 	Short: "Import collections from JSONL files or agent memory",
-	Long: `Import one or more collections from JSONL files exported by 'mnemosyne export'.
+	Long: `Import one or more collections from JSONL files exported by 'mnemoteca export'.
 
 When the file includes vector embeddings, the import is fast and model-independent
 (no re-embedding required).
@@ -31,14 +31,14 @@ the embedding model to be available (it is auto-downloaded on first use).
 If the collection already exists, documents are appended to it.
 
 Use --agent to import memories from another agent's memory system. Agent imports
-append new Mnemosyne documents and do not modify source agent memory files.
+append new Mnemoteca documents and do not modify source agent memory files.
 
 Examples:
-  mnemosyne import my-project.jsonl                # import into original collection name
-  mnemosyne import my-project.jsonl --name other    # override collection name
-  mnemosyne import --dir ./backups/                 # import all .jsonl files from directory
-  mnemosyne import --agent claude --dry-run         # preview Claude Code memories
-  mnemosyne import --agent claude                   # import Claude Code memories`,
+  mnemoteca import my-project.jsonl                # import into original collection name
+  mnemoteca import my-project.jsonl --name other    # override collection name
+  mnemoteca import --dir ./backups/                 # import all .jsonl files from directory
+  mnemoteca import --agent claude --dry-run         # preview Claude Code memories
+  mnemoteca import --agent claude                   # import Claude Code memories`,
 	Args: cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		nameFlag, _ := cmd.Flags().GetString("name")
@@ -198,7 +198,7 @@ func init() {
 	importCmd.Flags().StringP("dir", "d", "", "import all .jsonl files from directory")
 	importCmd.Flags().String("agent", "", "import memories from an agent memory system (supported: claude)")
 	importCmd.Flags().BoolP("global", "g", false, "use the global collection for agent imports")
-	importCmd.Flags().Bool("dry-run", false, "preview an agent import without writing to Mnemosyne")
+	importCmd.Flags().Bool("dry-run", false, "preview an agent import without writing to Mnemoteca")
 	importCmd.Flags().Bool("include-user", false, "include user-level memories for agent imports")
 	importCmd.Flags().StringSlice("path", nil, "specific agent memory file or directory to import (repeatable)")
 	rootCmd.AddCommand(importCmd)

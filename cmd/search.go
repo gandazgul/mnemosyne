@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/gandazgul/mnemosyne/internal/config"
-	"github.com/gandazgul/mnemosyne/internal/embedding"
-	"github.com/gandazgul/mnemosyne/internal/reranker"
-	"github.com/gandazgul/mnemosyne/internal/search"
+	"github.com/gandazgul/mnemoteca/internal/config"
+	"github.com/gandazgul/mnemoteca/internal/embedding"
+	"github.com/gandazgul/mnemoteca/internal/reranker"
+	"github.com/gandazgul/mnemoteca/internal/search"
 	"github.com/spf13/cobra"
 )
 
@@ -29,14 +29,14 @@ Documents found by both keyword match and semantic similarity are boosted
 above those found by only one method.
 
 Examples:
-  mnemosyne search "exact phrase"
-  mnemosyne search golang concurrency
-  mnemosyne search --limit 5 "how do goroutines work"
-  mnemosyne search -f json --limit 10 "benchmark query"
-  mnemosyne search --fts-only --no-rerank "benchmark query"
-  mnemosyne search --vector-only --no-rerank "benchmark query"
-  mnemosyne search --fusion rrf --no-rerank "benchmark query"
-  mnemosyne search --fusion vector-bm25 --bm25-weight 0.10 --rerank-candidates 300 --no-rerank "benchmark query"
+  mnemoteca search "exact phrase"
+  mnemoteca search golang concurrency
+  mnemoteca search --limit 5 "how do goroutines work"
+  mnemoteca search -f json --limit 10 "benchmark query"
+  mnemoteca search --fts-only --no-rerank "benchmark query"
+  mnemoteca search --vector-only --no-rerank "benchmark query"
+  mnemoteca search --fusion rrf --no-rerank "benchmark query"
+  mnemoteca search --fusion vector-bm25 --bm25-weight 0.10 --rerank-candidates 300 --no-rerank "benchmark query"
 
 If --name is not provided, the current directory name is used.`,
 	Args: cobra.MinimumNArgs(1),

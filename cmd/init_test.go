@@ -10,7 +10,7 @@ import (
 func TestInitCmd(t *testing.T) {
 	// Setup DB in temp dir
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 
 	outBuf := new(bytes.Buffer)
 	rootCmd.SetOut(outBuf)

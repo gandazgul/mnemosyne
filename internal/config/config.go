@@ -3,7 +3,7 @@
 // Configuration is resolved in this order (highest priority first):
 //  1. CLI flags
 //  2. Environment variables
-//  3. Config file (~/.config/mnemosyne/config.yaml)
+//  3. Config file (~/.config/mnemoteca/config.yaml)
 //  4. Built-in defaults
 package config
 
@@ -18,8 +18,8 @@ import (
 )
 
 const (
-	envConfigPath    = "MNEMOSYNE_CONFIG"
-	envConfigPathAlt = "MNEMOSYNE_CONFIG_PATH"
+	envConfigPath    = "MNEMOTECA_CONFIG"
+	envConfigPathAlt = "MNEMOTECA_CONFIG_PATH"
 )
 
 // Config holds all application configuration.
@@ -131,7 +131,7 @@ func DefaultConfig() *Config {
 	modelsDir := findModelsDir(dataDir)
 
 	return &Config{
-		DBPath:         getEnvOrDefault("MNEMOSYNE_DB_PATH", filepath.Join(dataDir, "mnemosyne.db")),
+		DBPath:         getEnvOrDefault("MNEMOTECA_DB_PATH", filepath.Join(dataDir, "mnemoteca.db")),
 		OnnxRuntimeLib: findONNXRuntimeLib(dataDir),
 		Embedding: EmbeddingConfig{
 			ModelPath:       filepath.Join(modelsDir, "snowflake-arctic-embed-m-v1.5"),
@@ -168,7 +168,7 @@ func DefaultConfig() *Config {
 //
 // Search order:
 //  1. ONNXRUNTIME_SHARED_LIBRARY_PATH environment variable
-//  2. Data directory lib/ (e.g. ~/.local/share/mnemosyne/lib/ or %LOCALAPPDATA%\mnemosyne\lib\)
+//  2. Data directory lib/ (e.g. ~/.local/share/mnemoteca/lib/ or %LOCALAPPDATA%\mnemoteca\lib\)
 //  3. Next to the running executable
 //  4. ../lib/ relative to the running executable (development layout)
 func findONNXRuntimeLib(dataDir string) string {
@@ -244,10 +244,10 @@ func isDir(path string) bool {
 	return err == nil && info.IsDir()
 }
 
-// defaultDataDir returns the default data directory for mnemosyne.
-// On Windows: %LOCALAPPDATA%\mnemosyne
-// On macOS/Linux: ~/.local/share/mnemosyne (or $XDG_DATA_HOME/mnemosyne)
-// Falls back to .mnemosyne if home can't be resolved.
+// defaultDataDir returns the default data directory for mnemoteca.
+// On Windows: %LOCALAPPDATA%\mnemoteca
+// On macOS/Linux: ~/.local/share/mnemoteca (or $XDG_DATA_HOME/mnemoteca)
+// Falls back to .mnemoteca if home can't be resolved.
 func defaultDataDir() string {
 	return defaultDataDirForOS(runtime.GOOS)
 }
@@ -255,32 +255,32 @@ func defaultDataDir() string {
 func defaultDataDirForOS(goos string) string {
 	if goos == "windows" {
 		if localAppData := os.Getenv("LOCALAPPDATA"); localAppData != "" {
-			return filepath.Join(localAppData, "mnemosyne")
+			return filepath.Join(localAppData, "mnemoteca")
 		}
 		if appData := os.Getenv("APPDATA"); appData != "" {
-			return filepath.Join(appData, "mnemosyne")
+			return filepath.Join(appData, "mnemoteca")
 		}
 	}
 
 	// Check XDG_DATA_HOME first (standard on Linux).
 	if goos != "windows" {
 		if xdg := os.Getenv("XDG_DATA_HOME"); xdg != "" {
-			return filepath.Join(xdg, "mnemosyne")
+			return filepath.Join(xdg, "mnemoteca")
 		}
 	}
 
 	home, err := os.UserHomeDir()
 	if err != nil {
 		// Last resort: use current directory.
-		return ".mnemosyne"
+		return ".mnemoteca"
 	}
 
 	if goos == "windows" {
-		return filepath.Join(home, "AppData", "Local", "mnemosyne")
+		return filepath.Join(home, "AppData", "Local", "mnemoteca")
 	}
 
-	// Fall back to ~/.local/share/mnemosyne.
-	return filepath.Join(home, ".local", "share", "mnemosyne")
+	// Fall back to ~/.local/share/mnemoteca.
+	return filepath.Join(home, ".local", "share", "mnemoteca")
 }
 
 // Load returns the application configuration.
@@ -332,14 +332,14 @@ func ConfigPath() (string, bool) {
 	if err != nil {
 		return "", false
 	}
-	return filepath.Join(home, ".config", "mnemosyne", "config.yaml"), false
+	return filepath.Join(home, ".config", "mnemoteca", "config.yaml"), false
 }
 
 func applyEnvOverrides(cfg *Config) {
 	if cfg == nil {
 		return
 	}
-	if value, ok := os.LookupEnv("MNEMOSYNE_DB_PATH"); ok {
+	if value, ok := os.LookupEnv("MNEMOTECA_DB_PATH"); ok {
 		cfg.DBPath = value
 	}
 }

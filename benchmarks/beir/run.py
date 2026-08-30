@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Run Mnemosyne on a BEIR-format retrieval benchmark.
+"""Run Mnemoteca on a BEIR-format retrieval benchmark.
 
 The default target is SciFact, a small BEIR dataset useful for quick,
 reproducible retrieval evaluation. The harness intentionally drives the
-compiled mnemosyne CLI and consumes `search -f json` output so it exercises the
+compiled mnemoteca CLI and consumes `search -f json` output so it exercises the
 same surface area that external benchmark scripts will use.
 """
 
@@ -34,7 +34,7 @@ METRIC_KEYS = ["ndcg@10", "mrr@10", "recall@10", "recall@100", "map@100"]
 def parse_args() -> argparse.Namespace:
     repo_root = Path(__file__).resolve().parents[2]
     parser = argparse.ArgumentParser(
-        description="Run Mnemosyne against a BEIR-format retrieval dataset.",
+        description="Run Mnemoteca against a BEIR-format retrieval dataset.",
     )
     parser.add_argument(
         "--dataset",
@@ -44,8 +44,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--binary",
         type=Path,
-        default=repo_root / "mnemosyne",
-        help="Path to the mnemosyne binary. Defaults to ./mnemosyne.",
+        default=repo_root / "mnemoteca",
+        help="Path to the mnemoteca binary. Defaults to ./mnemoteca.",
     )
     parser.add_argument(
         "--data-dir",
@@ -68,13 +68,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--collection",
         default=None,
-        help="Mnemosyne collection name. Defaults to bench_beir_<dataset>.",
+        help="Mnemoteca collection name. Defaults to bench_beir_<dataset>.",
     )
     parser.add_argument(
         "--config",
         type=Path,
         default=None,
-        help="Path to a mnemosyne config.yaml. Passed as MNEMOSYNE_CONFIG to import/search commands.",
+        help="Path to a mnemoteca config.yaml. Passed as MNEMOTECA_CONFIG to import/search commands.",
     )
     parser.add_argument(
         "--run-label",
@@ -270,11 +270,11 @@ def sanitize_label(label: str) -> str:
     return sanitized
 
 
-def mnemosyne_env(db_path: Path, config_path: Path | None) -> dict[str, str]:
+def mnemoteca_env(db_path: Path, config_path: Path | None) -> dict[str, str]:
     env = os.environ.copy()
-    env["MNEMOSYNE_DB_PATH"] = str(db_path)
+    env["MNEMOTECA_DB_PATH"] = str(db_path)
     if config_path is not None:
-        env["MNEMOSYNE_CONFIG"] = str(config_path)
+        env["MNEMOTECA_CONFIG"] = str(config_path)
     return env
 
 
@@ -305,14 +305,14 @@ def import_corpus(
     config_path: Path | None,
     repo_root: Path,
 ) -> None:
-    env = mnemosyne_env(db_path, config_path)
+    env = mnemoteca_env(db_path, config_path)
     print(f"Importing corpus into {db_path}", flush=True)
     proc = run([str(binary), "import", str(import_file), "--name", collection], env, repo_root)
     if proc.stdout.strip():
         print(proc.stdout.strip(), flush=True)
 
 
-def query_mnemosyne(
+def query_mnemoteca(
     binary: Path,
     collection: str,
     query: str,
@@ -352,7 +352,7 @@ def query_mnemosyne(
         cmd.append("--vector-only")
     cmd.append(query)
 
-    env = mnemosyne_env(db_path, config_path)
+    env = mnemoteca_env(db_path, config_path)
     proc = run(cmd, env, repo_root)
     payload = json.loads(proc.stdout)
 
@@ -545,7 +545,7 @@ def write_results(
     metrics = payload["metrics"]
     breakdown = payload["breakdown"]
     with md_path.open("w", encoding="utf-8") as f:
-        f.write(f"# Mnemosyne BEIR {dataset} Results\n\n")
+        f.write(f"# Mnemoteca BEIR {dataset} Results\n\n")
         f.write(f"- Generated: {payload['generated_at']}\n")
         f.write(f"- Dataset: `{dataset}`\n")
         f.write(f"- Queries: {payload['query_count']}\n")
@@ -561,8 +561,8 @@ def write_results(
         f.write(f"- Rerank enabled: {not payload['config']['no_rerank']}\n")
         if payload["config"].get("run_label"):
             f.write(f"- Run label: `{payload['config']['run_label']}`\n")
-        if payload["config"].get("mnemosyne_config"):
-            f.write(f"- Mnemosyne config: `{payload['config']['mnemosyne_config']}`\n")
+        if payload["config"].get("mnemoteca_config"):
+            f.write(f"- Mnemoteca config: `{payload['config']['mnemoteca_config']}`\n")
         f.write("\n")
         f.write("| Metric | Score |\n")
         f.write("| --- | ---: |\n")
@@ -644,10 +644,10 @@ def main() -> int:
         return 2
 
     if not binary.exists():
-        print(f"mnemosyne binary not found at {binary}; run `task build` first", file=sys.stderr)
+        print(f"mnemoteca binary not found at {binary}; run `task build` first", file=sys.stderr)
         return 2
     if config_path is not None and not config_path.exists():
-        print(f"mnemosyne config not found at {config_path}", file=sys.stderr)
+        print(f"mnemoteca config not found at {config_path}", file=sys.stderr)
         return 2
 
     dataset_dir = download_and_extract(dataset, args.data_dir.resolve(), args.skip_download)
@@ -667,7 +667,7 @@ def main() -> int:
     if run_label:
         work_dir = work_dir / run_label
     work_dir.mkdir(parents=True, exist_ok=True)
-    db_path = work_dir / "mnemosyne.db"
+    db_path = work_dir / "mnemoteca.db"
     import_file = work_dir / "import.jsonl"
 
     if not args.reuse_db:
@@ -681,7 +681,7 @@ def main() -> int:
     per_query: OrderedDict[str, dict[str, Any]] = OrderedDict()
     for index, (query_id, row) in enumerate(judged_queries.items(), start=1):
         query = str(row["text"])
-        ranked = query_mnemosyne(
+        ranked = query_mnemoteca(
             binary=binary,
             collection=collection,
             query=query,
@@ -715,7 +715,7 @@ def main() -> int:
         "config": {
             "binary": str(binary),
             "db_path": str(db_path),
-            "mnemosyne_config": str(config_path) if config_path else None,
+            "mnemoteca_config": str(config_path) if config_path else None,
             "run_label": run_label,
             "limit": args.limit,
             "rerank_candidates": args.rerank_candidates,

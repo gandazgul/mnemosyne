@@ -6,7 +6,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/gandazgul/mnemosyne/internal/db"
+	"github.com/gandazgul/mnemoteca/internal/db"
 )
 
 // ExportCollection streams a single collection to a JSONL writer.

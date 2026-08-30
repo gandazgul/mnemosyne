@@ -8,7 +8,7 @@ import (
 
 func TestAddCmd_File(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 
 	// Since adding requires opening the embedder, which is hard to mock cleanly
 	// without 500mb models or breaking `main_test.go`, we will test the error cases

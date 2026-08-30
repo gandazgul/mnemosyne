@@ -9,7 +9,7 @@ import (
 
 func TestDeleteCmd(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 
 	db, err := openDB()
 	if err != nil {

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gandazgul/mnemosyne/internal/config"
+	"github.com/gandazgul/mnemoteca/internal/config"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 )
@@ -49,7 +49,7 @@ func readInput(cmd *cobra.Command) (string, error) {
 var cleanupCmd = &cobra.Command{
 	Use:   "cleanup",
 	Short: "Remove downloaded models and ONNX Runtime (keeps database by default)",
-	Long: `Remove files downloaded by mnemosyne setup.
+	Long: `Remove files downloaded by mnemoteca setup.
 
 By default this deletes only the ML models and ONNX Runtime library:
   - ONNX Runtime shared library (lib/)
@@ -74,7 +74,7 @@ You will be asked to confirm unless --yes is provided.`,
 		// Directories/files to remove.
 		libDir := filepath.Join(dataDir, "lib")
 		modelsDir := filepath.Join(dataDir, "models")
-		dbPath := filepath.Join(dataDir, "mnemosyne.db")
+		dbPath := filepath.Join(dataDir, "mnemoteca.db")
 
 		// Show what will be deleted.
 		cmd.Println("This will permanently delete:")
@@ -91,7 +91,7 @@ You will be asked to confirm unless --yes is provided.`,
 
 		// Confirm models/runtime removal.
 		if !yesFlag {
-			cmd.Printf("This will remove ONNX Runtime and ML models. They can be re-downloaded with 'mnemosyne setup'.\n")
+			cmd.Printf("This will remove ONNX Runtime and ML models. They can be re-downloaded with 'mnemoteca setup'.\n")
 			cmd.Printf("Type 'yes' to confirm: ")
 			input, err := readInput(cmd)
 			if err != nil && err.Error() != "EOF" {

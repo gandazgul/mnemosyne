@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/gandazgul/mnemosyne/internal/config"
-	"github.com/gandazgul/mnemosyne/internal/setup"
+	"github.com/gandazgul/mnemoteca/internal/config"
+	"github.com/gandazgul/mnemoteca/internal/setup"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +18,7 @@ This downloads:
   - ONNX Runtime (~38 MB) from GitHub releases
   - default embedding/reranker models when the config points at built-in paths
 
-Files are stored in ~/.local/share/mnemosyne/.
+Files are stored in ~/.local/share/mnemoteca/.
 This command is idempotent — it skips files that are already downloaded.
 Custom model paths are validated but not auto-downloaded.
 

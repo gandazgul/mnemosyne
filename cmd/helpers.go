@@ -6,11 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gandazgul/mnemosyne/internal/config"
-	"github.com/gandazgul/mnemosyne/internal/db"
-	"github.com/gandazgul/mnemosyne/internal/embedding"
-	"github.com/gandazgul/mnemosyne/internal/reranker"
-	"github.com/gandazgul/mnemosyne/internal/setup"
+	"github.com/gandazgul/mnemoteca/internal/config"
+	"github.com/gandazgul/mnemoteca/internal/db"
+	"github.com/gandazgul/mnemoteca/internal/embedding"
+	"github.com/gandazgul/mnemoteca/internal/reranker"
+	"github.com/gandazgul/mnemoteca/internal/setup"
 )
 
 // resolveCollectionName returns the collection name from the --name flag,
@@ -78,7 +78,7 @@ func getSelectedCollection(database *db.DB, collectionName string, global bool) 
 		return nil, fmt.Errorf("looking up collection: %w", err)
 	}
 	if collection == nil {
-		return nil, fmt.Errorf("collection %q does not exist; run 'mnemosyne init --name %s' first",
+		return nil, fmt.Errorf("collection %q does not exist; run 'mnemoteca init --name %s' first",
 			collectionName, collectionName)
 	}
 

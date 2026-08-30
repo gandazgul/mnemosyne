@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gandazgul/mnemosyne/internal/db"
-	"github.com/gandazgul/mnemosyne/internal/search"
+	"github.com/gandazgul/mnemoteca/internal/db"
+	"github.com/gandazgul/mnemoteca/internal/search"
 )
 
 // mockEmbedder is a test embedder that returns deterministic vectors.

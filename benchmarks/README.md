@@ -1,13 +1,12 @@
 # Benchmarks
 
-Mnemosyne includes benchmark harnesses for retrieval quality. The current
-published memory-system result uses LongMemEval, a benchmark where each
-question has its own candidate set of conversation sessions and one or more
-answer session IDs.
+Mnemoteca includes benchmark harnesses for retrieval quality. The current
+published memory-system result was produced before the rename, when the product
+was named Mnemosyne. Current reproduction commands use Mnemoteca.
 
 ## Headline Results
 
-These runs use local inference only: no cloud API and no LLM reranker.
+These runs used local inference only: no cloud API and no LLM reranker.
 
 | Benchmark | Document Mode | Model Config | Fusion | Recall@5 | Recall@10 | MRR@10 | nDCG@10 |
 | --- | --- | --- | --- | ---: | ---: | ---: | ---: |
@@ -15,10 +14,10 @@ These runs use local inference only: no cloud API and no LLM reranker.
 | LongMemEval | `session` | `jina-v5-nano` | `vector-bm25`, weight `0.10` | 0.9920 | 0.9940 | 0.9491 | 0.9486 |
 
 The `message` run is the more representative Mnemosyne result: each
-user/assistant message is stored as a short document, and retrieved documents
-are scored by whether they map back to the correct LongMemEval answer session.
-The `session` run is included because it is the closest shape to MemPalace's raw
-LongMemEval setup: one document per session.
+user/assistant message was stored as a short document, and retrieved documents
+were scored by whether they mapped back to the correct LongMemEval answer
+session. The `session` run is included because it is the closest shape to
+MemPalace's raw LongMemEval setup: one document per session.
 
 Full generated result files:
 
@@ -29,7 +28,7 @@ Full generated result files:
 
 ## Reproduce LongMemEval
 
-Build Mnemosyne first:
+Build Mnemoteca first:
 
 ```bash
 task build
@@ -47,7 +46,7 @@ python3 benchmarks/longmemeval/run.py \
   --no-rerank
 ```
 
-Run the published short-document result:
+Run the published short-document result shape:
 
 ```bash
 python3 benchmarks/longmemeval/run.py \
@@ -59,7 +58,7 @@ python3 benchmarks/longmemeval/run.py \
   --rerank-candidates 50
 ```
 
-Run the session-document comparison:
+Run the session-document comparison shape:
 
 ```bash
 python3 benchmarks/longmemeval/run.py \
@@ -71,15 +70,15 @@ python3 benchmarks/longmemeval/run.py \
   --rerank-candidates 50
 ```
 
-The harness downloads
-`longmemeval_s_cleaned.json` into `benchmarks/data/longmemeval/` unless the file
-already exists or `--skip-download` is used. Scratch databases are written under
+The harness downloads `longmemeval_s_cleaned.json` into
+`benchmarks/data/longmemeval/` unless the file already exists or
+`--skip-download` is used. Scratch databases are written under
 `benchmarks/work/longmemeval/`. Result summaries are written to
 `benchmarks/results/`.
 
-The full message-mode run imports 246,738 short documents across 500 isolated
+The full message-mode run imported 246,738 short documents across 500 isolated
 per-question databases and took about 7.1 hours on the original local run. The
-session-mode run imports 23,796 documents and took about 1.3 hours.
+session-mode run imported 23,796 documents and took about 1.3 hours.
 
 Use `--reuse-db` only when the per-question databases for the same document
 mode, model config, and collection already exist.
@@ -94,7 +93,6 @@ For LongMemEval, each retrieved document is mapped back to its
 - `recall_all@5` / `recall_all@10`: all labelled answer sessions appear in the
   top 5 or top 10. This is stricter for multi-session questions.
 - `MRR@10`: reciprocal rank of the first correct answer session in the top 10.
-  Higher means the first useful result appears earlier.
 - `nDCG@10`: ranking quality over the top 10, giving more credit when relevant
   sessions are near the top.
 
@@ -104,20 +102,21 @@ per-question-type scores, and misses at 5.
 ## Comparison Notes
 
 These numbers are retrieval metrics, not end-to-end question-answering accuracy.
-They measure whether Mnemosyne retrieves the right memory session; they do not
-measure whether an LLM can answer correctly after retrieval.
+They measure whether Mnemosyne retrieved the right memory session in the dated
+pre-rename run. They do not measure whether an LLM can answer correctly after
+retrieval.
 
-For a rough local-only comparison, MemPalace reports LongMemEval raw ChromaDB
-at 96.6% R@5 / 98.2% R@10 / 0.889 nDCG@10 and hybrid v2 at 98.4% R@5 / 99.0%
-R@10 / 0.934 nDCG@10. Mnemosyne's message-mode result is 98.8% Recall@5,
+For a rough local-only comparison, MemPalace reports LongMemEval raw ChromaDB at
+96.6% R@5 / 98.2% R@10 / 0.889 nDCG@10 and hybrid v2 at 98.4% R@5 / 99.0%
+R@10 / 0.934 nDCG@10. Mnemosyne's message-mode result was 98.8% Recall@5,
 99.8% Recall@10, and 0.9575 nDCG@10 without an LLM reranker.
 
 The comparison is not perfectly apples-to-apples:
 
-- Mnemosyne reports `recall_any@K`, plus the stricter `recall_all@K` for
+- Mnemosyne reported `recall_any@K`, plus the stricter `recall_all@K` for
   questions with multiple answer sessions.
-- MemPalace also reports higher LLM-reranked numbers; those add a reader model
-  after retrieval, while the Mnemosyne results above do not.
+- MemPalace also reports higher LLM-reranked numbers. Those add a reader model
+  after retrieval, while the Mnemosyne results above did not.
 - MemPalace's own benchmark documentation flags its 100% LongMemEval result as
   partly tuned on known failures, and separately publishes a clean held-out
   no-LLM hybrid result of 98.4% R@5.
@@ -140,3 +139,14 @@ task bench:scifact -- --fts-only --no-rerank
 task bench:scifact -- --vector-only --no-rerank
 task bench:scifact -- --fusion vector-bm25 --bm25-weight 0.10 --rerank-candidates 300 --no-rerank
 ```
+
+When `--config` is provided, the harness passes it to Mnemoteca as
+`MNEMOTECA_CONFIG`. When `--run-label` is provided, the benchmark uses a
+separate work database under `benchmarks/work/` and includes the label in result
+filenames. This prevents runs with different embedding dimensions from sharing a
+SQLite vector table by accident. Use `--reuse-db` for `--fts-only` comparisons
+when possible, because a fresh benchmark import still embeds vectorless corpus
+files through the normal import path.
+
+Current harness labels and scratch paths use Mnemoteca names for new runs.
+Dated generated result files keep the names produced at the time of the run.

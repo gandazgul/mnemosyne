@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-BINARY="./mnemosyne"
+BINARY="./mnemoteca"
 
 if [[ ! -x "$BINARY" ]]; then
   echo "Binary not found. Building..."

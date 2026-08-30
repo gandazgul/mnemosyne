@@ -1,19 +1,19 @@
-# Mnemosyne configuration
+# Mnemoteca configuration
 #
 # Default location:
-#   ~/.config/mnemosyne/config.yaml
+#   ~/.config/mnemoteca/config.yaml
 #
 # Use another config file for experiments:
-#   MNEMOSYNE_CONFIG=/path/to/config.yaml mnemosyne search "query"
+#   MNEMOTECA_CONFIG=/path/to/config.yaml mnemoteca search "query"
 #
-# MNEMOSYNE_DB_PATH overrides db_path, which is useful for benchmarks.
+# MNEMOTECA_DB_PATH overrides db_path, which is useful for benchmarks.
 
 # Path to the SQLite database
-db_path: "~/.local/share/mnemosyne/mnemosyne.db"
+db_path: "~/.local/share/mnemoteca/mnemoteca.db"
 
 embedding:
   # Path to the embedding model directory
-  model_path: "~/.local/share/mnemosyne/models/snowflake-arctic-embed-m-v1.5"
+  model_path: "~/.local/share/mnemoteca/models/snowflake-arctic-embed-m-v1.5"
   onnx_file: "onnx/model.onnx"
   dimensions: 256
   max_seq_length: 512
@@ -30,7 +30,7 @@ embedding:
 
 reranker:
   # Path to the reranker model directory
-  model_path: "~/.local/share/mnemosyne/models/ms-marco-MiniLM-L-6-v2"
+  model_path: "~/.local/share/mnemoteca/models/ms-marco-MiniLM-L-6-v2"
   max_seq_length: 512
   enabled: true
 

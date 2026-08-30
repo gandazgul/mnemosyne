@@ -27,7 +27,7 @@ func TestExecuteRootCommand(t *testing.T) {
 		t.Errorf("Unexpected error: %v", err)
 	}
 
-	if !strings.Contains(output, "Welcome to Mnemosyne!") {
+	if !strings.Contains(output, "Welcome to Mnemoteca!") {
 		t.Errorf("Expected welcome message, got %s", output)
 	}
 }

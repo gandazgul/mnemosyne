@@ -12,7 +12,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/gandazgul/mnemosyne/internal/config"
+	"github.com/gandazgul/mnemoteca/internal/config"
 )
 
 // EmbedModel describes a HuggingFace model to download.

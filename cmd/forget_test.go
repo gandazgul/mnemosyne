@@ -10,7 +10,7 @@ import (
 
 func TestForgetCmd_GlobalFreshDatabaseLazilyInitializesThenDeletes(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 	resetForgetFlagsForTest(t)
 
 	outBuf := new(bytes.Buffer)
@@ -36,7 +36,7 @@ func TestForgetCmd_GlobalFreshDatabaseLazilyInitializesThenDeletes(t *testing.T)
 
 func TestForgetCmd(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 	resetForgetFlagsForTest(t)
 
 	db, err := openDB()

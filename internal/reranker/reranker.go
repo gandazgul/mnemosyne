@@ -7,8 +7,8 @@ import (
 
 	ort "github.com/yalue/onnxruntime_go"
 
-	"github.com/gandazgul/mnemosyne/internal/config"
-	"github.com/gandazgul/mnemosyne/internal/embedding"
+	"github.com/gandazgul/mnemoteca/internal/config"
+	"github.com/gandazgul/mnemoteca/internal/embedding"
 )
 
 // Reranker scores query-document relevance.

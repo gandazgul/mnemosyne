@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gandazgul/mnemosyne/internal/search"
+	"github.com/gandazgul/mnemoteca/internal/search"
 )
 
 func TestPrintSearchResults(t *testing.T) {

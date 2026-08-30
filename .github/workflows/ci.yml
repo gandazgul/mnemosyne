@@ -25,8 +25,14 @@ jobs:
 
       - name: Build Dev Binary
         run: |
-          go build -tags sqlite_fts5 -o mnemosyne-linux-arm64 .
-          ./mnemosyne-linux-arm64 version
+          go build -tags sqlite_fts5 -o mnemoteca-linux-arm64 .
+          first_line="$(./mnemoteca-linux-arm64 version | sed -n '1p')"
+          expected="mnemoteca dev (linux/arm64)"
+          if [ "$first_line" != "$expected" ]; then
+            echo "Expected version output: $expected" >&2
+            echo "Actual version output:   $first_line" >&2
+            exit 1
+          fi
         env:
           CGO_ENABLED: "1"
 
@@ -36,13 +42,13 @@ jobs:
         include:
           - os: ubuntu-latest
             target: linux-amd64
-            artifact: mnemosyne-linux-amd64
+            artifact: mnemoteca-linux-amd64
           - os: macos-latest
             target: darwin-arm64
-            artifact: mnemosyne-darwin-arm64
+            artifact: mnemoteca-darwin-arm64
           - os: windows-latest
             target: windows-amd64
-            artifact: mnemosyne-windows-amd64.exe
+            artifact: mnemoteca-windows-amd64.exe
 
     runs-on: ${{ matrix.os }}
 
@@ -116,6 +122,14 @@ jobs:
         if: runner.os != 'Windows'
         run: task test
 
+      - name: Installer Tests
+        if: runner.os != 'Windows'
+        run: task test:install
+
+      - name: Release Artifact Contract Tests
+        if: runner.os != 'Windows'
+        run: task test:release-artifacts
+
       - name: Verify Windows CGO Dependencies
         if: runner.os == 'Windows'
         shell: msys2 {0}
@@ -136,28 +150,38 @@ jobs:
 
       - name: Build Dev Binary
         if: runner.os != 'Windows'
-        run: task build
+        run: |
+          task build VERSION=dev
+          mv mnemoteca ${{ matrix.artifact }}
+          first_line="$(./${{ matrix.artifact }} version | sed -n '1p')"
+          expected="mnemoteca dev ($(go env GOOS)/$(go env GOARCH))"
+          if [ "$first_line" != "$expected" ]; then
+            echo "Expected version output: $expected" >&2
+            echo "Actual version output:   $first_line" >&2
+            exit 1
+          fi
 
       - name: Build Windows Binary
         if: runner.os == 'Windows'
         shell: msys2 {0}
         run: |
           go build -tags sqlite_fts5 -o ${{ matrix.artifact }} .
-          ./${{ matrix.artifact }} version
+          first_line="$(./${{ matrix.artifact }} version | sed -n '1p')"
+          expected="mnemoteca dev (windows/amd64)"
+          if [ "$first_line" != "$expected" ]; then
+            echo "Expected version output: $expected" >&2
+            echo "Actual version output:   $first_line" >&2
+            exit 1
+          fi
         env:
           CGO_ENABLED: "1"
           CC: gcc
           CGO_CFLAGS: "-I/mingw64/include"
           CGO_LDFLAGS: "-L/mingw64/lib"
 
-      - name: Rename Binary
-        if: runner.os != 'Windows'
-        run: |
-          mv mnemosyne ${{ matrix.artifact }}
-
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mnemosyne-${{ matrix.target }}
+          name: mnemoteca-${{ matrix.target }}
           path: ${{ matrix.artifact }}
           retention-days: 7

@@ -1,9 +1,9 @@
 version: '3'
 
 vars:
-  BINARY_NAME: mnemosyne
+  BINARY_NAME: mnemoteca
   BUILD_TAGS: "sqlite_fts5"
-  LDFLAGS_PKG: "github.com/gandazgul/mnemosyne/cmd"
+  LDFLAGS_PKG: "github.com/gandazgul/mnemoteca/cmd"
   VERSION:
     sh: git describe --tags --always --dirty 2>/dev/null || echo "dev"
   COMMIT:
@@ -23,7 +23,7 @@ tasks:
     deps: [build]
 
   build:
-    desc: Build the mnemosyne binary
+    desc: Build the mnemoteca binary
     env:
       CGO_LDFLAGS: "-L{{.ROOT_DIR}}/{{.LIB_DIR}}"
     cmds:
@@ -41,7 +41,7 @@ tasks:
       - "{{.BINARY_NAME}}"
 
   run:
-    desc: Build and run mnemosyne
+    desc: Build and run mnemoteca
     deps: [build]
     env:
       CGO_LDFLAGS: "-L{{.ROOT_DIR}}/{{.LIB_DIR}}"
@@ -53,6 +53,8 @@ tasks:
     cmds:
       - task lint
       - task test
+      - task test:install
+      - task test:release-artifacts
 
   test:
     desc: Run all tests
@@ -60,6 +62,16 @@ tasks:
       CGO_LDFLAGS: "-L{{.ROOT_DIR}}/{{.LIB_DIR}}"
     cmds:
       - go test -tags '{{.BUILD_TAGS}}' -race -v ./...
+
+  test:install:
+    desc: Run installer contract tests
+    cmds:
+      - ./tests/install_test.sh
+
+  test:release-artifacts:
+    desc: Run release artifact contract tests
+    cmds:
+      - ./tests/release_artifacts_test.sh
 
   bench:scifact:
     desc: Run the BEIR SciFact retrieval benchmark
@@ -74,15 +86,15 @@ tasks:
       - mkdir -p benchmarks/work/beir/scifact
       - command -v screen >/dev/null 2>&1 || { echo >&2 "screen is required for bench:scifact-bg"; exit 1; }
       - >-
-        screen -dmS mnemosyne-scifact-benchmark
+        screen -dmS mnemoteca-scifact-benchmark
         /bin/bash -lc
         'cd "{{.ROOT_DIR}}" &&
         python3 -u benchmarks/beir/run.py --dataset scifact {{.CLI_ARGS}}
         > benchmarks/work/beir/scifact/full-benchmark.log 2>&1'
-      - 'echo "Started screen session: mnemosyne-scifact-benchmark"'
+      - 'echo "Started screen session: mnemoteca-scifact-benchmark"'
       - 'echo "Log: tail -f benchmarks/work/beir/scifact/full-benchmark.log"'
-      - 'echo "Attach: screen -r mnemosyne-scifact-benchmark"'
-      - 'echo "Stop: screen -S mnemosyne-scifact-benchmark -X quit"'
+      - 'echo "Attach: screen -r mnemoteca-scifact-benchmark"'
+      - 'echo "Stop: screen -S mnemoteca-scifact-benchmark -X quit"'
 
   bench:scifact-smoke:
     desc: Run a short BEIR SciFact benchmark smoke test
@@ -103,14 +115,14 @@ tasks:
       - mkdir -p benchmarks/work/longmemeval/session
       - command -v screen >/dev/null 2>&1 || { echo >&2 "screen is required for bench:longmemeval-session-bg"; exit 1; }
       - >-
-        screen -dmS mnemosyne-longmemeval-session
+        screen -dmS mnemoteca-longmemeval-session
         /bin/bash -lc
         'cd "{{.ROOT_DIR}}" &&
         python3 -u benchmarks/longmemeval/run.py --doc-mode session {{.CLI_ARGS}}
         > benchmarks/work/longmemeval/session/full-benchmark.log 2>&1'
-      - 'echo "Started screen session: mnemosyne-longmemeval-session"'
+      - 'echo "Started screen session: mnemoteca-longmemeval-session"'
       - 'echo "Log: tail -f benchmarks/work/longmemeval/session/full-benchmark.log"'
-      - 'echo "Attach: screen -r mnemosyne-longmemeval-session"'
+      - 'echo "Attach: screen -r mnemoteca-longmemeval-session"'
 
   cover:
     desc: Run tests and open HTML coverage report
@@ -131,7 +143,7 @@ tasks:
       - golangci-lint run --build-tags '{{.BUILD_TAGS}}' ./...
 
   install:
-    desc: Install mnemosyne to $GOPATH/bin
+    desc: Install mnemoteca to $GOPATH/bin
     env:
       CGO_LDFLAGS: "-L{{.ROOT_DIR}}/{{.LIB_DIR}}"
     cmds:
@@ -141,7 +153,7 @@ tasks:
         -X {{.LDFLAGS_PKG}}.Commit={{.COMMIT}}
         -X {{.LDFLAGS_PKG}}.Date={{.DATE}}"
         .
-      - echo "Installed mnemosyne to $(go env GOPATH)/bin/mnemosyne"
+      - echo "Installed mnemoteca to $(go env GOPATH)/bin/mnemoteca"
 
   clean:
     desc: Remove build artifacts
@@ -151,7 +163,7 @@ tasks:
   uninstall:
     desc: "Remove downloaded assets and the installed binary (use: task uninstall -- --db to also delete database)"
     cmds:
-      - ./{{.BINARY_NAME}} cleanup {{.CLI_ARGS}} || mnemosyne cleanup {{.CLI_ARGS}}
+      - ./{{.BINARY_NAME}} cleanup {{.CLI_ARGS}} || mnemoteca cleanup {{.CLI_ARGS}}
       - rm -f $(go env GOPATH)/bin/{{.BINARY_NAME}}
       - echo "Removed $(go env GOPATH)/bin/{{.BINARY_NAME}}"
 

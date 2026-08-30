@@ -12,7 +12,7 @@ import (
 
 func TestUpdateCmd_TagOperations(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 
 	database, err := openDB()
 	if err != nil {
@@ -47,7 +47,7 @@ func TestUpdateCmd_TagOperations(t *testing.T) {
 
 func TestUpdateCmd_RejectsMissingAndWrongCollection(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 
 	database, err := openDB()
 	if err != nil {
@@ -83,7 +83,7 @@ func TestUpdateCmd_RejectsMissingAndWrongCollection(t *testing.T) {
 
 func TestUpdateCmd_GlobalFreshDatabaseLazilyInitializesThenRejectsMissingDocument(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 
 	_, err := executeUpdateForTest(t, "update", "--global", "999", "--tag", "new")
 	if err == nil {
@@ -92,7 +92,7 @@ func TestUpdateCmd_GlobalFreshDatabaseLazilyInitializesThenRejectsMissingDocumen
 	if !strings.Contains(err.Error(), `document 999 not found in collection "global"`) {
 		t.Fatalf("expected missing global document error, got %v", err)
 	}
-	if strings.Contains(err.Error(), "mnemosyne init") || strings.Contains(err.Error(), "collection") && strings.Contains(err.Error(), "does not exist") {
+	if strings.Contains(err.Error(), "mnemoteca init") || strings.Contains(err.Error(), "collection") && strings.Contains(err.Error(), "does not exist") {
 		t.Fatalf("global update should not fail on missing collection, got %v", err)
 	}
 
@@ -108,7 +108,7 @@ func TestUpdateCmd_GlobalFreshDatabaseLazilyInitializesThenRejectsMissingDocumen
 
 func TestUpdateCmd_RejectsInvalidInputs(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 
 	if _, err := executeUpdateForTest(t, "update", "abc", "--tag", "new"); err == nil {
 		t.Fatal("expected invalid ID error")
@@ -146,7 +146,7 @@ func TestUpdateCmd_RejectsInvalidInputs(t *testing.T) {
 
 func TestUpdateCmd_RejectsMalformedMetadataForTagEdit(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 
 	database, err := openDB()
 	if err != nil {

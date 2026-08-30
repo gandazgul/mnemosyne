@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/gandazgul/mnemosyne/internal/db"
-	"github.com/gandazgul/mnemosyne/internal/embedding"
-	"github.com/gandazgul/mnemosyne/internal/reranker"
+	"github.com/gandazgul/mnemoteca/internal/db"
+	"github.com/gandazgul/mnemoteca/internal/embedding"
+	"github.com/gandazgul/mnemoteca/internal/reranker"
 )
 
 const (

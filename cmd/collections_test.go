@@ -9,7 +9,7 @@ import (
 
 func TestCollectionsCmd_Empty(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 
 	outBuf := new(bytes.Buffer)
 	rootCmd.SetOut(outBuf)
@@ -29,7 +29,7 @@ func TestCollectionsCmd_Empty(t *testing.T) {
 
 func TestCollectionsCmd_WithData(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 
 	// Create test DB
 	database, err := openDB()
@@ -68,7 +68,7 @@ func TestCollectionsCmd_WithData(t *testing.T) {
 }
 
 func TestCollectionsCmd_InvalidDBPath(t *testing.T) {
-	t.Setenv("MNEMOSYNE_DB_PATH", "/this/path/should/not/exist/or/be/writable/db.sqlite")
+	t.Setenv("MNEMOTECA_DB_PATH", "/this/path/should/not/exist/or/be/writable/db.sqlite")
 
 	outBuf := new(bytes.Buffer)
 	rootCmd.SetOut(outBuf)

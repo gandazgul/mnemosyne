@@ -5,7 +5,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/gandazgul/mnemosyne/internal/db"
+	"github.com/gandazgul/mnemoteca/internal/db"
 )
 
 // testDBWithVectors creates a test database and ensures the vector table exists

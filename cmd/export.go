@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gandazgul/mnemosyne/internal/backup"
-	"github.com/gandazgul/mnemosyne/internal/config"
-	"github.com/gandazgul/mnemosyne/internal/db"
+	"github.com/gandazgul/mnemoteca/internal/backup"
+	"github.com/gandazgul/mnemoteca/internal/config"
+	"github.com/gandazgul/mnemoteca/internal/db"
 	"github.com/spf13/cobra"
 )
 
@@ -27,11 +27,11 @@ Use --no-embeddings to exclude vector data from the export. This produces
 much smaller files but requires re-embedding on import.
 
 Examples:
-  mnemosyne export --name my-project              # → my-project.jsonl
-  mnemosyne export --name my-project -o backup.jsonl
-  mnemosyne export --name my-project --no-embeddings
-  mnemosyne export --all                           # → one .jsonl per collection
-  mnemosyne export --all -o ./backups/             # → ./backups/<name>.jsonl`,
+  mnemoteca export --name my-project              # → my-project.jsonl
+  mnemoteca export --name my-project -o backup.jsonl
+  mnemoteca export --name my-project --no-embeddings
+  mnemoteca export --all                           # → one .jsonl per collection
+  mnemoteca export --all -o ./backups/             # → ./backups/<name>.jsonl`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		nameFlag, _ := cmd.Flags().GetString("name")
 		globalFlag, _ := cmd.Flags().GetBool("global")

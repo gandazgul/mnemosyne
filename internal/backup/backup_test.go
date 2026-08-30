@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gandazgul/mnemosyne/internal/db"
+	"github.com/gandazgul/mnemoteca/internal/db"
 )
 
 // setupTestDB creates a temporary database with a collection and some test documents.

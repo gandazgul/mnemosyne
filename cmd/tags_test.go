@@ -9,7 +9,7 @@ import (
 
 func TestTagsCmd_GlobalFreshDatabaseLazilyInitializes(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 	resetTagsFlagsForTest(t)
 
 	outBuf := new(bytes.Buffer)
@@ -24,7 +24,7 @@ func TestTagsCmd_GlobalFreshDatabaseLazilyInitializes(t *testing.T) {
 	if !strings.Contains(output, `No tags found in collection "global"`) {
 		t.Fatalf("expected empty global tags output, got: %s", output)
 	}
-	if strings.Contains(output, "mnemosyne init") {
+	if strings.Contains(output, "mnemoteca init") {
 		t.Fatalf("global tags should not print init guidance, got: %s", output)
 	}
 

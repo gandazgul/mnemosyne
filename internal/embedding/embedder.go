@@ -8,7 +8,7 @@ import (
 
 	ort "github.com/yalue/onnxruntime_go"
 
-	"github.com/gandazgul/mnemosyne/internal/config"
+	"github.com/gandazgul/mnemoteca/internal/config"
 )
 
 // Embedder generates vector embeddings from text.

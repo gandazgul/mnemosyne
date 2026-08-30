@@ -1,32 +1,55 @@
-# Mnemosyne Roadmap
+# Mnemoteca Roadmap
 
-This document outlines the planned features, ideas for the future, and explicitly out-of-scope concepts for Mnemosyne.
+This document outlines planned features, later ideas, and explicitly out-of-scope
+concepts for Mnemoteca.
 
-## 🎯 Planned Features (Priority)
+## Planned Features
 
-* **Re-indexing Tool**: Add a command (e.g., `mnemosyne collection re-index`) to safely regenerate FTS and Vector data if the user changes their embedding model or vector dimensions in the config.
-  * **Process**: In-place rebuild (drop/recreate `docs_vec` virtual table with new dimensions, re-embed everything with a progress bar).
-  * **Safety**: Wrapped in a SQLite transaction for safe rollback on failure or cancellation.
-* Benchmarking: use the huggingface and other embedding and memory benchmarks to validate the quality of our vector search and embedding performance. This will help us identify any issues with our implementation and ensure that we are providing a high-quality experience for our users.
-  * Make the benchmarks reproducible and publish results in a file linked from the README.
+- **Re-indexing tool**: add a command, for example
+  `mnemoteca collection re-index`, to safely regenerate FTS and vector data when
+  a user changes the embedding model or vector dimensions in the config.
+  - **Process**: rebuild in place, including `docs_vec` recreation and
+    re-embedding, with progress output.
+  - **Safety**: wrap the rebuild in a SQLite transaction for rollback on failure
+    or cancellation.
+- **Benchmarking**: use HuggingFace and other embedding and memory benchmarks to
+  validate vector-search quality and embedding performance. Publish reproducible
+  results linked from the README.
 
-## ✅ Completed
+## Completed
 
-* **Default Score Thresholds**: Low-scoring results are now filtered by default. Reranker threshold (0.0) filters negative-logit results; RRF threshold (0.01) filters very low rank single-source results. Configurable via `config.yaml` or `--threshold` flag. Use `--no-threshold` to disable.
+Historical command examples in this section are kept only where they describe
+behavior that shipped before the rename.
 
-* **Export/Import (Backup & Restore)**: Add commands to easily dump collections and restore them on other machines.
-* **Semantic Chunking & Markdown Ingestion**: Improve ingestion to intelligently chunk markdown files based on semantic boundaries. This allows entire project `.md` files to be ingested as contextual memories.
-* **Memory Classification & Metadata**: Support adding metadata/tags during ingestion to classify memories (e.g., "always-load" vs. "contextual"). This allows consuming tools and agents to know which memories must be read entirely versus which should be queried dynamically.
-* **Short Name Flag**: Added `-n` as a short flag for `--name` across all relevant commands.
-* **Init Safety**: Running `mnemosyne init` in a directory that matches an existing collection's name now errors out to prevent accidental linking.
-* **Global Collection Flag**: Added `-g` or `--global` flag as a dedicated shortcut for `--name global` to streamline global memory access and prevent typos.
+- **Default score thresholds**: low-scoring results are filtered by default.
+  Reranker threshold `0.0` filters negative-logit results. RRF threshold `0.01`
+  filters very low rank single-source results. Configure thresholds with
+  `config.yaml` or `--threshold`. Use `--no-threshold` to disable.
+- **Export/import backup and restore**: dump collections and restore them on
+  other machines.
+- **Semantic chunking and Markdown ingestion**: chunk Markdown files on semantic
+  boundaries so project `.md` files can become contextual memories.
+- **Memory classification and metadata**: support metadata and tags during
+  ingestion to classify memories.
+- **Short name flag**: add `-n` as a short flag for `--name` across relevant
+  commands.
+- **Init safety**: before the rename, `mnemosyne init` in a directory that
+  matched an existing collection name errored to prevent accidental linking. The
+  same behavior remains in `mnemoteca init`.
+- **Global collection flag**: add `-g` or `--global` as a shortcut for
+  `--name global`.
 
-## 💡 Ideas for Later
+## Ideas for Later
 
-* **Daemon/Server Mode (Batch Ingest)**: Keep ONNX models loaded in memory via a background process. While its utility for regular CLI usage is limited, it could serve well later for a dedicated batch ingest command.
-* **Interactive TUI**: An interactive terminal UI (using something like `bubbletea`) to visually explore collections, scroll through document chunks, and live-preview search results.
+- **Daemon/server mode for batch ingest**: keep ONNX models loaded in memory in a
+  background process for dedicated batch import or ingest workflows.
+- **Interactive TUI**: use a terminal UI, such as Bubble Tea, to explore
+  collections, scroll through document chunks, and live-preview search results.
 
-## 🚫 Out of Scope
+## Out of Scope
 
-* **Local LLM Integration (`ask` command)**: Mnemosyne is a specialized storage/retrieval tool meant to be used by agents and scripts, not a direct QA chat interface.
-* **Rich Document Ingestion**: Parsing complex formats (PDFs, Word documents, etc.) is outside the scope. Ingestion will remain tightly focused on short snippets, plain text, markdown, and basic HTML.
+- **Local LLM integration, `ask` command**: Mnemoteca is a specialized
+  storage/retrieval tool for agents and scripts, not a direct QA chat interface.
+- **Rich document ingestion**: complex formats such as PDFs and Word documents
+  are out of scope. Ingestion remains focused on short snippets, plain text,
+  Markdown, and basic HTML.

@@ -17,7 +17,7 @@ func TestVersionCmd(t *testing.T) {
 	}
 
 	output := outBuf.String()
-	if !strings.Contains(output, "mnemosyne ") {
+	if !strings.Contains(output, "mnemoteca ") {
 		t.Errorf("expected version output, got: %s", output)
 	}
 }

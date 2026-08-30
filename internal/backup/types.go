@@ -1,4 +1,4 @@
-// Package backup provides JSONL-based export and import of mnemosyne collections.
+// Package backup provides JSONL-based export and import of mnemoteca collections.
 //
 // The JSONL format uses one JSON object per line:
 //   - Line 1: Header with version, timestamp, collection name, and document count.

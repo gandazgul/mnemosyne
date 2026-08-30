@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gandazgul/mnemosyne/internal/chunker"
-	"github.com/gandazgul/mnemosyne/internal/config"
+	"github.com/gandazgul/mnemoteca/internal/chunker"
+	"github.com/gandazgul/mnemoteca/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +24,7 @@ or piped via stdin with --stdin.
 The document is embedded using the configured ONNX model and stored alongside
 its vector representation for semantic search.
 
-Named collections must already exist (use 'mnemosyne init' first).
+Named collections must already exist (use 'mnemoteca init' first).
 The global collection is created automatically on first --global use.
 If --name is not provided, the current directory name is used.`,
 	RunE: func(cmd *cobra.Command, args []string) error {

@@ -3,7 +3,7 @@ package search_test
 import (
 	"testing"
 
-	"github.com/gandazgul/mnemosyne/internal/search"
+	"github.com/gandazgul/mnemoteca/internal/search"
 )
 
 // mockReranker returns deterministic scores for testing.

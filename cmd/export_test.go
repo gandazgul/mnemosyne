@@ -8,13 +8,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gandazgul/mnemosyne/internal/backup"
-	"github.com/gandazgul/mnemosyne/internal/db"
+	"github.com/gandazgul/mnemoteca/internal/backup"
+	"github.com/gandazgul/mnemoteca/internal/db"
 )
 
 func TestExportCmd_NoFlags(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 	resetExportFlagsForTest(t)
 
 	outBuf := new(bytes.Buffer)
@@ -30,7 +30,7 @@ func TestExportCmd_NoFlags(t *testing.T) {
 
 func TestExportCmd_CollectionNotFound(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 	resetExportFlagsForTest(t)
 
 	outBuf := new(bytes.Buffer)
@@ -46,7 +46,7 @@ func TestExportCmd_CollectionNotFound(t *testing.T) {
 
 func TestExportCmd_GlobalFreshDatabaseLazilyInitializesEmptyExport(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 	resetExportFlagsForTest(t)
 
 	outBuf := new(bytes.Buffer)
@@ -90,11 +90,11 @@ func TestExportCmd_GlobalFreshDatabaseLazilyInitializesEmptyExport(t *testing.T)
 
 func TestExportCmd_SingleCollection(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 	resetExportFlagsForTest(t)
 
 	// Create collection with a document.
-	database, err := db.Open(filepath.Join(tmpDir, "mnemosyne.db"))
+	database, err := db.Open(filepath.Join(tmpDir, "mnemoteca.db"))
 	if err != nil {
 		t.Fatalf("opening DB: %v", err)
 	}
@@ -163,7 +163,7 @@ func TestExportCmd_SingleCollection(t *testing.T) {
 
 func TestExportCmd_AllEmpty(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 	resetExportFlagsForTest(t)
 
 	outBuf := new(bytes.Buffer)
@@ -182,7 +182,7 @@ func TestExportCmd_AllEmpty(t *testing.T) {
 
 func TestExportCmd_ConflictingFlags(t *testing.T) {
 	tmpDir := t.TempDir()
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "mnemoteca.db"))
 	resetExportFlagsForTest(t)
 
 	outBuf := new(bytes.Buffer)

@@ -9,9 +9,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/gandazgul/mnemosyne/internal/chunker"
-	"github.com/gandazgul/mnemosyne/internal/config"
-	"github.com/gandazgul/mnemosyne/internal/db"
+	"github.com/gandazgul/mnemoteca/internal/chunker"
+	"github.com/gandazgul/mnemoteca/internal/config"
+	"github.com/gandazgul/mnemoteca/internal/db"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +20,7 @@ type claudeMemorySource struct {
 	Scope string
 }
 
-const claudeImportNonDestructiveMessage = `Non-destructive import: Mnemosyne will only read Claude Code memory files and append them as new Mnemosyne documents. It will not edit, delete, move, overwrite, or truncate any Claude Code files or existing Mnemosyne memories.`
+const claudeImportNonDestructiveMessage = `Non-destructive import: Mnemoteca will only read Claude Code memory files and append them as new Mnemoteca documents. It will not edit, delete, move, overwrite, or truncate any Claude Code files or existing Mnemoteca memories.`
 
 func importClaudeAgent(cmd *cobra.Command, opts importAgentOptions) error {
 	collectionName, err := resolveCollectionName(opts.Name, opts.Global)
@@ -112,7 +112,7 @@ func importClaudeAgent(cmd *cobra.Command, opts importAgentOptions) error {
 		cmd.Printf("Imported %d document(s) from %s\n", n, source.Path)
 	}
 
-	cmd.Printf("\nDone. Imported %d Claude Code file(s) as %d Mnemosyne document(s).\n", importedFiles, totalChunks)
+	cmd.Printf("\nDone. Imported %d Claude Code file(s) as %d Mnemoteca document(s).\n", importedFiles, totalChunks)
 	return nil
 }
 

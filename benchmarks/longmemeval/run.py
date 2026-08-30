@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Run Mnemosyne on LongMemEval-style memory retrieval.
+"""Run Mnemoteca on LongMemEval-style memory retrieval.
 
 LongMemEval is not a single global corpus like BEIR. Each question has its own
-haystack of conversation sessions, so this harness builds an isolated Mnemosyne
+haystack of conversation sessions, so this harness builds an isolated Mnemoteca
 database per question, searches it, and scores whether the ranked results map
 back to the answer session IDs.
 """
@@ -32,13 +32,13 @@ METRIC_KEYS = ["recall_any@5", "recall_any@10", "recall_all@5", "recall_all@10",
 def parse_args() -> argparse.Namespace:
     repo_root = Path(__file__).resolve().parents[2]
     parser = argparse.ArgumentParser(
-        description="Run Mnemosyne against the cleaned LongMemEval session-retrieval benchmark.",
+        description="Run Mnemoteca against the cleaned LongMemEval session-retrieval benchmark.",
     )
     parser.add_argument(
         "--binary",
         type=Path,
-        default=repo_root / "mnemosyne",
-        help="Path to the mnemosyne binary. Defaults to ./mnemosyne.",
+        default=repo_root / "mnemoteca",
+        help="Path to the mnemoteca binary. Defaults to ./mnemoteca.",
     )
     parser.add_argument(
         "--data-file",
@@ -61,13 +61,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--collection",
         default="bench_longmemeval",
-        help="Mnemosyne collection name inside each per-question DB.",
+        help="Mnemoteca collection name inside each per-question DB.",
     )
     parser.add_argument(
         "--config",
         type=Path,
         default=None,
-        help="Path to a mnemosyne config.yaml. Passed as MNEMOSYNE_CONFIG to import/search commands.",
+        help="Path to a mnemoteca config.yaml. Passed as MNEMOTECA_CONFIG to import/search commands.",
     )
     parser.add_argument(
         "--run-label",
@@ -79,7 +79,7 @@ def parse_args() -> argparse.Namespace:
         choices=["session", "user-turn", "message"],
         default="session",
         help=(
-            "How to turn each haystack session into Mnemosyne documents. "
+            "How to turn each haystack session into Mnemoteca documents. "
             "session joins user turns like MemPalace raw; user-turn stores one user turn per doc; "
             "message stores every user/assistant message as a short doc."
         ),
@@ -94,7 +94,7 @@ def parse_args() -> argparse.Namespace:
         "--rerank-candidates",
         type=int,
         default=50,
-        help="Candidates passed to Mnemosyne fusion/reranking. Defaults to 50.",
+        help="Candidates passed to Mnemoteca fusion/reranking. Defaults to 50.",
     )
     parser.add_argument(
         "--max-queries",
@@ -285,11 +285,11 @@ def remove_db_files(db_path: Path) -> None:
             candidate.unlink()
 
 
-def mnemosyne_env(db_path: Path, config_path: Path | None) -> dict[str, str]:
+def mnemoteca_env(db_path: Path, config_path: Path | None) -> dict[str, str]:
     env = os.environ.copy()
-    env["MNEMOSYNE_DB_PATH"] = str(db_path)
+    env["MNEMOTECA_DB_PATH"] = str(db_path)
     if config_path is not None:
-        env["MNEMOSYNE_CONFIG"] = str(config_path)
+        env["MNEMOTECA_CONFIG"] = str(config_path)
     return env
 
 
@@ -321,14 +321,14 @@ def import_question_db(
 ) -> None:
     proc = run(
         [str(binary), "import", str(import_file), "--name", collection],
-        mnemosyne_env(db_path, config_path),
+        mnemoteca_env(db_path, config_path),
         repo_root,
     )
     if proc.stdout.strip():
         print(proc.stdout.strip(), flush=True)
 
 
-def query_mnemosyne(
+def query_mnemoteca(
     binary: Path,
     collection: str,
     query: str,
@@ -368,7 +368,7 @@ def query_mnemosyne(
         cmd.append("--fts-only")
     cmd.append(query)
 
-    proc = run(cmd, mnemosyne_env(db_path, config_path), repo_root)
+    proc = run(cmd, mnemoteca_env(db_path, config_path), repo_root)
     payload = json.loads(proc.stdout)
     return list(payload.get("results", []))
 
@@ -503,7 +503,7 @@ def write_results(payload: dict[str, Any], results_dir: Path, max_queries: int |
     metrics = payload["metrics"]
     breakdown = payload["breakdown"]
     with md_path.open("w", encoding="utf-8") as f:
-        f.write("# Mnemosyne LongMemEval Results\n\n")
+        f.write("# Mnemoteca LongMemEval Results\n\n")
         f.write(f"- Generated: {payload['generated_at']}\n")
         f.write(f"- Dataset: `longmemeval_s_cleaned`\n")
         f.write(f"- Questions: {payload['query_count']}\n")
@@ -517,8 +517,8 @@ def write_results(payload: dict[str, Any], results_dir: Path, max_queries: int |
             f.write(f"- Max sessions per question: {config['max_sessions']} plus answer sessions\n")
         if config.get("run_label"):
             f.write(f"- Run label: `{config['run_label']}`\n")
-        if config.get("mnemosyne_config"):
-            f.write(f"- Mnemosyne config: `{config['mnemosyne_config']}`\n")
+        if config.get("mnemoteca_config"):
+            f.write(f"- Mnemoteca config: `{config['mnemoteca_config']}`\n")
         f.write("\n")
         f.write("| Metric | Score |\n")
         f.write("| --- | ---: |\n")
@@ -576,10 +576,10 @@ def main() -> int:
         print("--bm25-weight must be between 0 and 1", file=sys.stderr)
         return 2
     if not binary.exists():
-        print(f"mnemosyne binary not found at {binary}; run `task build` first", file=sys.stderr)
+        print(f"mnemoteca binary not found at {binary}; run `task build` first", file=sys.stderr)
         return 2
     if config_path is not None and not config_path.exists():
-        print(f"mnemosyne config not found at {config_path}", file=sys.stderr)
+        print(f"mnemoteca config not found at {config_path}", file=sys.stderr)
         return 2
 
     data_file = args.data_file.resolve()
@@ -603,7 +603,7 @@ def main() -> int:
         entry = subset_entry(original_entry, args.max_sessions)
         query_id = str(entry.get("question_id") or f"query-{index}")
         question_dir = work_dir / query_id
-        db_path = question_dir / "mnemosyne.db"
+        db_path = question_dir / "mnemoteca.db"
         import_file = question_dir / "import.jsonl"
 
         if not args.reuse_db:
@@ -619,7 +619,7 @@ def main() -> int:
             docs = documents_for_entry(entry, args.doc_mode)
 
         total_docs += len(docs)
-        results = query_mnemosyne(
+        results = query_mnemoteca(
             binary=binary,
             collection=args.collection,
             query=str(entry["question"]),
@@ -666,7 +666,7 @@ def main() -> int:
         "config": {
             "binary": str(binary),
             "work_dir": str(work_dir),
-            "mnemosyne_config": str(config_path) if config_path else None,
+            "mnemoteca_config": str(config_path) if config_path else None,
             "run_label": run_label,
             "doc_mode": args.doc_mode,
             "collection": args.collection,

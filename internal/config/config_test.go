@@ -31,7 +31,7 @@ func TestDefaultConfig(t *testing.T) {
 }
 
 func TestGetEnvOrDefault(t *testing.T) {
-	key := "MNEMOSYNE_TEST_ENV_KEY"
+	key := "TEST_ENV_KEY"
 	fallback := "fallback_value"
 
 	// 1. Not set
@@ -74,9 +74,9 @@ func TestLoad_ConfigFile(t *testing.T) {
 	dbPath := filepath.Join(tmpDir, "custom.db")
 
 	yaml := `
-db_path: "$MNEMOSYNE_TEST_DB_DIR/custom.db"
+db_path: "$TEST_DB_DIR/custom.db"
 embedding:
-  model_path: "$MNEMOSYNE_TEST_MODEL_DIR/models/custom-embed"
+  model_path: "$TEST_MODEL_DIR/models/custom-embed"
   dimensions: 768
   max_seq_length: 8192
   pooling: mean
@@ -85,7 +85,7 @@ embedding:
   onnx_input_names: ["input_ids", "attention_mask"]
   onnx_output_names: ["last_hidden_state"]
 reranker:
-  model_path: "$MNEMOSYNE_TEST_MODEL_DIR/models/custom-reranker"
+  model_path: "$TEST_MODEL_DIR/models/custom-reranker"
   enabled: false
 search:
   rerank_candidates: 25
@@ -96,8 +96,8 @@ search:
 
 	t.Setenv(envConfigPath, configPath)
 	t.Setenv(envConfigPathAlt, "")
-	t.Setenv("MNEMOSYNE_TEST_DB_DIR", tmpDir)
-	t.Setenv("MNEMOSYNE_TEST_MODEL_DIR", tmpDir)
+	t.Setenv("TEST_DB_DIR", tmpDir)
+	t.Setenv("TEST_MODEL_DIR", tmpDir)
 
 	cfg, err := Load()
 	if err != nil {
@@ -166,14 +166,14 @@ func TestLoad_DBEnvOverridesConfigFile(t *testing.T) {
 
 	t.Setenv(envConfigPath, configPath)
 	t.Setenv(envConfigPathAlt, "")
-	t.Setenv("MNEMOSYNE_DB_PATH", envDBPath)
+	t.Setenv("MNEMOTECA_DB_PATH", envDBPath)
 
 	cfg, err := Load()
 	if err != nil {
 		t.Fatalf("Load() returned error: %v", err)
 	}
 	if cfg.DBPath != envDBPath {
-		t.Errorf("expected MNEMOSYNE_DB_PATH to override config file, got %q", cfg.DBPath)
+		t.Errorf("expected MNEMOTECA_DB_PATH to override config file, got %q", cfg.DBPath)
 	}
 }
 
@@ -292,7 +292,7 @@ func TestDefaultDataDir(t *testing.T) {
 	defer os.Unsetenv("XDG_DATA_HOME")      //nolint:errcheck
 
 	path := defaultDataDir()
-	expectedPath := filepath.Join(expectedXDG, "mnemosyne")
+	expectedPath := filepath.Join(expectedXDG, "mnemoteca")
 	if path != expectedPath {
 		t.Errorf("expected path %q, got %q", expectedPath, path)
 	}
@@ -316,15 +316,142 @@ func TestDefaultDataDir_Windows(t *testing.T) {
 	t.Setenv("APPDATA", appData)
 
 	path := defaultDataDirForOS("windows")
-	expectedPath := filepath.Join(localAppData, "mnemosyne")
+	expectedPath := filepath.Join(localAppData, "mnemoteca")
 	if path != expectedPath {
 		t.Errorf("expected LOCALAPPDATA path %q, got %q", expectedPath, path)
 	}
 
 	t.Setenv("LOCALAPPDATA", "")
 	path = defaultDataDirForOS("windows")
-	expectedPath = filepath.Join(appData, "mnemosyne")
+	expectedPath = filepath.Join(appData, "mnemoteca")
 	if path != expectedPath {
 		t.Errorf("expected APPDATA fallback path %q, got %q", expectedPath, path)
+	}
+}
+
+func TestConfigPathUsesMnemotecaEnvironmentPrecedence(t *testing.T) {
+	primary := filepath.Join(t.TempDir(), "primary.yaml")
+	secondary := filepath.Join(t.TempDir(), "secondary.yaml")
+
+	t.Setenv(envConfigPath, primary)
+	t.Setenv(envConfigPathAlt, secondary)
+
+	got, explicit := ConfigPath()
+	if !explicit {
+		t.Fatal("expected explicit config path")
+	}
+	if got != primary {
+		t.Fatalf("ConfigPath() = %q, want %q", got, primary)
+	}
+}
+
+func TestConfigPathIgnoresLegacyMnemosyneEnvironment(t *testing.T) {
+	home := t.TempDir()
+	legacyConfig := filepath.Join(t.TempDir(), "legacy.yaml")
+
+	t.Setenv("HOME", home)
+	t.Setenv(envConfigPath, "")
+	t.Setenv(envConfigPathAlt, "")
+	t.Setenv("MNEMOSYNE_CONFIG", legacyConfig)
+	t.Setenv("MNEMOSYNE_CONFIG_PATH", legacyConfig)
+
+	got, explicit := ConfigPath()
+	if explicit {
+		t.Fatalf("legacy config variables must not make ConfigPath explicit; got %q", got)
+	}
+	want := filepath.Join(home, ".config", "mnemoteca", "config.yaml")
+	if got != want {
+		t.Fatalf("ConfigPath() = %q, want %q", got, want)
+	}
+}
+
+func TestLoadIgnoresLegacyMnemosyneEnvironment(t *testing.T) {
+	home := t.TempDir()
+	dataHome := t.TempDir()
+	legacyConfig := filepath.Join(t.TempDir(), "legacy.yaml")
+	legacyDB := filepath.Join(t.TempDir(), "legacy.db")
+	legacyConfigDB := filepath.Join(t.TempDir(), "legacy-config.db")
+	if err := os.WriteFile(legacyConfig, []byte("db_path: "+legacyConfigDB+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_DATA_HOME", dataHome)
+	t.Setenv(envConfigPath, "")
+	t.Setenv(envConfigPathAlt, "")
+	t.Setenv("MNEMOSYNE_CONFIG", legacyConfig)
+	t.Setenv("MNEMOSYNE_CONFIG_PATH", legacyConfig)
+	t.Setenv("MNEMOSYNE_DB_PATH", legacyDB)
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() returned error: %v", err)
+	}
+	want := filepath.Join(dataHome, "mnemoteca", "mnemoteca.db")
+	if cfg.DBPath != want {
+		t.Fatalf("DBPath = %q, want %q", cfg.DBPath, want)
+	}
+}
+
+func TestLoadUsesMnemotecaDBPathAfterConfigFile(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	configDBPath := filepath.Join(tmpDir, "config.db")
+	envDBPath := filepath.Join(tmpDir, "env.db")
+	if err := os.WriteFile(configPath, []byte("db_path: "+configDBPath+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Setenv(envConfigPath, "")
+	t.Setenv(envConfigPathAlt, configPath)
+	t.Setenv("MNEMOTECA_DB_PATH", envDBPath)
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() returned error: %v", err)
+	}
+	if cfg.DBPath != envDBPath {
+		t.Fatalf("DBPath = %q, want %q", cfg.DBPath, envDBPath)
+	}
+}
+
+func TestDefaultPathsUseMnemotecaNames(t *testing.T) {
+	home := t.TempDir()
+	xdg := filepath.Join(t.TempDir(), "xdg")
+	localAppData := filepath.Join(t.TempDir(), "LocalAppData")
+	appData := filepath.Join(t.TempDir(), "AppData")
+
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_DATA_HOME", xdg)
+	t.Setenv("LOCALAPPDATA", localAppData)
+	t.Setenv("APPDATA", appData)
+
+	if got, want := defaultDataDirForOS("linux"), filepath.Join(xdg, "mnemoteca"); got != want {
+		t.Fatalf("linux data dir = %q, want %q", got, want)
+	}
+	if got, want := defaultDataDirForOS("darwin"), filepath.Join(xdg, "mnemoteca"); got != want {
+		t.Fatalf("darwin data dir = %q, want %q", got, want)
+	}
+	if got, want := defaultDataDirForOS("windows"), filepath.Join(localAppData, "mnemoteca"); got != want {
+		t.Fatalf("windows LOCALAPPDATA dir = %q, want %q", got, want)
+	}
+
+	t.Setenv("LOCALAPPDATA", "")
+	if got, want := defaultDataDirForOS("windows"), filepath.Join(appData, "mnemoteca"); got != want {
+		t.Fatalf("windows APPDATA dir = %q, want %q", got, want)
+	}
+
+	t.Setenv("APPDATA", "")
+	if got, want := defaultDataDirForOS("windows"), filepath.Join(home, "AppData", "Local", "mnemoteca"); got != want {
+		t.Fatalf("windows home fallback dir = %q, want %q", got, want)
+	}
+
+	gotConfig, explicit := ConfigPath()
+	if explicit {
+		t.Fatal("default config path must not be explicit")
+	}
+	wantConfig := filepath.Join(home, ".config", "mnemoteca", "config.yaml")
+	if gotConfig != wantConfig {
+		t.Fatalf("ConfigPath() = %q, want %q", gotConfig, wantConfig)
 	}
 }

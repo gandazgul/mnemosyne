@@ -1,4 +1,4 @@
-module github.com/gandazgul/mnemosyne
+module github.com/gandazgul/mnemoteca
 
 go 1.26.0
 

@@ -104,7 +104,7 @@ func TestImportCmdAgentClaudeDryRunPrintsNonDestructiveMessage(t *testing.T) {
 	writeFile(t, filepath.Join(project, "CLAUDE.md"), "# Project memory")
 
 	t.Setenv("HOME", home)
-	t.Setenv("MNEMOSYNE_DB_PATH", filepath.Join(tmpDir, "should-not-be-created", "mnemosyne.db"))
+	t.Setenv("MNEMOTECA_DB_PATH", filepath.Join(tmpDir, "should-not-be-created", "mnemoteca.db"))
 	t.Chdir(project)
 
 	resetImportFlagsForTest()
@@ -123,7 +123,7 @@ func TestImportCmdAgentClaudeDryRunPrintsNonDestructiveMessage(t *testing.T) {
 	if !strings.Contains(output, "Non-destructive import:") {
 		t.Fatalf("expected non-destructive message, got: %s", output)
 	}
-	if !strings.Contains(output, "It will not edit, delete, move, overwrite, or truncate any Claude Code files or existing Mnemosyne memories.") {
+	if !strings.Contains(output, "It will not edit, delete, move, overwrite, or truncate any Claude Code files or existing Mnemoteca memories.") {
 		t.Fatalf("expected explicit safety details, got: %s", output)
 	}
 	if !strings.Contains(output, "Dry run: no database writes or embedding calls will be made.") {
@@ -208,6 +208,7 @@ func resetImportFlagsForTest() {
 	importCmd.Flags().Set("name", "")              //nolint:errcheck
 	importCmd.Flags().Set("dir", "")               //nolint:errcheck
 	importCmd.Flags().Set("agent", "")             //nolint:errcheck
+	importCmd.Flags().Set("path", "")              //nolint:errcheck
 	importCmd.Flags().Set("global", "false")       //nolint:errcheck
 	importCmd.Flags().Set("dry-run", "false")      //nolint:errcheck
 	importCmd.Flags().Set("include-user", "false") //nolint:errcheck
