@@ -182,7 +182,7 @@ for pair in env_pairs:
     key, value = pair.split("=", 1)
     env[key] = value
 with open(os.devnull, "rb") as stdin:
-    proc = subprocess.run(["/bin/sh", install_sh], cwd=os.path.dirname(install_sh), env=env, stdin=stdin, text=True, capture_output=True, preexec_fn=os.setsid)
+    proc = subprocess.run(["/bin/sh", install_sh], cwd=os.path.dirname(install_sh), env=env, stdin=stdin, text=True, capture_output=True, start_new_session=True)
 sys.stdout.write(proc.stdout)
 sys.stderr.write(proc.stderr)
 sys.exit(proc.returncode)
