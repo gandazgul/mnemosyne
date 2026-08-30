@@ -185,6 +185,8 @@ with open(os.devnull, "rb") as stdin:
     proc = subprocess.run(["/bin/sh", install_sh], cwd=os.path.dirname(install_sh), env=env, stdin=stdin, text=True, capture_output=True, start_new_session=True)
 sys.stdout.write(proc.stdout)
 sys.stderr.write(proc.stderr)
+if proc.returncode != 0:
+    sys.stderr.write(f"installer exited with status {proc.returncode}\n")
 sys.exit(proc.returncode)
 PY
   local status="$?"
