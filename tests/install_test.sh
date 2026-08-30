@@ -202,7 +202,10 @@ if pid == 0:
 for line in answers.split("\\n"):
     if line:
         time.sleep(0.15)
-        os.write(fd, (line + "\n").encode())
+        try:
+            os.write(fd, (line + "\n").encode())
+        except OSError:
+            break
 chunks = []
 status = 0
 while True:
