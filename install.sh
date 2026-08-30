@@ -46,7 +46,7 @@ fetch() {
 }
 
 have_tty() {
-  { : </dev/tty; } 2>/dev/null && { : >/dev/tty; } 2>/dev/null
+  ( : </dev/tty ) 2>/dev/null && ( : >/dev/tty ) 2>/dev/null
 }
 
 say_tty() {
