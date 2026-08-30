@@ -4,6 +4,18 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 INSTALL_SH="$ROOT_DIR/install.sh"
 TEST_COUNT=0
+CURRENT_WORK=""
+
+on_error() {
+  local status="$?"
+  echo "install_test.sh: failed near line $1 with status $status" >&2
+  if [ -n "$CURRENT_WORK" ] && [ -f "$CURRENT_WORK/output" ]; then
+    echo "install_test.sh: captured installer output:" >&2
+    sed -n '1,200p' "$CURRENT_WORK/output" >&2
+  fi
+  exit "$status"
+}
+trap 'on_error $LINENO' ERR
 
 fail() {
   echo "install_test.sh: $*" >&2
@@ -150,6 +162,7 @@ SH
 
 run_nonterminal() {
   local work="$1"
+  CURRENT_WORK="$work"
   shift
   (cd "$ROOT_DIR" && python3 - "$INSTALL_SH" "$work" "$@" <<'PY') >"$work/output" 2>&1
 import os, subprocess, sys
@@ -177,6 +190,7 @@ PY
 
 run_pty() {
   local work="$1"
+  CURRENT_WORK="$work"
   local answers="$2"
   shift 2
   (cd "$ROOT_DIR" && python3 - "$INSTALL_SH" "$work" "$answers" "$@" <<'PY') >"$work/output" 2>&1
