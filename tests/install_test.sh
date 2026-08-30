@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 INSTALL_SH="$ROOT_DIR/install.sh"
@@ -164,6 +164,7 @@ run_nonterminal() {
   local work="$1"
   CURRENT_WORK="$work"
   shift
+  set +e
   (cd "$ROOT_DIR" && python3 - "$INSTALL_SH" "$work" "$@" <<'PY') >"$work/output" 2>&1
 import os, subprocess, sys
 install_sh, work, *env_pairs = sys.argv[1:]
@@ -186,6 +187,9 @@ sys.stdout.write(proc.stdout)
 sys.stderr.write(proc.stderr)
 sys.exit(proc.returncode)
 PY
+  local status="$?"
+  set -e
+  return "$status"
 }
 
 run_pty() {
@@ -193,6 +197,7 @@ run_pty() {
   CURRENT_WORK="$work"
   local answers="$2"
   shift 2
+  set +e
   (cd "$ROOT_DIR" && python3 - "$INSTALL_SH" "$work" "$answers" "$@" <<'PY') >"$work/output" 2>&1
 import os, pty, sys, time
 install_sh, work, answers, *env_pairs = sys.argv[1:]
@@ -236,6 +241,9 @@ if os.WIFEXITED(status):
     sys.exit(os.WEXITSTATUS(status))
 sys.exit(1)
 PY
+  local status="$?"
+  set -e
+  return "$status"
 }
 
 setup_case() {
