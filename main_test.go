@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -77,6 +78,23 @@ func prepareIntegrationDataDir(t *testing.T, tempDir string) {
 	}
 }
 
+func addedDocumentID(t *testing.T, output string) string {
+	t.Helper()
+
+	for _, line := range strings.Split(output, "\n") {
+		fields := strings.Fields(line)
+		if len(fields) >= 3 && fields[0] == "Added" && fields[1] == "document" {
+			if _, err := strconv.Atoi(fields[2]); err != nil {
+				t.Fatalf("Expected added document ID to be numeric in output, got: %s", output)
+			}
+			return fields[2]
+		}
+	}
+
+	t.Fatalf("Expected add output to include an 'Added document <id>' line, got: %s", output)
+	return ""
+}
+
 func TestIntegrationPipeline(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping integration test in short mode")
@@ -112,11 +130,7 @@ func TestIntegrationPipeline(t *testing.T) {
 		t.Fatalf("Expected 'Added document' in output, got: %s", output)
 	}
 
-	fields := strings.Fields(output)
-	if len(fields) < 3 {
-		t.Fatalf("Expected add output to include document ID, got: %s", output)
-	}
-	docID := fields[2]
+	docID := addedDocumentID(t, output)
 
 	// Test 3: Search document
 	t.Log("Searching document...")
