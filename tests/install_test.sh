@@ -363,13 +363,13 @@ successful_migration_retains_export_and_links_after_consent() {
  embedding:
    dimensions: 768
 YAML
-  run_pty "$work" "y\nrepresentative memory\ny\nn\ny"
+  run_pty "$work" "y\nn\ny"
   assert_file "$work/install/mnemoteca"
   assert_file "$work/install/mnemosyne"
   [ -L "$work/install/mnemosyne" ] || fail "compatibility link was not a symlink"
   assert_contains "$work/state/legacy.log" "mnemosyne export --all --yes --output"
   assert_contains "$work/state/mnemoteca.log" "mnemoteca import --dir"
-  assert_contains "$work/state/mnemoteca.log" "mnemoteca search --fts-only --no-rerank --limit 5 representative memory"
+  assert_not_contains "$work/state/mnemoteca.log" "mnemoteca search"
   assert_file "$work/home/.config/mnemoteca/config.yaml"
   assert_contains "$work/home/.config/mnemoteca/config.yaml" "db_path: $work/home/.local/share/mnemoteca/mnemoteca.db"
   assert_contains "$work/home/.config/mnemoteca/config.yaml" "dimensions: 768"

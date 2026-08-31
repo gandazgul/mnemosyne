@@ -394,14 +394,6 @@ run_migration() {
     return 0
   fi
 
-  query="$(read_tty_line 'Enter a representative memory search query to verify migration: ' || true)"
-  [ -n "$query" ] || { say_tty "Search verification declined. Cleanup and link creation are blocked. Export retained at: $export_dir"; return 0; }
-  if ! "$INSTALL_DIR/$BIN_NAME" search --fts-only --no-rerank --limit 5 "$query"; then
-    say_tty "Search verification failed. Cleanup and link creation are blocked. Export retained at: $export_dir"
-    return 0
-  fi
-  ask_yes_no "Did the search return the expected memory?" || { say_tty "Search verification was not confirmed. Cleanup and link creation are blocked. Export retained at: $export_dir"; return 0; }
-
   migration_verified=true
   say_tty "Migration verified. Legacy store and export remain available. Export retained at: $export_dir"
   maybe_cleanup "$legacy_cmd" "$legacy_db"

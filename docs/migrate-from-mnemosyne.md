@@ -93,11 +93,8 @@ The installer:
     not transactionally locked together;
 11. runs `mnemoteca import --dir <export-dir>` once;
 12. compares imported collection and document counts exactly;
-13. asks for a representative search query;
-14. runs `mnemoteca search --fts-only --no-rerank --limit 5 <query>`;
-15. asks you to confirm that the search result is correct;
-16. offers optional legacy cleanup;
-17. offers an optional POSIX `mnemosyne -> mnemoteca` symlink.
+13. offers optional legacy cleanup;
+14. offers an optional POSIX `mnemosyne -> mnemoteca` symlink.
 
 Prompts require a terminal. If no terminal is available, or if prompt input ends,
 the installer still installs Mnemoteca but skips migration, cleanup, and
