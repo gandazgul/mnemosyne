@@ -356,8 +356,13 @@ successful_migration_retains_export_and_links_after_consent() {
   local work
   work="$(setup_case)"
   make_legacy "$work" good
-  mkdir -p "$work/home/.local/share/mnemosyne"
+  mkdir -p "$work/home/.local/share/mnemosyne" "$work/home/.config/mnemosyne"
   touch "$work/home/.local/share/mnemosyne/mnemosyne.db"
+  cat >"$work/home/.config/mnemosyne/config.yaml" <<'YAML'
+ db_path: ~/.local/share/mnemosyne/mnemosyne.db
+ embedding:
+   dimensions: 768
+YAML
   run_pty "$work" "y\nrepresentative memory\ny\nn\ny"
   assert_file "$work/install/mnemoteca"
   assert_file "$work/install/mnemosyne"
@@ -365,6 +370,9 @@ successful_migration_retains_export_and_links_after_consent() {
   assert_contains "$work/state/legacy.log" "mnemosyne export --all --yes --output"
   assert_contains "$work/state/mnemoteca.log" "mnemoteca import --dir"
   assert_contains "$work/state/mnemoteca.log" "mnemoteca search --fts-only --no-rerank --limit 5 representative memory"
+  assert_file "$work/home/.config/mnemoteca/config.yaml"
+  assert_contains "$work/home/.config/mnemoteca/config.yaml" "db_path: $work/home/.local/share/mnemoteca/mnemoteca.db"
+  assert_contains "$work/home/.config/mnemoteca/config.yaml" "dimensions: 768"
   exports="$(find "$work/home/.mnemoteca-migration-exports" -type d -name 'mnemosyne-export-*' | wc -l | tr -d ' ')"
   [ "$exports" = "1" ] || fail "expected one retained export, got $exports"
   TEST_COUNT=$((TEST_COUNT + 1))

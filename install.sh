@@ -142,11 +142,49 @@ mnemoteca_stats_json() {
   "$INSTALL_DIR/$BIN_NAME" stats --format json 2>/dev/null
 }
 
+mnemoteca_default_database_path() {
+  if [ -n "${MNEMOTECA_DB_PATH:-}" ]; then
+    printf '%s\n' "$MNEMOTECA_DB_PATH"
+  elif [ -n "${XDG_DATA_HOME:-}" ]; then
+    printf '%s\n' "$XDG_DATA_HOME/mnemoteca/mnemoteca.db"
+  else
+    printf '%s\n' "$HOME/.local/share/mnemoteca/mnemoteca.db"
+  fi
+}
+
 legacy_database_path() {
   stats="$($1 stats 2>/dev/null || true)"
   count="$(printf '%s\n' "$stats" | grep -c '^Database Path:[[:space:]]*' || true)"
   [ "$count" = "1" ] || return 1
   printf '%s\n' "$stats" | sed -n 's/^Database Path:[[:space:]]*//p' | head -n 1
+}
+
+migrate_legacy_config() {
+  legacy_config="$HOME/.config/mnemosyne/config.yaml"
+  mnemoteca_config="$HOME/.config/mnemoteca/config.yaml"
+  destination_db="$1"
+
+  [ -f "$legacy_config" ] || return 0
+  if [ -e "$mnemoteca_config" ]; then
+    say_tty "Keeping existing Mnemoteca config: $mnemoteca_config"
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$mnemoteca_config")"
+  chmod 700 "$(dirname "$mnemoteca_config")"
+  temp_config="$mnemoteca_config.tmp.$$"
+  if ! awk -v db="$destination_db" '
+    BEGIN { found = 0 }
+    /^[[:space:]]*db_path:/ { print "db_path: " db; found = 1; next }
+    { print }
+    END { if (!found) print "db_path: " db }
+  ' "$legacy_config" >"$temp_config"; then
+    rm -f "$temp_config"
+    return 1
+  fi
+  chmod 600 "$temp_config"
+  mv "$temp_config" "$mnemoteca_config"
+  say_tty "Migrated legacy config settings to: $mnemoteca_config"
 }
 
 count_export() {
@@ -316,6 +354,12 @@ run_migration() {
   legacy_db="$(legacy_database_path "$legacy_cmd" || true)"
   if [ -z "$legacy_db" ]; then
     say_tty "Migration blocked because legacy stats did not provide exactly one Database Path label. Export retained at: $export_dir"
+    return 0
+  fi
+
+  destination_db="$(mnemoteca_default_database_path)"
+  if ! migrate_legacy_config "$destination_db"; then
+    say_tty "Migration blocked because the legacy config could not be migrated. Export retained at: $export_dir"
     return 0
   fi
 
