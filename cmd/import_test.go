@@ -84,16 +84,6 @@ func TestImportCmd_SingleFile(t *testing.T) {
 		t.Fatalf("writing export file: %v", err)
 	}
 
-	// Ensure vector table exists so import can work.
-	database, err := db.Open(filepath.Join(tmpDir, "mnemoteca.db"))
-	if err != nil {
-		t.Fatalf("opening DB: %v", err)
-	}
-	if err := database.EnsureVectorTable(3); err != nil {
-		t.Fatalf("ensuring vector table: %v", err)
-	}
-	database.Close() //nolint:errcheck
-
 	outBuf := new(bytes.Buffer)
 	rootCmd.SetOut(outBuf)
 	rootCmd.SetErr(outBuf)

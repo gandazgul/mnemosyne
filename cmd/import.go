@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -91,7 +93,22 @@ Examples:
 		}
 		defer database.Close() //nolint:errcheck
 
-		if err := database.EnsureVectorTable(cfg.Embedding.Dimensions); err != nil {
+		vectorDimension := cfg.Embedding.Dimensions
+		if dirFlag != "" {
+			if inferredDimension, err := inferImportDirVectorDimension(dirFlag); err != nil {
+				return err
+			} else if inferredDimension > 0 {
+				vectorDimension = inferredDimension
+			}
+		} else {
+			if inferredDimension, err := inferImportFileVectorDimension(args[0]); err != nil {
+				return err
+			} else if inferredDimension > 0 {
+				vectorDimension = inferredDimension
+			}
+		}
+
+		if err := database.EnsureVectorTable(vectorDimension); err != nil {
 			return fmt.Errorf("ensuring vector table: %w", err)
 		}
 
@@ -124,6 +141,74 @@ Examples:
 
 		return importFile(cmd, database, args[0], nameFlag, lazyEmbedFn)
 	},
+}
+
+func inferImportFileVectorDimension(filePath string) (int, error) {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return 0, fmt.Errorf("opening file %s: %w", filePath, err)
+	}
+	defer f.Close() //nolint:errcheck
+
+	scanner := bufio.NewScanner(f)
+	scanner.Buffer(make([]byte, 0, 1024*1024), 10*1024*1024)
+	if !scanner.Scan() {
+		if err := scanner.Err(); err != nil {
+			return 0, fmt.Errorf("reading header from %s: %w", filePath, err)
+		}
+		return 0, fmt.Errorf("empty import file %s", filePath)
+	}
+
+	lineNumber := 1
+	for scanner.Scan() {
+		lineNumber++
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
+			continue
+		}
+		var doc backup.DocRecord
+		if err := json.Unmarshal([]byte(line), &doc); err != nil {
+			return 0, fmt.Errorf("parsing document at %s:%d: %w", filePath, lineNumber, err)
+		}
+		if len(doc.Vector) > 0 {
+			return len(doc.Vector), nil
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return 0, fmt.Errorf("reading %s: %w", filePath, err)
+	}
+	return 0, nil
+}
+
+func inferImportDirVectorDimension(dirPath string) (int, error) {
+	entries, err := os.ReadDir(dirPath)
+	if err != nil {
+		return 0, fmt.Errorf("reading directory %s: %w", dirPath, err)
+	}
+
+	dimension := 0
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(strings.ToLower(e.Name()), ".jsonl") {
+			continue
+		}
+		filePath := filepath.Join(dirPath, e.Name())
+		fileDimension, err := inferImportFileVectorDimension(filePath)
+		if err != nil {
+			return 0, err
+		}
+		if fileDimension == 0 {
+			continue
+		}
+		if dimension == 0 {
+			dimension = fileDimension
+			continue
+		}
+		if fileDimension != dimension {
+			return 0, fmt.Errorf("import directory contains mixed vector dimensions: %s has %d, expected %d", filePath, fileDimension, dimension)
+		}
+	}
+
+	return dimension, nil
 }
 
 // importFile imports a single JSONL file into the database.
