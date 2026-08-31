@@ -158,7 +158,8 @@ count_export() {
   entries="$(find "$dir" -mindepth 1 -maxdepth 1 -print)"
   [ -n "$entries" ] || return 1
 
-  for entry in $entries; do
+  while IFS= read -r entry; do
+    [ -n "$entry" ] || continue
     case "$entry" in
       *.jsonl) ;;
       *) return 1 ;;
@@ -171,7 +172,9 @@ count_export() {
     [ "$lines" -ge 1 ] || return 1
     collections=$((collections + 1))
     documents=$((documents + lines - 1))
-  done
+  done <<EOF
+$entries
+EOF
 
   printf '%s %s\n' "$collections" "$documents"
 }
@@ -397,25 +400,25 @@ need date
 need readlink
 
 if [ "$VERSION" = "latest" ]; then
-  release_url="https://api.github.com/repos/$REPO/releases/latest"
+  release_url="https://github.com/$REPO/releases/latest"
+  release_tag="$(
+    fetch "$release_url" |
+      grep -Eo "https://github.com/$REPO/releases/tag/[^\"&< ]+" |
+      sed 's#.*/tag/##' |
+      sed 's/\\$//' |
+      head -n 1
+  )"
 else
-  release_url="https://api.github.com/repos/$REPO/releases/tags/$VERSION"
+  release_tag="$VERSION"
+  release_url="https://github.com/$REPO/releases/tag/$release_tag"
 fi
 
-asset_suffix="${os}_${arch}.tar.gz"
-asset_url="$(
-  fetch "$release_url" |
-    grep -Eo 'https://[^" ]+' |
-    grep '/releases/download/' |
-    grep "mnemoteca_" |
-    grep "$asset_suffix" |
-    grep '\.tar\.gz$' |
-    head -n 1
-)"
-
-if [ -z "$asset_url" ]; then
-  err "no Mnemoteca release archive found for $os/$arch at $release_url"
+if [ -z "$release_tag" ]; then
+  err "no Mnemoteca release tag found at $release_url"
 fi
+
+asset_version="${release_tag#v}"
+asset_url="https://github.com/$REPO/releases/download/$release_tag/mnemoteca_${asset_version}_${os}_${arch}.tar.gz"
 
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT INT TERM

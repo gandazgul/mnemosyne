@@ -94,11 +94,46 @@ SH
 #!/usr/bin/env sh
 set -eu
 archive="${TEST_ARCHIVE:?TEST_ARCHIVE required}"
-if [ "$#" -ge 4 ] && [ "$1" = "-fsSL" ] && [ "$3" = "-o" ]; then
-  cp "$archive" "$4"
-  exit 0
-fi
-printf '{"assets":[{"browser_download_url":"https://example.invalid/releases/download/v1.2.3/mnemoteca_1.2.3_linux_amd64.tar.gz"}]}'
+log="${TEST_CURL_LOG:-}"
+out=""
+url=""
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -o)
+      shift
+      out="$1"
+      ;;
+    -H)
+      shift
+      [ -n "$log" ] && printf 'header: %s\n' "$1" >>"$log"
+      ;;
+    -*) ;;
+    *) url="$1" ;;
+  esac
+  shift || true
+done
+[ -n "$log" ] && printf 'url: %s\n' "$url" >>"$log"
+case "$url" in
+  https://api.github.com/*)
+    printf '{"message":"API rate limit exceeded for test"}' >&2
+    exit 22
+    ;;
+  https://github.com/*/releases/download/*)
+    if [ -n "$out" ]; then
+      cp "$archive" "$out"
+      exit 0
+    fi
+    printf 'unexpected curl download without output: %s\n' "$url" >&2
+    exit 64
+    ;;
+  https://github.com/*/releases/latest|https://github.com/*/releases/tag/*)
+    printf '<a href="/login?return_to=%%2Fgandazgul%%2Fmnemoteca" data-url="https://github.com/gandazgul/mnemoteca/releases/tag/v1.2.3">release</a>'
+    ;;
+  *)
+    printf 'unexpected curl URL: %s\n' "$url" >&2
+    exit 64
+    ;;
+esac
 SH
   chmod +x "$work/fakebin/curl"
 }
@@ -139,8 +174,9 @@ case "$cmd" in
     fi
     printf '{"collection":"alpha"}\n{"text":"one"}\n{"text":"two"}\n' >"$out/alpha.jsonl"
     printf '{"collection":"empty"}\n' >"$out/empty.jsonl"
-    printf '2' >"$state/collections"
-    printf '2' >"$state/documents"
+    printf '{"collection":"space name"}\n{"text":"space filename memory"}\n' >"$out/space name.jsonl"
+    printf '3' >"$state/collections"
+    printf '3' >"$state/documents"
     ;;
   stats)
     if [ "${MNEMOSYNE_AMBIGUOUS_STATS:-0}" = "1" ]; then
@@ -268,6 +304,17 @@ fresh_nonterminal_install() {
   TEST_COUNT=$((TEST_COUNT + 1))
 }
 
+public_release_page_install_avoids_github_api() {
+  local work
+  work="$(setup_case)"
+  run_nonterminal "$work" TEST_CURL_LOG="$work/curl.log"
+  assert_file "$work/install/mnemoteca"
+  assert_contains "$work/curl.log" "url: https://github.com/gandazgul/mnemoteca/releases/latest"
+  assert_contains "$work/curl.log" "url: https://github.com/gandazgul/mnemoteca/releases/download/v1.2.3/mnemoteca_1.2.3_linux_amd64.tar.gz"
+  assert_not_contains "$work/curl.log" "api.github.com"
+  TEST_COUNT=$((TEST_COUNT + 1))
+}
+
 archive_without_mnemoteca_fails() {
   local work
   work="$(mktemp -d)"
@@ -383,6 +430,7 @@ SH
 }
 
 fresh_nonterminal_install
+public_release_page_install_avoids_github_api
 archive_without_mnemoteca_fails
 archive_with_legacy_member_fails
 uncertain_legacy_does_not_migrate
