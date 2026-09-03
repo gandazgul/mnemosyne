@@ -76,6 +76,11 @@ SH
     chmod +x "$work/release/bin/mnemosyne"
   fi
   tar -czf "$work/mnemoteca_1.2.3_linux_amd64.tar.gz" -C "$work/release/bin" .
+  if command -v sha256sum >/dev/null 2>&1; then
+    (cd "$work" && sha256sum mnemoteca_1.2.3_linux_amd64.tar.gz >checksums.txt)
+  else
+    (cd "$work" && shasum -a 256 mnemoteca_1.2.3_linux_amd64.tar.gz >checksums.txt)
+  fi
 }
 
 make_fakes() {
@@ -94,6 +99,7 @@ SH
 #!/usr/bin/env sh
 set -eu
 archive="${TEST_ARCHIVE:?TEST_ARCHIVE required}"
+checksums="${TEST_CHECKSUMS:?TEST_CHECKSUMS required}"
 log="${TEST_CURL_LOG:-}"
 out=""
 url=""
@@ -117,6 +123,14 @@ case "$url" in
   https://api.github.com/*)
     printf '{"message":"API rate limit exceeded for test"}' >&2
     exit 22
+    ;;
+  https://github.com/*/releases/download/*/checksums.txt)
+    if [ -n "$out" ]; then
+      cp "$checksums" "$out"
+      exit 0
+    fi
+    printf 'unexpected curl checksum download without output: %s\n' "$url" >&2
+    exit 64
     ;;
   https://github.com/*/releases/download/*)
     if [ -n "$out" ]; then
@@ -210,6 +224,7 @@ env.update({
     "HOME": f"{work}/home",
     "INSTALL_DIR": f"{work}/install",
     "TEST_ARCHIVE": f"{work}/mnemoteca_1.2.3_linux_amd64.tar.gz",
+    "TEST_CHECKSUMS": f"{work}/checksums.txt",
     "TEST_STATE": f"{work}/state",
     "TEST_DB_PATH": f"{work}/home/.local/share/mnemoteca/mnemoteca.db",
     "TEST_LEGACY_DB": f"{work}/home/.local/share/mnemosyne/mnemosyne.db",
@@ -245,6 +260,7 @@ env.update({
     "HOME": f"{work}/home",
     "INSTALL_DIR": f"{work}/install",
     "TEST_ARCHIVE": f"{work}/mnemoteca_1.2.3_linux_amd64.tar.gz",
+    "TEST_CHECKSUMS": f"{work}/checksums.txt",
     "TEST_STATE": f"{work}/state",
     "TEST_DB_PATH": f"{work}/home/.local/share/mnemoteca/mnemoteca.db",
     "TEST_LEGACY_DB": f"{work}/home/.local/share/mnemosyne/mnemosyne.db",
@@ -311,7 +327,20 @@ public_release_page_install_avoids_github_api() {
   assert_file "$work/install/mnemoteca"
   assert_contains "$work/curl.log" "url: https://github.com/gandazgul/mnemoteca/releases/latest"
   assert_contains "$work/curl.log" "url: https://github.com/gandazgul/mnemoteca/releases/download/v1.2.3/mnemoteca_1.2.3_linux_amd64.tar.gz"
+  assert_contains "$work/curl.log" "url: https://github.com/gandazgul/mnemoteca/releases/download/v1.2.3/checksums.txt"
   assert_not_contains "$work/curl.log" "api.github.com"
+  TEST_COUNT=$((TEST_COUNT + 1))
+}
+
+checksum_mismatch_blocks_install() {
+  local work
+  work="$(setup_case)"
+  printf '0000000000000000000000000000000000000000000000000000000000000000  mnemoteca_1.2.3_linux_amd64.tar.gz\n' >"$work/checksums.txt"
+  if run_nonterminal "$work"; then
+    fail "installer accepted archive with mismatched checksum"
+  fi
+  assert_contains "$work/output" "checksum mismatch for mnemoteca_1.2.3_linux_amd64.tar.gz"
+  assert_absent "$work/install/mnemoteca"
   TEST_COUNT=$((TEST_COUNT + 1))
 }
 
@@ -320,6 +349,11 @@ archive_without_mnemoteca_fails() {
   work="$(mktemp -d)"
   mkdir -p "$work/home" "$work/install" "$work/state" "$work/fakebin" "$work/empty"
   tar -czf "$work/mnemoteca_1.2.3_linux_amd64.tar.gz" -C "$work/empty" .
+  if command -v sha256sum >/dev/null 2>&1; then
+    (cd "$work" && sha256sum mnemoteca_1.2.3_linux_amd64.tar.gz >checksums.txt)
+  else
+    (cd "$work" && shasum -a 256 mnemoteca_1.2.3_linux_amd64.tar.gz >checksums.txt)
+  fi
   make_fakes "$work"
   if run_nonterminal "$work"; then
     fail "installer accepted archive without mnemoteca"
@@ -439,6 +473,7 @@ SH
 
 fresh_nonterminal_install
 public_release_page_install_avoids_github_api
+checksum_mismatch_blocks_install
 archive_without_mnemoteca_fails
 archive_with_legacy_member_fails
 uncertain_legacy_does_not_migrate

@@ -33,6 +33,36 @@ download() {
   fi
 }
 
+sha256_file() {
+  path="$1"
+
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$path" | awk '{print $1}'
+  elif command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$path" | awk '{print $1}'
+  elif command -v openssl >/dev/null 2>&1; then
+    openssl dgst -sha256 -r "$path" | awk '{print $1}'
+  else
+    err "missing required command: sha256sum, shasum, or openssl"
+  fi
+}
+
+verify_checksum() {
+  checksum_file="$1"
+  archive="$2"
+  archive_name="$3"
+
+  expected="$(awk -v name="$archive_name" '$2 == name { print $1 }' "$checksum_file" | head -n 1)"
+  if [ -z "$expected" ]; then
+    err "checksum file did not contain $archive_name"
+  fi
+
+  actual="$(sha256_file "$archive")"
+  if [ "$actual" != "$expected" ]; then
+    err "checksum mismatch for $archive_name"
+  fi
+}
+
 fetch() {
   url="$1"
 
@@ -454,13 +484,18 @@ if [ -z "$release_tag" ]; then
 fi
 
 asset_version="${release_tag#v}"
-asset_url="https://github.com/$REPO/releases/download/$release_tag/mnemoteca_${asset_version}_${os}_${arch}.tar.gz"
+asset_name="mnemoteca_${asset_version}_${os}_${arch}.tar.gz"
+asset_url="https://github.com/$REPO/releases/download/$release_tag/$asset_name"
+checksum_url="https://github.com/$REPO/releases/download/$release_tag/checksums.txt"
 
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT INT TERM
 
-archive="$tmp_dir/$BIN_NAME.tar.gz"
+archive="$tmp_dir/$asset_name"
+checksum_file="$tmp_dir/checksums.txt"
 download "$asset_url" "$archive"
+download "$checksum_url" "$checksum_file"
+verify_checksum "$checksum_file" "$archive" "$asset_name"
 tar -xzf "$archive" -C "$tmp_dir"
 
 bin_path="$(find "$tmp_dir" -type f -name "$BIN_NAME" | head -n 1)"
