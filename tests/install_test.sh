@@ -386,6 +386,19 @@ uncertain_legacy_does_not_migrate() {
   TEST_COUNT=$((TEST_COUNT + 1))
 }
 
+existing_compatibility_link_is_quiet() {
+  local work
+  work="$(setup_case)"
+  touch "$work/install/mnemoteca"
+  chmod +x "$work/install/mnemoteca"
+  ln -s "$work/install/mnemoteca" "$work/fakebin/mnemosyne"
+  run_pty "$work" ""
+  assert_file "$work/install/mnemoteca"
+  assert_not_contains "$work/output" "not recognized as a final Mnemosyne export source"
+  assert_not_contains "$work/output" "No migration, cleanup, or compatibility link action"
+  TEST_COUNT=$((TEST_COUNT + 1))
+}
+
 successful_migration_retains_export_and_links_after_consent() {
   local work
   work="$(setup_case)"
@@ -477,6 +490,7 @@ checksum_mismatch_blocks_install
 archive_without_mnemoteca_fails
 archive_with_legacy_member_fails
 uncertain_legacy_does_not_migrate
+existing_compatibility_link_is_quiet
 successful_migration_retains_export_and_links_after_consent
 malformed_export_blocks_import_and_link
 same_file_destination_blocks_import

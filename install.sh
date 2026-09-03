@@ -521,7 +521,7 @@ case ":$PATH:" in
     ;;
 esac
 
-if [ -n "$legacy_candidate" ] && [ -z "$legacy_export_source" ]; then
+if [ -n "$legacy_candidate" ] && [ -z "$legacy_export_source" ] && ! is_mnemoteca_link "$legacy_candidate"; then
   if have_tty; then
     say_tty "A mnemosyne command was found but was not recognized as a final Mnemosyne export source: $legacy_candidate"
     say_tty "No migration, cleanup, or compatibility link action will run for this uncertain command."
